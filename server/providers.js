@@ -6,6 +6,7 @@ const dispatcher =
     : undefined;
 const cache = new Map();
 const pending = new Map();
+const rateLimitedUntil = new Map();
 export async function cached(key, ttl, fn) {
   const old = cache.get(key);
   if (old && Date.now() - old.saved < ttl) return old.value;
@@ -20,11 +21,15 @@ export async function cached(key, ttl, fn) {
   return p;
 }
 export async function request(url) {
+  const host = new URL(url).hostname;
+  if ((rateLimitedUntil.get(host) || 0) > Date.now())
+    throw new Error("Provider rate limit cooldown");
   const response = await fetch(url, {
     dispatcher,
     signal: AbortSignal.timeout(7000),
     headers: { "User-Agent": "AtlasMarkets/1.0", Accept: "application/json" },
   });
+  if (response.status === 429) rateLimitedUntil.set(host, Date.now() + 60000);
   if (!response.ok)
     throw new Error(`Provider returned HTTP ${response.status}`);
   return response.json();

@@ -46,7 +46,7 @@ Allow HTTPS access to:
 
 The backend honors `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY` and the environment's configured CA trust through Undici's `EnvHttpProxyAgent`. TLS verification remains enabled. Source calls have timeouts and bounded concurrency; responses are cached and concurrent identical requests are coalesced. User-controlled symbols and timeframes are restricted to the catalog; this server is not an arbitrary URL proxy.
 
-During initial development, the cloud network policy denied both providers. The real `/api/markets` check returned zero available quotes, as expected; **successful external live-feed validation is still pending network access**. The required domains have been saved to the cloud environment draft. Review and save environment settings, then publish to activate the reusable environment. Retry **Connect live** afterward; feed availability still depends on the providers.
+The initial cloud policy denied both sources. After network access was enabled, real Binance quotes and all 39 Yahoo instruments across five historical timeframes were fetched successfully. Feed availability can still change; successful retrieval is not a guarantee of continuous service.
 
 ## Checks
 
@@ -67,3 +67,33 @@ The browser tests use system Chromium at `/usr/bin/chromium`; set `CHROMIUM_PATH
 - `src/main.jsx`, `src/styles.css` — dashboard and chart UI.
 
 Each cloud task already has an isolated checkout. Work in `/workspace/stock-screener`; do not create a separate Git worktree unless explicitly requested. Processes must be restarted in a restored task; installed dependencies and built assets can be retained in the environment snapshot.
+
+## Firebase Hosting: sharp-nex (free static deployment)
+
+The Firebase build does **not** require Cloud Functions, Cloud Run, Blaze billing, a database, or a separately hosted Node server. It uses:
+
+- Binance's public CORS-enabled market endpoints directly in the browser, polled every 30 seconds.
+- Real Yahoo quotes and chart history published to the dedicated `market-data` branch of this public GitHub repository. The GitHub Actions workflow requests intraday updates every five minutes; longer histories refresh hourly. GitHub schedules can be delayed or disabled after inactivity. Hosted global quotes are labeled **SNAPSHOT**, and failed or overdue updates are labeled **STALE**. Market closures also affect provider timestamps. This is not exchange-grade streaming.
+- Firebase Hosting's free-tier static service, subject to its storage and transfer quotas. Scheduled standard GitHub-hosted runners are free for this public repository. No paid plan is enabled by these instructions.
+
+The existing Node server remains available for local development or self-hosting. `npm run build` targets that server; **`npm run build:firebase` must be used for static Hosting**. `.env.firebase` selects the browser/static data adapter. Firebase's predeploy hook always builds the correct mode.
+
+### Deploy with an authorized identity
+
+```sh
+npm ci
+npx --yes firebase-tools@15.34.2 login
+npm run deploy:firebase
+```
+
+Deployment uses project/site `sharp-nex` from `.firebaserc` and `firebase.json`. The expected site URL after a successful deployment is `https://sharp-nex.web.app`. The Firebase web-app configuration supplied by the owner identifies an existing app; its public API key **does not authorize deployment**. Hosting alone does not require initializing the Firebase JavaScript SDK or Analytics, so no unnecessary tracking SDK was added.
+
+In this managed environment, connect a Google identity with Firebase Hosting permissions for `sharp-nex` through environment settings instead of sending credentials in chat. Never commit service-account files or tokens. Firebase authentication was unavailable during initial deployment preparation; the site is not published until `firebase deploy` succeeds.
+
+### Data pipeline
+
+`.github/workflows/market-data.yml` updates real market data without Firebase credentials. It preserves the last valid quotes on failures and marks them stale rather than fabricating prices. `scripts/export-market-data.mjs` writes only public quote/history JSON. Application code is kept on `main`; generated data is kept on `market-data`. The catalog's illustrative sample values are removed from exported quotes.
+
+The static app fetches the `market-data` branch through `raw.githubusercontent.com`, with normal CDN caching; updates are not guaranteed to be instantaneous. Keep the repository public for this method. Never embed a GitHub token in the frontend. The workflow can also be run manually from GitHub Actions.
+
+Run `npm run test:firebase` to verify the built static app, snapshot freshness labels, direct crypto requests and chart loading without a Node API. These browser tests use intercepted responses; real provider/export checks are separate.

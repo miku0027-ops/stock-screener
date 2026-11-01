@@ -43,6 +43,7 @@ import {
 import { markets, groups, marketContext } from "../shared/markets";
 import { demoSnapshot, demoHistory } from "../shared/demo";
 import "./styles.css";
+import { loadHistory, loadMarkets, staticHosting } from "./data-client.js";
 
 const readStore = (key, fallback) => {
   try {
@@ -155,12 +156,7 @@ function MarketChart({ asset, period, mode, kind }) {
             period,
           );
         else {
-          const r = await fetch(
-            `/api/history?symbol=${encodeURIComponent(asset.id)}&period=${period}`,
-            { signal: abort.signal },
-          );
-          if (!r.ok) throw new Error();
-          candles = (await r.json()).candles;
+          candles = (await loadHistory(asset, period, abort.signal)).candles;
         }
         if (dead) return;
         if (!candles?.length) throw new Error();
@@ -451,12 +447,7 @@ function App() {
     async function refresh() {
       setLoading(true);
       try {
-        const r = await fetch(`/api/markets?period=${period}`, {
-          signal: controller.signal,
-        });
-        if (!r.ok)
-          throw new Error("Free market feeds are currently unavailable.");
-        const data = await r.json();
+        const data = await loadMarkets(period, controller.signal);
         if (stopped) return;
         if (data.available === 0) {
           setFallback(true);
@@ -1044,13 +1035,17 @@ function App() {
                   <span className="detail-status">
                     {mode === "demo"
                       ? "DEMO"
-                      : asset.status === "delayed"
-                        ? "DELAYED"
-                        : asset.status === "live"
-                          ? "LIVE"
-                          : asset.status === "loading"
-                            ? "LOADING"
-                            : "UNAVAILABLE"}
+                      : asset.status === "snapshot"
+                        ? "SNAPSHOT"
+                        : asset.status === "stale"
+                          ? "STALE"
+                          : asset.status === "delayed"
+                            ? "DELAYED"
+                            : asset.status === "live"
+                              ? "LIVE"
+                              : asset.status === "loading"
+                                ? "LOADING"
+                                : "UNAVAILABLE"}
                   </span>
                 </div>
                 <MarketChart
@@ -1264,7 +1259,9 @@ function App() {
                   <div>
                     <b>Yahoo Finance</b>
                     <span>
-                      Global indices, futures, FX & macro · Cached 60s
+                      {staticHosting
+                        ? "Global markets · Scheduled ~5min snapshots"
+                        : "Global markets · Cached 60s"}
                     </span>
                   </div>
                   <span className="free-badge">FREE</span>
@@ -1275,7 +1272,10 @@ function App() {
                     Yahoo’s public feed is unofficial and may be delayed,
                     rate-limited, or unavailable. Binance availability varies by
                     region. Empty quotes stay empty; demo data is always
-                    labeled. Live access requires network access to{" "}
+                    labeled.{" "}
+                    {staticHosting &&
+                      "Global quotes refresh through scheduled GitHub Actions; schedules can be delayed. Browser access to raw.githubusercontent.com is required. "}
+                    Live access requires network access to{" "}
                     <code>data-api.binance.vision</code> and{" "}
                     <code>query1.finance.yahoo.com</code>.
                   </p>

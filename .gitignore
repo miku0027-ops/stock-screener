@@ -4,3 +4,7 @@ dist/
 *.log
 playwright-report/
 test-results/
+
+.firebase/
+firebase-debug*.log
+.firebaserc.*
