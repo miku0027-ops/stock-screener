@@ -158,8 +158,9 @@ export default function ContextPanel() {
             crypto changes over time.
           </p>
           <small>
-            Price analysis uses Binance spot, not perpetual futures. Funding and
-            open-interest data are not currently included.
+            The signal desk separates Binance spot from Hyperliquid perpetual
+            analysis. Perpetual funding and open interest come from that venue
+            only.
           </small>
         </article>
       </div>

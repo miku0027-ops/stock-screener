@@ -1,4 +1,10 @@
 import { test, expect } from "@playwright/test";
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("sharpnex-profile", '"defensive"');
+    localStorage.setItem("sharpnex-view", '"heatmap"');
+  });
+});
 import { demoSnapshot, demoHistory } from "../../shared/demo.js";
 import { markets } from "../../shared/markets.js";
 test.beforeEach(async ({ page }) => {
@@ -48,7 +54,7 @@ test("watchlist persists and CSV exports the current view", async ({
   const dl = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export CSV" }).click();
   const file = await dl;
-  expect(file.suggestedFilename()).toBe("atlas-demo-1D.csv");
+  expect(file.suggestedFilename()).toBe("sharpnex-demo-1D.csv");
   const stream = await file.createReadStream();
   let csv = "";
   for await (const chunk of stream) csv += chunk;

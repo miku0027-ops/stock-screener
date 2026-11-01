@@ -1,4 +1,10 @@
 import { test, expect } from "@playwright/test";
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("sharpnex-profile", '"defensive"');
+    localStorage.setItem("sharpnex-view", '"heatmap"');
+  });
+});
 import { demoSnapshot, demoHistory } from "../../shared/demo.js";
 import { markets } from "../../shared/markets.js";
 import unlocks from "../../data/announced-unlocks.json" with { type: "json" };
@@ -50,6 +56,10 @@ async function feeds(page, { failCandles = false } = {}) {
         ]),
       });
     }
+    if (url.pathname.endsWith("/exchangeInfo"))
+      return route.fulfill({ json: { symbols: [] } });
+    if (url.searchParams.get("type") === "MINI")
+      return route.fulfill({ json: [] });
     count++;
     return route.fulfill({
       json: markets
@@ -138,7 +148,9 @@ test("five-minute desk validates closed candles, uses incremental history and su
     .click();
   await expect(page.locator(".signal-chart-heading")).toContainText("ETHUSDT");
   await page.getByText("Calculation rules & limitations").click();
-  await expect(page.getByText(/Signals are not backtested/)).toBeVisible();
+  await expect(
+    page.getByText(/Profile-filtered signals are not backtested/),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 test("unavailable candles cannot produce a bull or bear signal", async ({

@@ -6,12 +6,20 @@
     <meta name="theme-color" content="#0d1014" />
     <meta
       name="description"
-      content="Atlas Markets — a global market heatmap for crypto, equities, commodities and currencies. Explore the markets that move Bitcoin."
+      content="SHARPNEX — RSI divergence research, spot and perpetual analysis, source-backed global news and market context."
     />
-    <title>Atlas — Global Market Intelligence</title>
-    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <title>SHARPNEX — Divergence Research</title>
+    <link rel="icon" type="image/png" href="%BASE_URL%sharpnex-mark.png" />
   </head>
   <body>
+    <script>
+      try {
+        document.documentElement.dataset.theme =
+          JSON.parse(localStorage.getItem("sharpnex-theme")) || "dark";
+      } catch {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

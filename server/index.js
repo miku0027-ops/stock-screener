@@ -6,7 +6,7 @@ import { snapshot, history } from "./providers.js";
 export const app = express();
 app.disable("x-powered-by");
 app.get("/api/health", (_req, res) =>
-  res.json({ status: "ok", service: "atlas-markets" }),
+  res.json({ status: "ok", service: "sharpnex" }),
 );
 app.get("/api/markets", async (req, res) => {
   const period = req.query.period || "1D";
@@ -28,12 +28,10 @@ app.get("/api/history", async (req, res) => {
   try {
     res.json(await history(market, period));
   } catch {
-    res
-      .status(502)
-      .json({
-        error:
-          "This free data feed is currently unavailable. Please retry later.",
-      });
+    res.status(502).json({
+      error:
+        "This free data feed is currently unavailable. Please retry later.",
+    });
   }
 });
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -45,5 +43,5 @@ app.get("/{*path}", (req, res) => {
 });
 if (process.argv[1] === fileURLToPath(import.meta.url))
   app.listen(Number(process.env.PORT) || 3001, "0.0.0.0", () =>
-    console.log("Atlas API listening on port " + (process.env.PORT || 3001)),
+    console.log("SHARPNEX API listening on port " + (process.env.PORT || 3001)),
   );

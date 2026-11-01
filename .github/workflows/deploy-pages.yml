@@ -1,4 +1,4 @@
-name: Deploy Atlas to GitHub Pages
+name: Deploy SHARPNEX to GitHub Pages
 on:
   push:
     branches: [main]

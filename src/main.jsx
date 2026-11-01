@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { hierarchy, treemap, treemapSquarify } from "d3-hierarchy";
-import {
-  createChart,
-  CandlestickSeries,
-  AreaSeries,
-  ColorType,
-} from "lightweight-charts";
+import { createChart, CandlestickSeries, ColorType } from "lightweight-charts";
 import {
   Activity,
+  Sun,
+  Moon,
+  Newspaper,
+  UserRound,
   ArrowDownRight,
   ArrowUpRight,
   ArrowRight,
@@ -43,6 +42,12 @@ import {
 import { markets, groups, marketContext } from "../shared/markets";
 import { demoSnapshot, demoHistory } from "../shared/demo";
 import "./styles.css";
+import Brand from "./Brand.jsx";
+import CoinRail from "./CoinRail.jsx";
+import TraderProfile from "./TraderProfile.jsx";
+import ResearchBoard from "./ResearchBoard.jsx";
+import { useResearch } from "./market-intelligence.js";
+import { heikinAshi, PROFILES } from "../shared/analysis.js";
 import SignalDesk from "./SignalDesk.jsx";
 import ContextPanel from "./ContextPanel.jsx";
 import { sampleChange } from "../shared/signals.js";
@@ -104,49 +109,10 @@ function tileColor(n, fast = false) {
   if (n < 0) return tones[Math.min(3, Math.floor(Math.abs(n) / 1.2))];
   return tones[4 + Math.min(3, Math.floor(n / 0.9))];
 }
-function Spark({ values = [], positive = true, className = "" }) {
-  if (values.length < 2) return <span className="no-spark">—</span>;
-  const min = Math.min(...values),
-    max = Math.max(...values),
-    d = values
-      .map(
-        (v, i) =>
-          `${(i / (values.length - 1)) * 100},${32 - ((v - min) / (max - min || 1)) * 28}`,
-      )
-      .join(" ");
-  return (
-    <svg
-      className={`spark ${className}`}
-      viewBox="0 0 100 36"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id={`fill-${positive}`} x1="0" y1="0" x2="0" y2="1">
-          <stop
-            offset="0%"
-            stopColor={positive ? "#79d7b1" : "#e48d96"}
-            stopOpacity=".18"
-          />
-          <stop
-            offset="100%"
-            stopColor={positive ? "#79d7b1" : "#e48d96"}
-            stopOpacity="0"
-          />
-        </linearGradient>
-      </defs>
-      <polygon points={`0,36 ${d} 100,36`} fill={`url(#fill-${positive})`} />
-      <polyline
-        points={d}
-        fill="none"
-        stroke={positive ? "#80dcb4" : "#ea929b"}
-        strokeWidth="1.6"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  );
+function Spark() {
+  return null;
 }
-function MarketChart({ asset, period, mode, kind }) {
+function MarketChart({ asset, period, mode, kind, theme }) {
   const host = useRef(null),
     [status, setStatus] = useState("loading");
   useEffect(() => {
@@ -174,14 +140,17 @@ function MarketChart({ asset, period, mode, kind }) {
           chart = createChart(host.current, {
             autoSize: true,
             layout: {
-              background: { type: ColorType.Solid, color: "#12161b" },
+              background: {
+                type: ColorType.Solid,
+                color: theme === "light" ? "#ffffff" : "#10191e",
+              },
               textColor: "#737d89",
               fontSize: 10,
               attributionLogo: true,
             },
             grid: {
               vertLines: { visible: false },
-              horzLines: { color: "#222830" },
+              horzLines: { color: theme === "light" ? "#e3eaee" : "#222e34" },
             },
             rightPriceScale: { borderVisible: false },
             timeScale: {
@@ -194,23 +163,13 @@ function MarketChart({ asset, period, mode, kind }) {
               horzLine: { color: "#7b848e", labelBackgroundColor: "#30383d" },
             },
           });
-          series = chart.addSeries(
-            kind === "candles" ? CandlestickSeries : AreaSeries,
-            kind === "candles"
-              ? {
-                  upColor: "#79cfa8",
-                  downColor: "#d7737e",
-                  borderVisible: false,
-                  wickUpColor: "#79cfa8",
-                  wickDownColor: "#d7737e",
-                }
-              : {
-                  lineColor: "#c7ed93",
-                  topColor: "#c7ed9324",
-                  bottomColor: "#c7ed9300",
-                  lineWidth: 2,
-                },
-          );
+          series = chart.addSeries(CandlestickSeries, {
+            upColor: "#3db99b",
+            downColor: "#e57183",
+            borderVisible: false,
+            wickUpColor: "#3db99b",
+            wickDownColor: "#e57183",
+          });
           series.applyOptions({
             priceFormat: {
               type: "price",
@@ -227,11 +186,7 @@ function MarketChart({ asset, period, mode, kind }) {
             },
           });
         }
-        series.setData(
-          kind === "candles"
-            ? candles
-            : candles.map((c) => ({ time: c.time, value: c.close })),
-        );
+        series.setData(kind === "heikin" ? heikinAshi(candles) : candles);
         if (first) chart.timeScale().fitContent();
         setStatus("ready");
       } catch (e) {
@@ -247,7 +202,7 @@ function MarketChart({ asset, period, mode, kind }) {
       clearTimeout(timer);
       chart?.remove();
     };
-  }, [asset.id, period, mode, kind]);
+  }, [asset.id, period, mode, kind, theme]);
   return (
     <div className="chart-wrap">
       <div className="chart-host" ref={host} />
@@ -361,6 +316,23 @@ function HeatGroup({ name, items, selected, onSelect, sizeBy, flashes, fast }) {
   );
 }
 function App() {
+  const [theme, setTheme] = useState(() => readStore("sharpnex-theme", "dark"));
+  const [profileId, setProfileId] = useState(() => {
+    const v = readStore("sharpnex-profile", null);
+    return PROFILES.some((p) => p.id === v) ? v : null;
+  });
+  const [profileOpen, setProfileOpen] = useState(
+    () => !PROFILES.some((p) => p.id === readStore("sharpnex-profile", null)),
+  );
+  const [signalSymbol, setSignalSymbol] = useState("BTCUSDT");
+  const research = useResearch();
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    putStore("sharpnex-theme", theme);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", theme === "dark" ? "#0b1318" : "#f3f6f8");
+  }, [theme]);
   const [mode, setMode] = useState(() => readStore("atlas-mode", "live"));
   const [quotes, setQuotes] = useState(() =>
     mode === "demo"
@@ -381,7 +353,7 @@ function App() {
     [selected, setSelected] = useState("BTCUSDT");
   const [category, setCategory] = useState("All markets"),
     [search, setSearch] = useState(""),
-    [view, setView] = useState("heatmap"),
+    [view, setView] = useState(() => readStore("sharpnex-view", "signals")),
     [sizeBy, setSizeBy] = useState("importance");
   const [watchlist, setWatchlist] = useState(() =>
     readStore("atlas-watchlist", ["BTCUSDT", "GC=F", "^GSPC", "DX-Y.NYB"]),
@@ -393,7 +365,7 @@ function App() {
     [fallback, setFallback] = useState(false),
     [error, setError] = useState(""),
     [fetchedAt, setFetchedAt] = useState(null),
-    [kind, setKind] = useState("area"),
+    [kind, setKind] = useState("candles"),
     [flashes, setFlashes] = useState({}),
     [clock, setClock] = useState(new Date()),
     [expanded, setExpanded] = useState(false);
@@ -644,7 +616,7 @@ function App() {
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     const link = document.createElement("a");
     link.href = url;
-    link.download = `atlas-${mode}-${period}.csv`;
+    link.download = `sharpnex-${mode}-${period}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -654,7 +626,7 @@ function App() {
         <a
           className="brand-mark"
           href="#"
-          aria-label="Atlas home"
+          aria-label="SHARPNEX home"
           onClick={(e) => {
             e.preventDefault();
             setView("heatmap");
@@ -662,7 +634,7 @@ function App() {
             setSearch("");
           }}
         >
-          A<span />
+          <Brand compact />
         </a>
         <div className="side-divider" />
         <nav>
@@ -672,6 +644,7 @@ function App() {
             [ChartNoAxesCombined, "movers", "Market movers"],
             [Activity, "signals", "5m RSI signal desk"],
             [Clock3, "context", "Unlocks and market context"],
+            [Newspaper, "news", "World monitor"],
           ].map(([Icon, id, label]) => (
             <button
               key={id}
@@ -698,29 +671,61 @@ function App() {
           </button>
           <button
             className="nav-icon"
-            title="About Atlas"
-            aria-label="About Atlas"
+            title="About SHARPNEX"
+            aria-label="About SHARPNEX"
             onClick={() => setModal("about")}
           >
             <CircleHelp size={20} />
           </button>
           <div className="avatar" title="Local workspace">
-            AK
+            SN
           </div>
         </div>
       </aside>
       <div className="workspace">
         <header className="topbar">
-          <div className="wordmark">
-            atlas<span>MARKETS</span>
-          </div>
+          <Brand />
           <div className="top-nav">
-            <span className="current">Overview</span>
-            <button onClick={() => setView("watchlist")}>
-              Watchlist <span>{watchlist.length}</span>
+            <button
+              className={view === "signals" ? "current" : ""}
+              onClick={() => setView("signals")}
+            >
+              Research desk
+            </button>
+            <button
+              className={view === "heatmap" ? "current" : ""}
+              onClick={() => setView("heatmap")}
+            >
+              Market map
+            </button>
+            <button
+              className={view === "news" ? "current" : ""}
+              onClick={() => setView("news")}
+            >
+              World monitor
             </button>
           </div>
           <div className="top-right">
+            <button
+              className="icon-button"
+              aria-label={
+                theme === "dark"
+                  ? "Switch to light theme"
+                  : "Switch to dark theme"
+              }
+              title={theme === "dark" ? "Light theme" : "Dark theme"}
+              onClick={() => setTheme((v) => (v === "dark" ? "light" : "dark"))}
+            >
+              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
+            <button
+              className="icon-button profile-button"
+              aria-label="Trader profile"
+              title="Trader profile"
+              onClick={() => setProfileOpen(true)}
+            >
+              <UserRound size={17} />
+            </button>
             <div className={`feed-pill ${mode === "demo" ? "demo" : ""}`}>
               <i />
               {mode === "demo"
@@ -747,591 +752,639 @@ function App() {
             </button>
           </div>
         </header>
-        <main>
-          <section className="page-heading">
-            <div>
-              <div className="eyebrow">
-                <span /> THE WORLD, AT A GLANCE
+        <div className="terminal-body">
+          <CoinRail
+            quotes={quotes}
+            mode={mode}
+            paused={paused}
+            selected={signalSymbol}
+            onSelect={(id) => {
+              setSignalSymbol(id);
+              setView("signals");
+            }}
+          />
+          <main>
+            <section className="page-heading">
+              <div>
+                <div className="eyebrow">
+                  <span /> INDEPENDENT MARKET RESEARCH
+                </div>
+                <h1>
+                  A sharper view. <span>A clearer decision.</span>
+                </h1>
+                <p>
+                  Source-backed context. Transparent divergence rules. No trade
+                  execution.
+                </p>
               </div>
-              <h1>
-                Every market. <span>One perspective.</span>
-              </h1>
-              <p>Follow the global markets that move your world.</p>
-            </div>
-            <button
-              className="outline-button feeds-button"
-              onClick={() => setModal("feeds")}
-            >
-              <Radio size={14} /> Data sources <ChevronRight size={14} />
-            </button>
-          </section>
-          <section className="summary-strip">
-            {summaries.map((a, i) => (
               <button
-                key={a.id}
-                className="summary-card"
-                onClick={() => selectAsset(a.id)}
+                className="outline-button feeds-button"
+                onClick={() => setModal("feeds")}
               >
-                <div className="summary-top">
-                  <span className={`summary-icon summary-icon-${i}`}>
-                    {i === 0 ? (
-                      "₿"
-                    ) : i === 1 ? (
-                      <TrendingUp size={14} />
-                    ) : i === 2 ? (
-                      "Au"
-                    ) : i === 3 ? (
-                      "$"
-                    ) : (
-                      <Activity size={15} />
-                    )}
-                  </span>
-                  <span>{a.name}</span>
-                  <ArrowUpRight className="summary-arrow" size={14} />
-                </div>
-                <div className="summary-bottom">
-                  <div>
-                    <strong>
-                      {i === 0 || i === 2 ? "$" : ""}
-                      {formatPrice(a.price, a.currency)}
-                    </strong>
-                    <span className={a.change >= 0 ? "positive" : "negative"}>
-                      {a.change >= 0 ? (
-                        <ArrowUpRight size={12} />
-                      ) : (
-                        <ArrowDownRight size={12} />
-                      )}{" "}
-                      {pct(a.change)}
-                      <small>{period}</small>
-                    </span>
-                  </div>
-                  <Spark values={a.spark} positive={a.change >= 0} />
-                </div>
+                <Radio size={14} /> Data sources <ChevronRight size={14} />
               </button>
-            ))}
-          </section>
-          {(mode === "demo" || error) && (
-            <div className={`notice ${mode === "demo" ? "" : "warning"}`}>
-              <Info size={14} />
-              <span>
-                {mode === "demo"
-                  ? fallback
-                    ? error
-                    : "Demo mode · Illustrative prices and charts. Switch to live for current provider data."
-                  : error}
-              </span>
-              <button onClick={() => changeMode("live")}>
-                {loading ? "Connecting…" : "Connect live"}
-                <ArrowRight size={13} />
+            </section>
+            <section
+              className={`summary-strip ${["signals", "news", "context"].includes(view) ? "compact-summary" : ""}`}
+            >
+              {summaries.map((a, i) => (
+                <button
+                  key={a.id}
+                  className="summary-card"
+                  onClick={() => selectAsset(a.id)}
+                >
+                  <div className="summary-top">
+                    <span className={`summary-icon summary-icon-${i}`}>
+                      {i === 0 ? (
+                        "₿"
+                      ) : i === 1 ? (
+                        <TrendingUp size={14} />
+                      ) : i === 2 ? (
+                        "Au"
+                      ) : i === 3 ? (
+                        "$"
+                      ) : (
+                        <Activity size={15} />
+                      )}
+                    </span>
+                    <span>{a.name}</span>
+                    <ArrowUpRight className="summary-arrow" size={14} />
+                  </div>
+                  <div className="summary-bottom">
+                    <div>
+                      <strong>
+                        {i === 0 || i === 2 ? "$" : ""}
+                        {formatPrice(a.price, a.currency)}
+                      </strong>
+                      <span className={a.change >= 0 ? "positive" : "negative"}>
+                        {a.change >= 0 ? (
+                          <ArrowUpRight size={12} />
+                        ) : (
+                          <ArrowDownRight size={12} />
+                        )}{" "}
+                        {pct(a.change)}
+                        <small>{period}</small>
+                      </span>
+                    </div>
+                    <Spark values={a.spark} positive={a.change >= 0} />
+                  </div>
+                </button>
+              ))}
+            </section>
+            {(mode === "demo" || error) && (
+              <div className={`notice ${mode === "demo" ? "" : "warning"}`}>
+                <Info size={14} />
+                <span>
+                  {mode === "demo"
+                    ? fallback
+                      ? error
+                      : "Demo mode · Illustrative prices and charts. Switch to live for current provider data."
+                    : error}
+                </span>
+                <button onClick={() => changeMode("live")}>
+                  {loading ? "Connecting…" : "Connect live"}
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+            )}
+            <div className="analysis-shortcuts">
+              <button onClick={() => setView("heatmap")}>Market map</button>
+              <button
+                className={view === "signals" ? "active" : ""}
+                onClick={() => setView("signals")}
+              >
+                <Activity size={14} /> 5m RSI signal desk
+              </button>
+              <button
+                className={view === "context" ? "active" : ""}
+                onClick={() => setView("context")}
+              >
+                <Clock3 size={14} /> Declared unlocks
               </button>
             </div>
-          )}
-          <div className="analysis-shortcuts">
-            <button onClick={() => setView("heatmap")}>Market map</button>
-            <button
-              className={view === "signals" ? "active" : ""}
-              onClick={() => setView("signals")}
-            >
-              <Activity size={14} /> BTC / ETH · 5m RSI desk
-            </button>
-            <button
-              className={view === "context" ? "active" : ""}
-              onClick={() => setView("context")}
-            >
-              <Clock3 size={14} /> Announced unlocks & context
-            </button>
-          </div>
-          {view === "signals" ? (
-            <SignalDesk
-              mode={mode}
-              paused={paused}
-              onConnect={() => changeMode("live")}
-              onTogglePause={() => setPaused((v) => !v)}
-            />
-          ) : view === "context" ? (
-            <ContextPanel />
-          ) : (
-            <>
-              <section className="workspace-heading">
-                <div className="workspace-title">
-                  <Globe2 size={19} />
-                  <h2>
-                    {view === "watchlist"
-                      ? "Your watchlist"
-                      : view === "movers"
-                        ? "Market movers"
-                        : "Global market map"}
-                  </h2>
-                  <span className="count-badge">{filtered.length} assets</span>
-                </div>
-                <div className="workspace-actions">
-                  <button
-                    className="icon-button"
-                    title={
-                      paused ? "Resume auto refresh" : "Pause auto refresh"
-                    }
-                    aria-label={
-                      paused ? "Resume auto refresh" : "Pause auto refresh"
-                    }
-                    onClick={() => setPaused((v) => !v)}
-                  >
-                    {paused ? <Play size={15} /> : <Pause size={15} />}
-                  </button>
-                  <button
-                    className="refresh-button"
-                    disabled={loading}
-                    onClick={() => setRetry((x) => x + 1)}
-                  >
-                    <RefreshCw size={13} className={loading ? "spin" : ""} />
-                    <span>
-                      {loading
-                        ? "Fetching"
-                        : mode === "demo"
-                          ? "Demo snapshot"
-                          : paused
-                            ? "Paused"
-                            : "Crypto · 2s"}
+            {view === "signals" ? (
+              <SignalDesk
+                mode={mode}
+                paused={paused}
+                onConnect={() => changeMode("live")}
+                onTogglePause={() => setPaused((v) => !v)}
+                theme={theme}
+                profileId={profileId}
+                onProfile={() => setProfileOpen(true)}
+                symbol={signalSymbol}
+                onSymbol={setSignalSymbol}
+                research={research}
+              />
+            ) : view === "news" ? (
+              <ResearchBoard research={research} quotes={quotes} />
+            ) : view === "context" ? (
+              <ContextPanel />
+            ) : (
+              <>
+                <section className="workspace-heading">
+                  <div className="workspace-title">
+                    <Globe2 size={19} />
+                    <h2>
+                      {view === "watchlist"
+                        ? "Your watchlist"
+                        : view === "movers"
+                          ? "Market movers"
+                          : "Global market map"}
+                    </h2>
+                    <span className="count-badge">
+                      {filtered.length} assets
                     </span>
-                  </button>
-                  <div className="thin-divider" />
-                  <button
-                    className="icon-button"
-                    title={expanded ? "Exit expanded map" : "Expand map"}
-                    aria-label={expanded ? "Exit expanded map" : "Expand map"}
-                    onClick={() => setExpanded((v) => !v)}
-                  >
-                    {expanded ? (
-                      <PanelRightClose size={17} />
-                    ) : (
-                      <Expand size={17} />
-                    )}
-                  </button>
-                </div>
-              </section>
-              <div className="filter-bar">
-                <div className="category-tabs">
-                  {[
-                    "All markets",
-                    "Crypto",
-                    "Indices",
-                    "Stocks",
-                    "Commodities",
-                    "Currencies",
-                  ].map((c) => (
-                    <button
-                      key={c}
-                      className={category === c ? "active" : ""}
-                      onClick={() => setCategory(c)}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-                <label className="search-box">
-                  <Search size={14} />
-                  <input
-                    ref={searchRef}
-                    aria-label="Search markets"
-                    placeholder="Find an asset…"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                  {search ? (
-                    <button
-                      onClick={() => setSearch("")}
-                      aria-label="Clear search"
-                    >
-                      <X size={13} />
-                    </button>
-                  ) : (
-                    <kbd>⌘ K</kbd>
-                  )}
-                </label>
-              </div>
-              <div className={`dashboard-grid ${expanded ? "expanded" : ""}`}>
-                <section className="map-panel">
-                  <div className="map-toolbar">
-                    <div
-                      className="period-switch"
-                      aria-label="Heatmap timeframe"
-                    >
-                      <button
-                        className={colorWindow === "2s" ? "active" : ""}
-                        onClick={() => {
-                          setColorWindow("2s");
-                          setPeriod("1D");
-                        }}
-                      >
-                        2s
-                      </button>
-                      {["1D", "1W", "1M"].map((p) => (
-                        <button
-                          key={p}
-                          className={
-                            colorWindow === "period" && period === p
-                              ? "active"
-                              : ""
-                          }
-                          onClick={() => {
-                            setColorWindow("period");
-                            setPeriod(p);
-                          }}
-                        >
-                          {p}
-                        </button>
-                      ))}
-                    </div>
-                    <span className="toolbar-note">
-                      {colorWindow === "2s"
-                        ? "2s crypto samples · global feeds neutral"
-                        : period === "1D"
-                          ? "Session change"
-                          : "Period change"}{" "}
-                      <button
-                        className="inline-icon"
-                        title="How changes are calculated"
-                        aria-label="How changes are calculated"
-                        onClick={() => setModal("about")}
-                      >
-                        <Info size={12} />
-                      </button>
-                    </span>
-                    <label className="size-select">
-                      <Layers size={13} />
-                      <span>Size by</span>
-                      <select
-                        aria-label="Tile size"
-                        value={sizeBy}
-                        onChange={(e) => setSizeBy(e.target.value)}
-                      >
-                        <option value="importance">Importance</option>
-                        <option value="movement">Price movement</option>
-                        <option value="equal">Equal weight</option>
-                      </select>
-                      <ChevronDown size={12} />
-                    </label>
                   </div>
-                  {filtered.length === 0 ? (
-                    <div className="empty-state">
-                      <Search size={29} />
-                      <h3>No assets here yet</h3>
-                      <p>
-                        {view === "watchlist"
-                          ? "Star assets in the detail panel to build your watchlist."
-                          : "Try a different symbol or market category."}
-                      </p>
-                      <button
-                        className="outline-button"
-                        onClick={() => {
-                          setSearch("");
-                          setCategory("All markets");
-                          setView("heatmap");
-                        }}
-                      >
-                        View all markets
-                      </button>
-                    </div>
-                  ) : view === "movers" ? (
-                    <div className="movers-table">
-                      <div className="table-header">
-                        <span>ASSET</span>
-                        <span>PRICE</span>
-                        <span>CHANGE</span>
-                        <span>MARKET</span>
-                      </div>
-                      {[...filtered]
-                        .sort(
-                          (a, b) =>
-                            Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0),
-                        )
-                        .map((a) => (
-                          <button
-                            key={a.id}
-                            className="table-row"
-                            onClick={() => selectAsset(a.id)}
-                          >
-                            <span>
-                              <b>{a.symbol}</b>
-                              <small>{a.name}</small>
-                            </span>
-                            <span>{formatPrice(a.price, a.currency)}</span>
-                            <span
-                              className={
-                                a.change >= 0 ? "positive" : "negative"
-                              }
-                            >
-                              {pct(a.change)}
-                            </span>
-                            <span>{a.group}</span>
-                          </button>
-                        ))}
-                    </div>
-                  ) : (
-                    <div className={`heatmap groups-${shownGroups.length}`}>
-                      {shownGroups.map((g) => (
-                        <HeatGroup
-                          key={g}
-                          name={g}
-                          items={filtered.filter((q) => q.group === g)}
-                          selected={selected}
-                          onSelect={selectAsset}
-                          sizeBy={sizeBy}
-                          flashes={flashes}
-                          fast={colorWindow === "2s"}
-                        />
-                      ))}
-                    </div>
-                  )}
-                  <div className="map-bottom">
-                    <span>
-                      <span className="mouse-icon">↖</span> Select any asset to
-                      explore
-                    </span>
-                    <div className="heat-legend">
-                      <span>{colorWindow === "2s" ? "−0.05%" : "−3%"}</span>
-                      <i style={{ background: "#b45057" }} />
-                      <i style={{ background: "#813a40" }} />
-                      <i style={{ background: "#493139" }} />
-                      <i style={{ background: "#283330" }} />
-                      <i style={{ background: "#246952" }} />
-                      <i style={{ background: "#268364" }} />
-                      <i style={{ background: "#2b9c73" }} />
-                      <span>{colorWindow === "2s" ? "+0.05%" : "+3%"}</span>
-                    </div>
+                  <div className="workspace-actions">
+                    <button
+                      className="icon-button"
+                      title={
+                        paused ? "Resume auto refresh" : "Pause auto refresh"
+                      }
+                      aria-label={
+                        paused ? "Resume auto refresh" : "Pause auto refresh"
+                      }
+                      onClick={() => setPaused((v) => !v)}
+                    >
+                      {paused ? <Play size={15} /> : <Pause size={15} />}
+                    </button>
+                    <button
+                      className="refresh-button"
+                      disabled={loading}
+                      onClick={() => setRetry((x) => x + 1)}
+                    >
+                      <RefreshCw size={13} className={loading ? "spin" : ""} />
+                      <span>
+                        {loading
+                          ? "Fetching"
+                          : mode === "demo"
+                            ? "Demo snapshot"
+                            : paused
+                              ? "Paused"
+                              : "Crypto · 2s"}
+                      </span>
+                    </button>
+                    <div className="thin-divider" />
+                    <button
+                      className="icon-button"
+                      title={expanded ? "Exit expanded map" : "Expand map"}
+                      aria-label={expanded ? "Exit expanded map" : "Expand map"}
+                      onClick={() => setExpanded((v) => !v)}
+                    >
+                      {expanded ? (
+                        <PanelRightClose size={17} />
+                      ) : (
+                        <Expand size={17} />
+                      )}
+                    </button>
                   </div>
                 </section>
-                {!expanded && (
-                  <aside className="detail-panel">
-                    <div className="detail-heading">
-                      <div
-                        className={`asset-avatar ${asset.group === "Crypto" ? "crypto" : ""}`}
-                      >
-                        {asset.icon || asset.symbol.slice(0, 2)}
-                      </div>
-                      <div>
-                        <h2>{asset.name}</h2>
-                        <span>
-                          {asset.symbol} <i>·</i> {asset.group}
-                        </span>
-                      </div>
+                <div className="filter-bar">
+                  <div className="category-tabs">
+                    {[
+                      "All markets",
+                      "Crypto",
+                      "Indices",
+                      "Stocks",
+                      "Commodities",
+                      "Currencies",
+                    ].map((c) => (
                       <button
-                        className={`icon-button star-button ${watchlist.includes(asset.id) ? "saved" : ""}`}
-                        title={
-                          watchlist.includes(asset.id)
-                            ? "Remove from watchlist"
-                            : "Add to watchlist"
-                        }
-                        aria-label={
-                          watchlist.includes(asset.id)
-                            ? "Remove from watchlist"
-                            : "Add to watchlist"
-                        }
-                        onClick={() => toggleWatch(asset.id)}
+                        key={c}
+                        className={category === c ? "active" : ""}
+                        onClick={() => setCategory(c)}
                       >
-                        <Star
-                          size={18}
-                          fill={
-                            watchlist.includes(asset.id)
-                              ? "currentColor"
-                              : "none"
-                          }
-                        />
+                        {c}
                       </button>
-                    </div>
-                    <div className="asset-price">
-                      <span>
-                        {asset.currency === "USD" || asset.currency === "USDT"
-                          ? "$"
-                          : ""}
-                        {formatPrice(asset.price, asset.currency)}
-                      </span>
-                      <small>{asset.currency}</small>
-                    </div>
-                    <div className="asset-change">
-                      <span
-                        className={asset.change >= 0 ? "positive" : "negative"}
-                      >
-                        {asset.change >= 0 ? (
-                          <ArrowUpRight size={14} />
-                        ) : (
-                          <ArrowDownRight size={14} />
-                        )}{" "}
-                        {pct(asset.change)}
-                      </span>
-                      <span>
-                        {period === "1D"
-                          ? "today"
-                          : `past ${period === "1W" ? "week" : "month"}`}
-                      </span>
-                      <span className="detail-status">
-                        {mode === "demo"
-                          ? "DEMO"
-                          : asset.status === "snapshot"
-                            ? "SNAPSHOT"
-                            : asset.status === "stale"
-                              ? "STALE"
-                              : asset.status === "delayed"
-                                ? "DELAYED"
-                                : asset.status === "live"
-                                  ? "LIVE"
-                                  : asset.status === "loading"
-                                    ? "LOADING"
-                                    : "UNAVAILABLE"}
-                      </span>
-                    </div>
-                    <MarketChart
-                      asset={asset}
-                      period={chartPeriod}
-                      mode={mode}
-                      kind={kind}
+                    ))}
+                  </div>
+                  <label className="search-box">
+                    <Search size={14} />
+                    <input
+                      ref={searchRef}
+                      aria-label="Search markets"
+                      placeholder="Find an asset…"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
                     />
-                    <div className="chart-controls">
-                      <div className="chart-periods">
-                        {["1D", "1W", "1M", "3M", "1Y"].map((p) => (
+                    {search ? (
+                      <button
+                        onClick={() => setSearch("")}
+                        aria-label="Clear search"
+                      >
+                        <X size={13} />
+                      </button>
+                    ) : (
+                      <kbd>⌘ K</kbd>
+                    )}
+                  </label>
+                </div>
+                <div className={`dashboard-grid ${expanded ? "expanded" : ""}`}>
+                  <section className="map-panel">
+                    <div className="map-toolbar">
+                      <div
+                        className="period-switch"
+                        aria-label="Heatmap timeframe"
+                      >
+                        <button
+                          className={colorWindow === "2s" ? "active" : ""}
+                          onClick={() => {
+                            setColorWindow("2s");
+                            setPeriod("1D");
+                          }}
+                        >
+                          2s
+                        </button>
+                        {["1D", "1W", "1M"].map((p) => (
                           <button
-                            className={chartPeriod === p ? "active" : ""}
                             key={p}
-                            onClick={() => setChartPeriod(p)}
+                            className={
+                              colorWindow === "period" && period === p
+                                ? "active"
+                                : ""
+                            }
+                            onClick={() => {
+                              setColorWindow("period");
+                              setPeriod(p);
+                            }}
                           >
                             {p}
                           </button>
                         ))}
                       </div>
-                      <button
-                        className="icon-button chart-kind"
-                        title={
-                          kind === "area"
-                            ? "Show candlesticks"
-                            : "Show line chart"
-                        }
-                        aria-label={
-                          kind === "area"
-                            ? "Show candlesticks"
-                            : "Show line chart"
-                        }
-                        onClick={() =>
-                          setKind((k) => (k === "area" ? "candles" : "area"))
-                        }
-                      >
-                        <ChartNoAxesCombined size={15} />
-                      </button>
-                    </div>
-                    <div className="stat-grid">
-                      <div>
-                        <span>{period === "1D" ? "Day" : "Period"} high</span>
-                        <b>{formatPrice(asset.high, asset.currency)}</b>
-                      </div>
-                      <div>
-                        <span>{period === "1D" ? "Day" : "Period"} low</span>
-                        <b>{formatPrice(asset.low, asset.currency)}</b>
-                      </div>
-                      <div>
-                        <span>
-                          {asset.group === "Crypto"
-                            ? "24h quote volume"
-                            : "Session volume"}
-                        </span>
-                        <b>{compact(asset.volume)}</b>
-                      </div>
-                      <div>
-                        <span>Data provider</span>
-                        <b>
-                          {mode === "demo" ? "Illustrative" : asset.provider}
-                        </b>
-                      </div>
-                    </div>
-                    <div className="context-box">
-                      <div>
-                        <Zap size={13} />
-                        <span>THE BIGGER PICTURE</span>
-                      </div>
-                      <p>{marketContext[asset.group]}</p>
-                    </div>
-                    <div className="detail-timestamp">
-                      <Clock3 size={11} />
-                      {timeLabel(asset.asOf)}
-                    </div>
-                  </aside>
-                )}
-              </div>
-              <section className="bottom-grid">
-                <div className="breadth-card">
-                  <div className="section-label">
-                    <Activity size={14} />
-                    Market breadth<span>{period}</span>
-                  </div>
-                  <div className="breadth-counts">
-                    <span>
-                      <i className="positive-dot" />
-                      <b>{gainers}</b> advancing
-                    </span>
-                    <span>
-                      <i className="negative-dot" />
-                      <b>{losers}</b> declining
-                    </span>
-                  </div>
-                  <div className="breadth-bar">
-                    <i style={{ flex: gainers || 0.01 }} />
-                    <i style={{ flex: unchanged || 0.01 }} />
-                    <i style={{ flex: losers || 0.01 }} />
-                  </div>
-                  <small>
-                    Across {filtered.filter((q) => q.change !== null).length}{" "}
-                    available assets in this view
-                  </small>
-                </div>
-                <div className="movers-card">
-                  <div className="section-label">
-                    <Zap size={14} />
-                    Biggest moves<span>BY ABSOLUTE CHANGE</span>
-                    <button onClick={() => setView("movers")}>
-                      View all
-                      <ArrowUpRight size={13} />
-                    </button>
-                  </div>
-                  <div className="mover-items">
-                    {movers.map((a) => (
-                      <button key={a.id} onClick={() => selectAsset(a.id)}>
-                        <span>
-                          {a.symbol}
-                          <ArrowUpRight size={12} />
-                        </span>
-                        <strong
-                          className={a.change >= 0 ? "positive" : "negative"}
+                      <span className="toolbar-note">
+                        {colorWindow === "2s"
+                          ? "2s crypto samples · global feeds neutral"
+                          : period === "1D"
+                            ? "Session change"
+                            : "Period change"}{" "}
+                        <button
+                          className="inline-icon"
+                          title="How changes are calculated"
+                          aria-label="How changes are calculated"
+                          onClick={() => setModal("about")}
                         >
-                          {pct(a.change)}
-                        </strong>
-                        <small>{a.name}</small>
-                      </button>
-                    ))}
-                    {!movers.length && (
-                      <p className="muted">Waiting for market data</p>
+                          <Info size={12} />
+                        </button>
+                      </span>
+                      <label className="size-select">
+                        <Layers size={13} />
+                        <span>Size by</span>
+                        <select
+                          aria-label="Tile size"
+                          value={sizeBy}
+                          onChange={(e) => setSizeBy(e.target.value)}
+                        >
+                          <option value="importance">Importance</option>
+                          <option value="movement">Price movement</option>
+                          <option value="equal">Equal weight</option>
+                        </select>
+                        <ChevronDown size={12} />
+                      </label>
+                    </div>
+                    {filtered.length === 0 ? (
+                      <div className="empty-state">
+                        <Search size={29} />
+                        <h3>No assets here yet</h3>
+                        <p>
+                          {view === "watchlist"
+                            ? "Star assets in the detail panel to build your watchlist."
+                            : "Try a different symbol or market category."}
+                        </p>
+                        <button
+                          className="outline-button"
+                          onClick={() => {
+                            setSearch("");
+                            setCategory("All markets");
+                            setView("heatmap");
+                          }}
+                        >
+                          View all markets
+                        </button>
+                      </div>
+                    ) : view === "movers" ? (
+                      <div className="movers-table">
+                        <div className="table-header">
+                          <span>ASSET</span>
+                          <span>PRICE</span>
+                          <span>CHANGE</span>
+                          <span>MARKET</span>
+                        </div>
+                        {[...filtered]
+                          .sort(
+                            (a, b) =>
+                              Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0),
+                          )
+                          .map((a) => (
+                            <button
+                              key={a.id}
+                              className="table-row"
+                              onClick={() => selectAsset(a.id)}
+                            >
+                              <span>
+                                <b>{a.symbol}</b>
+                                <small>{a.name}</small>
+                              </span>
+                              <span>{formatPrice(a.price, a.currency)}</span>
+                              <span
+                                className={
+                                  a.change >= 0 ? "positive" : "negative"
+                                }
+                              >
+                                {pct(a.change)}
+                              </span>
+                              <span>{a.group}</span>
+                            </button>
+                          ))}
+                      </div>
+                    ) : (
+                      <div className={`heatmap groups-${shownGroups.length}`}>
+                        {shownGroups.map((g) => (
+                          <HeatGroup
+                            key={g}
+                            name={g}
+                            items={filtered.filter((q) => q.group === g)}
+                            selected={selected}
+                            onSelect={selectAsset}
+                            sizeBy={sizeBy}
+                            flashes={flashes}
+                            fast={colorWindow === "2s"}
+                          />
+                        ))}
+                      </div>
                     )}
-                  </div>
+                    <div className="map-bottom">
+                      <span>
+                        <span className="mouse-icon">↖</span> Select any asset
+                        to explore
+                      </span>
+                      <div className="heat-legend">
+                        <span>{colorWindow === "2s" ? "−0.05%" : "−3%"}</span>
+                        <i style={{ background: "#b45057" }} />
+                        <i style={{ background: "#813a40" }} />
+                        <i style={{ background: "#493139" }} />
+                        <i style={{ background: "#283330" }} />
+                        <i style={{ background: "#246952" }} />
+                        <i style={{ background: "#268364" }} />
+                        <i style={{ background: "#2b9c73" }} />
+                        <span>{colorWindow === "2s" ? "+0.05%" : "+3%"}</span>
+                      </div>
+                    </div>
+                  </section>
+                  {!expanded && (
+                    <aside className="detail-panel">
+                      <div className="detail-heading">
+                        <div
+                          className={`asset-avatar ${asset.group === "Crypto" ? "crypto" : ""}`}
+                        >
+                          {asset.icon || asset.symbol.slice(0, 2)}
+                        </div>
+                        <div>
+                          <h2>{asset.name}</h2>
+                          <span>
+                            {asset.symbol} <i>·</i> {asset.group}
+                          </span>
+                        </div>
+                        <button
+                          className={`icon-button star-button ${watchlist.includes(asset.id) ? "saved" : ""}`}
+                          title={
+                            watchlist.includes(asset.id)
+                              ? "Remove from watchlist"
+                              : "Add to watchlist"
+                          }
+                          aria-label={
+                            watchlist.includes(asset.id)
+                              ? "Remove from watchlist"
+                              : "Add to watchlist"
+                          }
+                          onClick={() => toggleWatch(asset.id)}
+                        >
+                          <Star
+                            size={18}
+                            fill={
+                              watchlist.includes(asset.id)
+                                ? "currentColor"
+                                : "none"
+                            }
+                          />
+                        </button>
+                      </div>
+                      <div className="asset-price">
+                        <span>
+                          {asset.currency === "USD" || asset.currency === "USDT"
+                            ? "$"
+                            : ""}
+                          {formatPrice(asset.price, asset.currency)}
+                        </span>
+                        <small>{asset.currency}</small>
+                      </div>
+                      <div className="asset-change">
+                        <span
+                          className={
+                            asset.change >= 0 ? "positive" : "negative"
+                          }
+                        >
+                          {asset.change >= 0 ? (
+                            <ArrowUpRight size={14} />
+                          ) : (
+                            <ArrowDownRight size={14} />
+                          )}{" "}
+                          {pct(asset.change)}
+                        </span>
+                        <span>
+                          {period === "1D"
+                            ? "today"
+                            : `past ${period === "1W" ? "week" : "month"}`}
+                        </span>
+                        <span className="detail-status">
+                          {mode === "demo"
+                            ? "DEMO"
+                            : asset.status === "snapshot"
+                              ? "SNAPSHOT"
+                              : asset.status === "stale"
+                                ? "STALE"
+                                : asset.status === "delayed"
+                                  ? "DELAYED"
+                                  : asset.status === "live"
+                                    ? "LIVE"
+                                    : asset.status === "loading"
+                                      ? "LOADING"
+                                      : "UNAVAILABLE"}
+                        </span>
+                      </div>
+                      <MarketChart
+                        asset={asset}
+                        period={chartPeriod}
+                        mode={mode}
+                        kind={kind}
+                        theme={theme}
+                      />
+                      <div className="chart-controls">
+                        <div className="chart-periods">
+                          {["1D", "1W", "1M", "3M", "1Y"].map((p) => (
+                            <button
+                              className={chartPeriod === p ? "active" : ""}
+                              key={p}
+                              onClick={() => setChartPeriod(p)}
+                            >
+                              {p}
+                            </button>
+                          ))}
+                        </div>
+                        <div
+                          className="segmented chart-kind"
+                          aria-label="Market chart style"
+                        >
+                          <button
+                            aria-label="Show candlesticks"
+                            className={kind === "candles" ? "active" : ""}
+                            onClick={() => setKind("candles")}
+                          >
+                            Candles
+                          </button>
+                          <button
+                            aria-label="Show Heikin-Ashi"
+                            className={kind === "heikin" ? "active" : ""}
+                            onClick={() => setKind("heikin")}
+                          >
+                            HA
+                          </button>
+                        </div>
+                      </div>
+                      {kind === "heikin" && (
+                        <p className="ha-note">
+                          Heikin-Ashi is a synthetic view. Prices and analysis
+                          use real exchange OHLC.
+                        </p>
+                      )}
+                      <div className="stat-grid">
+                        <div>
+                          <span>{period === "1D" ? "Day" : "Period"} high</span>
+                          <b>{formatPrice(asset.high, asset.currency)}</b>
+                        </div>
+                        <div>
+                          <span>{period === "1D" ? "Day" : "Period"} low</span>
+                          <b>{formatPrice(asset.low, asset.currency)}</b>
+                        </div>
+                        <div>
+                          <span>
+                            {asset.group === "Crypto"
+                              ? "24h quote volume"
+                              : "Session volume"}
+                          </span>
+                          <b>{compact(asset.volume)}</b>
+                        </div>
+                        <div>
+                          <span>Data provider</span>
+                          <b>
+                            {mode === "demo" ? "Illustrative" : asset.provider}
+                          </b>
+                        </div>
+                      </div>
+                      <div className="context-box">
+                        <div>
+                          <Zap size={13} />
+                          <span>THE BIGGER PICTURE</span>
+                        </div>
+                        <p>{marketContext[asset.group]}</p>
+                      </div>
+                      <div className="detail-timestamp">
+                        <Clock3 size={11} />
+                        {timeLabel(asset.asOf)}
+                      </div>
+                    </aside>
+                  )}
                 </div>
-              </section>
-            </>
-          )}
-          <footer>
-            <span>
-              <i className={mode === "demo" ? "demo-dot" : "positive-dot"} />
-              {mode === "demo"
-                ? "Illustrative demo data"
-                : `Last fetched ${fetchedAt ? new Date(fetchedAt).toLocaleTimeString("en-GB", { timeZone: "UTC" }) + " UTC" : "—"}`}
-              <span className="footer-divider">/</span>Free sources. A wider
-              perspective.
-            </span>
-            <div>
-              <button onClick={exportCsv}>
-                Export CSV <ArrowUpRight size={11} />
-              </button>
-              <button onClick={() => setModal("about")}>
-                About the data <ExternalLink size={11} />
-              </button>
-            </div>
-          </footer>
-        </main>
+                <section className="bottom-grid">
+                  <div className="breadth-card">
+                    <div className="section-label">
+                      <Activity size={14} />
+                      Market breadth<span>{period}</span>
+                    </div>
+                    <div className="breadth-counts">
+                      <span>
+                        <i className="positive-dot" />
+                        <b>{gainers}</b> advancing
+                      </span>
+                      <span>
+                        <i className="negative-dot" />
+                        <b>{losers}</b> declining
+                      </span>
+                    </div>
+                    <div className="breadth-bar">
+                      <i style={{ flex: gainers || 0.01 }} />
+                      <i style={{ flex: unchanged || 0.01 }} />
+                      <i style={{ flex: losers || 0.01 }} />
+                    </div>
+                    <small>
+                      Across {filtered.filter((q) => q.change !== null).length}{" "}
+                      available assets in this view
+                    </small>
+                  </div>
+                  <div className="movers-card">
+                    <div className="section-label">
+                      <Zap size={14} />
+                      Biggest moves<span>BY ABSOLUTE CHANGE</span>
+                      <button onClick={() => setView("movers")}>
+                        View all
+                        <ArrowUpRight size={13} />
+                      </button>
+                    </div>
+                    <div className="mover-items">
+                      {movers.map((a) => (
+                        <button key={a.id} onClick={() => selectAsset(a.id)}>
+                          <span>
+                            {a.symbol}
+                            <ArrowUpRight size={12} />
+                          </span>
+                          <strong
+                            className={a.change >= 0 ? "positive" : "negative"}
+                          >
+                            {pct(a.change)}
+                          </strong>
+                          <small>{a.name}</small>
+                        </button>
+                      ))}
+                      {!movers.length && (
+                        <p className="muted">Waiting for market data</p>
+                      )}
+                    </div>
+                  </div>
+                </section>
+              </>
+            )}
+            <footer>
+              <span>
+                <i className={mode === "demo" ? "demo-dot" : "positive-dot"} />
+                {mode === "demo"
+                  ? "Illustrative demo data"
+                  : `Last fetched ${fetchedAt ? new Date(fetchedAt).toLocaleTimeString("en-GB", { timeZone: "UTC" }) + " UTC" : "—"}`}
+                <span className="footer-divider">/</span>Free sources. A wider
+                perspective.
+              </span>
+              <div>
+                <button onClick={exportCsv}>
+                  Export CSV <ArrowUpRight size={11} />
+                </button>
+                <button onClick={() => setModal("about")}>
+                  About the data <ExternalLink size={11} />
+                </button>
+              </div>
+            </footer>
+          </main>
+        </div>
       </div>
+      {profileOpen && (
+        <TraderProfile
+          value={profileId}
+          onClose={() => setProfileOpen(false)}
+          onSave={(id) => {
+            setProfileId(id);
+            putStore("sharpnex-profile", id);
+            setProfileOpen(false);
+          }}
+        />
+      )}
       {modal && (
         <div
           className="modal-backdrop"
@@ -1365,7 +1418,7 @@ function App() {
             <p>
               {modal === "feeds"
                 ? "Public market data. No subscriptions, paid APIs, or API keys."
-                : "Atlas brings the markets around Bitcoin into a single, explorable view."}
+                : "SHARPNEX combines source-backed market context with transparent RSI divergence research. It provides no trade execution or guaranteed predictions."}
             </p>
             {modal === "feeds" ? (
               <>
@@ -1392,7 +1445,9 @@ function App() {
                 <div className="provider-row">
                   <div>
                     <b>Binance public market data</b>
-                    <span>10 crypto pairs · USDT · Samples every 2s</span>
+                    <span>
+                      10 map pairs · 2s target; full USDT rail · 30s target
+                    </span>
                   </div>
                   <span className="free-badge">FREE</span>
                 </div>
@@ -1403,6 +1458,24 @@ function App() {
                       {staticHosting
                         ? "Global markets · Scheduled ~5min snapshots"
                         : "Global markets · Cached 60s"}
+                    </span>
+                  </div>
+                  <span className="free-badge">FREE</span>
+                </div>
+                <div className="provider-row">
+                  <div>
+                    <b>Hyperliquid public market data</b>
+                    <span>
+                      Separate perpetual candles, funding and open interest
+                    </span>
+                  </div>
+                  <span className="free-badge">FREE</span>
+                </div>
+                <div className="provider-row">
+                  <div>
+                    <b>Official calendars & publisher feeds</b>
+                    <span>
+                      Fed, BLS, SEC, EIA, CoinDesk, Cointelegraph and BBC
                     </span>
                   </div>
                   <span className="free-badge">FREE</span>

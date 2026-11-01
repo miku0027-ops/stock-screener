@@ -27,7 +27,7 @@ export async function request(url) {
   const response = await fetch(url, {
     dispatcher,
     signal: AbortSignal.timeout(7000),
-    headers: { "User-Agent": "AtlasMarkets/1.0", Accept: "application/json" },
+    headers: { "User-Agent": "SHARPNEX/1.0", Accept: "application/json" },
   });
   if (response.status === 429) rateLimitedUntil.set(host, Date.now() + 60000);
   if (!response.ok)

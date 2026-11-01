@@ -1,12 +1,12 @@
-# Atlas Markets
+# SHARPNEX
 
-A responsive, single-screen market heatmap for understanding the markets around Bitcoin. Built with React, Vite, Express, D3 treemaps, and TradingView Lightweight Charts. All integrations use free public endpoints; no API keys or paid chart subscriptions are required.
+An independent crypto research terminal with a global heatmap, RSI divergence analysis, sourced news, and separate spot/perpetual market data. Built with React, Vite, Express, D3 treemaps, and TradingView Lightweight Charts. All integrations use free public endpoints; no API keys or paid chart subscriptions are required.
 
 ## Automatic hosting with GitHub Pages
 
 GitHub Pages hosts this public project without a Google account, Firebase CLI sign-in, service-account key, or separately hosted backend. The site URL is `https://miku0027-ops.github.io/stock-screener/` after the deployment workflow succeeds.
 
-**One-time activation:** open [Repository Settings → Pages](https://github.com/miku0027-ops/stock-screener/settings/pages) and select **GitHub Actions** under **Build and deployment → Source**. GitHub requires a repository administrator to enable this setting; the Codex GitHub integration does not have Pages administration permission. After enabling it, run **Deploy Atlas to GitHub Pages** from the Actions tab once. Later pushes deploy automatically. No Google authentication is involved.
+**One-time activation:** open [Repository Settings → Pages](https://github.com/miku0027-ops/stock-screener/settings/pages) and select **GitHub Actions** under **Build and deployment → Source**. GitHub requires a repository administrator to enable this setting; the Codex GitHub integration does not have Pages administration permission. After enabling it, run **Deploy SHARPNEX to GitHub Pages** from the Actions tab once. Later pushes deploy automatically. No Google authentication is involved.
 
 Every push to `main` runs `.github/workflows/deploy-pages.yml`: install locked dependencies, run unit tests, build the static app for its `/stock-screener/` base path, and deploy through GitHub's short-lived workflow token. No manually maintained deployment secrets are required. The existing market-data workflow updates global snapshots independently; crypto is polled from Binance directly. Feed limits and snapshot freshness behavior below still apply.
 
@@ -28,7 +28,7 @@ Vite runs on port **5173** and proxies `/api` to Express on **3001**. For a prod
 - 49 curated instruments: Bitcoin, Ethereum and eight other crypto pairs; major US stocks including NVIDIA, Coinbase and Strategy; Dow Jones, S&P 500, Nasdaq, European and Asian indices; Singapore STI; gold, silver, oil and other commodity futures; FX, dollar index, VIX and US 10-year yield.
 - Weighted mosaic tiles, price-change flashes, market filters, text search, top movers and market breadth.
 - Tile sizing by editorial importance, absolute price movement, or equal weight. Importance is **not** market cap or a calculated correlation with Bitcoin.
-- Clickable price history with line/candlestick charts and 1D, 1W, 1M, 3M and 1Y timeframes.
+- Clickable price history with candlestick and Heikin-Ashi charts and 1D, 1W, 1M, 3M and 1Y timeframes.
 - Persistent watchlists, CSV exports, refresh/pause controls, expanded map, keyboard shortcuts (Ctrl/Cmd+K and Escape), and a mobile layout.
 
 ## Data sources and limitations
@@ -114,7 +114,7 @@ The default live heatmap uses **2s crypto change**, calculated as `(currentPrice
 
 Requests target one batch every two seconds without overlapping requests. Network latency, browser background-tab throttling and exchange limits can prevent exact timing. Hidden tabs stop polling. HTTP 429 responses back off for 60 seconds. Slow global snapshot requests are independent of crypto refreshes. No paid feed, synthetic price tick or guaranteed timing is implied. CSV exports include sample interval in milliseconds; tile tooltips show the observed interval.
 
-**5m RSI signal desk** is available from the navigation and dashboard shortcut. It only evaluates BTCUSDT and ETHUSDT Binance **spot** candles. It does not place trades. Demo mode never produces signals. The desk synchronizes against Binance server time, fetches 500 bars initially, then requests three recent bars per two-second check and retains up to 1,000. Open/settling candles are excluded. Missing bars, invalid OHLC, overdue candles, feed errors, responses taking over five seconds, or checks older than eight seconds suppress actionable signals.
+**5m RSI signal desk** is available from the navigation and dashboard shortcut. It opens with BTCUSDT and ETHUSDT and supports active Binance USDT pairs selected in the coin rail. Perpetual mode uses separate Hyperliquid candles and venue data. It does not place trades. Demo mode never produces signals. The desk synchronizes against Binance server time, fetches 500 bars initially, then requests three recent bars per two-second check and retains up to 1,000. Open/settling candles are excluded. Missing bars, invalid OHLC, overdue candles, feed errors, responses taking over five seconds, or checks older than eight seconds suppress actionable signals.
 
 ### Rules, not an accuracy claim
 
@@ -123,9 +123,9 @@ Requests target one batch every two seconds without overlapping requests. Networ
 - Adjacent same-type pivots must be 5–60 bars apart. Bullish regular divergence requires a price low at least 0.05% lower and RSI at least 3 points higher, with one pivot RSI ≤40. Bearish is mirrored with one pivot RSI ≥60.
 - A divergence is a **watch condition** until a subsequent five-minute candle closes beyond the confirmation bar’s high (bull) or low (bear). The observed breakout close is recorded as a signal reference, not an executable fill.
 - Invalidation uses the pivot extreme plus a 0.25× ATR(14) buffer. Untriggered setups expire after 6 bars; triggered setups expire after another 6 bars. The illustrative target is 2× the entry-to-invalidation distance. If a candle could hit both target and invalidation, the calculation assumes invalidation first.
-- Only the latest qualifying setup is considered active. Historical outcomes refer to candle levels, not executed trades. Fees, slippage, spread and funding are not included. **The strategy is not backtested, has no measured win rate, and cannot guarantee accurate or profitable predictions.**
+- Only the latest qualifying setup is considered active. Historical outcomes refer to candle levels, not executed trades. Fees, slippage, spread and funding are not included. **The profile-filtered strategy has no validated predictive accuracy. A separate fixed-rule spot baseline is evaluated chronologically in the evidence panel; it does not validate the complete platform. No profitable prediction is guaranteed.**
 
-The desk also shows ATR, EMA20/50, UTC-session approximate VWAP, relative volume against the prior 20 bars, best bid/ask spread and top-20 spot order-book imbalance. Book snapshots refresh at most every ten seconds. Orders may be spoofed or removed; these measures do not prove future price direction. The context page attributes the daily Fear & Greed index to [Alternative.me](https://alternative.me/crypto/fear-and-greed-index/). Existing DXY, yields, VIX, gold and equity snapshots provide wider context. Funding and open interest are not included because the evaluated free derivatives endpoints were unavailable from this environment.
+The desk also shows ATR, EMA20/50, UTC-session approximate VWAP, relative volume against the prior 20 bars, best bid/ask spread and top-20 spot order-book imbalance. Book snapshots refresh at most every ten seconds. Orders may be spoofed or removed; these measures do not prove future price direction. The context page attributes the daily Fear & Greed index to [Alternative.me](https://alternative.me/crypto/fear-and-greed-index/). Existing DXY, yields, VIX, gold and equity snapshots provide wider context. Perpetual funding (hourly percentage), mark/oracle basis and open interest are now fetched from Hyperliquid. They describe that venue only.
 
 ## Declared supply unlocks
 
@@ -135,4 +135,49 @@ Sui's official schedule explicitly calls its timing an estimate, so it was exclu
 
 `data/announced-unlocks.json` contains the reviewed records. `scripts/export-announced-unlocks.mjs` rechecks the exact official schedule wording daily from the scheduled data workflow. If the wording no longer matches, it publishes no records until reviewed. If the source is temporarily unavailable, the last verification is retained; records older than 35 days are hidden. Past dates disappear automatically. Add more tokens only after verifying an explicit dated issuer schedule and updating the allowlist in `shared/unlocks.js`.
 
-Signal logic and freshness tests are in `tests/signals.test.js`; browser coverage is in `tests/firebase/signals.spec.js`. `ATLAS_TEST_PORT=4180 npm run test:firebase` can use a different preview port if another preview is running. No backtest results or model-generated trade calls are substituted for the deterministic rules.
+Signal logic and freshness tests are in `tests/signals.test.js`; browser coverage is in `tests/firebase/signals.spec.js`. `ATLAS_TEST_PORT=4180 npm run test:firebase` can use a different preview port if another preview is running. No generated news, fabricated backtest results or model-generated trade calls are substituted for source data and deterministic rules.
+
+## SHARPNEX research terminal
+
+The app starts in the signal desk. The first visit asks for one of five research profiles; this choice and the light/dark theme persist in browser storage. Risk/return labels express user preferences, not a promise that low-risk/high-return trades exist. The original `atlas-mode` and watchlist storage keys are retained to preserve existing preferences.
+
+The scrollable, searchable rail loads Binance exchange metadata and includes active, spot-enabled USDT pairs. It refreshes its universe quotes on a 30-second target cadence, separately from the 2-second map and selected analysis checks. It is not a claim to cover every coin worldwide. Delisted and unsupported contracts are excluded; failed feeds show limited/stale coverage. Selecting a coin opens its five-minute analysis. Perpetual mode checks Hyperliquid's actual contract universe and never relabels a spot signal as a futures signal. All Hyperliquid requests are read-only `info` requests. No wallet, execution, orders or trading credentials are implemented.
+
+Price charts offer candlesticks and Heikin-Ashi only. Heikin-Ashi is computed recursively for display; all RSI, divergence, stops and references use original exchange OHLC. The lower indicator pane is RSI, not a line-price chart. Theme colors also update chart canvases. The original logo mark is in `public/sharpnex-mark.png`.
+
+### Developing versus eligible setups
+
+- Early watch uses one closed right-hand bar (five minutes after the swing), keeping the same three left-hand bars and divergence thresholds. It may invalidate. It never produces an entry by itself.
+- Confirmation still requires three right-hand bars (15 minutes). The subsequent closed breakout is recorded as an observed reference, not an execution price.
+- Eligibility checks freshness, confirmation, breakout, current-bar invalidation, proximity within 0.5 ATR of the breakout reference, an unreached profile target, market direction, 5m EMA20/50 and complete-hour EMA20 alignment where required, relative volume, spread and covered scheduled events. Spot entries are long only. Bearish spot divergence means avoid/reassess, not a short order.
+- Hourly bars are formed only from twelve consecutive complete five-minute bars. At least twenty complete hours are required for the hourly trend filter. No partial-hour or Heikin-Ashi price enters the calculation.
+- Every profile requires fresh BLS and FOMC calendar fetches (no more than 30 minutes old). Covered CPI/employment releases block eligibility within ±30 minutes; published FOMC meeting days use the New York calendar date because no exact time is inferred. Missing coverage fails closed. This is not a complete global event calendar.
+- Perpetual eligibility additionally requires fresh Hyperliquid mark, oracle, open-interest and funding fields. The platform recommends no leverage or liquidation level.
+
+| Profile                  | Illustrative risk budget | Target | Minimum relative volume | Trend required | Maximum spread |
+| ------------------------ | ------------------------ | ------ | ----------------------- | -------------- | -------------- |
+| Low risk / low return    | 0.25%                    | 1.5R   | 1.2×                    | Yes            | 3 bps          |
+| Low risk / mild return   | 0.5%                     | 2R     | 1.1×                    | Yes            | 4 bps          |
+| Low risk / high return   | 0.5%                     | 3R     | 1.2×                    | Yes            | 3 bps          |
+| Mild risk / high return  | 1%                       | 3R     | 1×                      | Yes            | 6 bps          |
+| High risk / high returns | 2%                       | 3R     | 0.8×                    | No             | 10 bps         |
+
+These are product filtering assumptions, not optimized parameters or financial recommendations. The optional sizing reference is `equity × risk fraction / stop distance`. It excludes fees/funding and warns when notional exceeds equity; gaps and slippage can exceed the nominal budget. A passed-check count is never called a confidence score.
+
+### News, events and provenance
+
+`scripts/export-research.mjs` runs in the existing five-minute scheduled workflow. It parses actual RSS titles from the Federal Reserve, SEC, EIA, CoinDesk, Cointelegraph and BBC World. It publishes only titles, timestamps, publisher attribution and allowlisted source links, with no generated article summaries. Literal keyword tags label possible topics such as scams, conflict, sanctions and energy; they do not prove an allegation or infer a price effect. Publisher reports are not independently fact-checked by SHARPNEX.
+
+The BLS iCalendar supplies explicit release times converted with New York daylight-saving rules. FOMC dates are extracted from the official meeting calendar and remain date-only. No implied decision time, consensus forecast or actual release figure is invented. Failed calendar sources publish no events from that source and fail the eligibility gate. Source health and stale publication status are visible. The app polls the published JSON every minute; GitHub schedules and CDN propagation can lag. News coverage is intentionally limited and cannot capture all crypto, political, war or policy developments.
+
+### Measured baseline and correlations
+
+`scripts/export-validation.mjs` runs at most daily. It loads fourteen days of real BTCUSDT/ETHUSDT five-minute spot candles, validates continuity, and evaluates the latest seven days after indicator warmup. Fixed, untuned rules use regular bullish divergence, a closed breakout and the following bar's open; one hypothetical position at a time; six-bar time exit; 2R target; pivot/ATR stop. Costs assume 10 bps fee plus 5 bps slippage **per side**. Adverse gaps fill at the opening price; stops win ambiguous bars. Open trades at the end are not reported as completed. The panel shows sample count, wins, expectancy in R and peak-to-trough loss in R. Fewer than thirty trades is explicitly an insufficient accuracy sample.
+
+This is a retrospective baseline, not live paper trading or a validation of profile/news/macro filters. It excludes perpetuals and funding. It cannot reproduce live fills and is not a forecast of the next trade. Negative results remain visible. Raw trade references and assumptions are published in `market-data/validation.json`; stale (>48h) or unavailable results are not presented as current evidence.
+
+Descriptive Pearson correlations compare Bitcoin log returns with S&P 500, dollar index, gold futures, WTI and VIX on up to sixty common UTC calendar-date intervals. Returns span the same common dates across weekends. Different session close times and delayed daily feeds limit comparability; correlation does not imply causality. At least twenty matched intervals and recently fetched global history are required. The sample end date is displayed.
+
+Additional public destinations: `api.hyperliquid.xyz`, `www.federalreserve.gov`, `www.bls.gov`, `www.sec.gov`, `www.eia.gov`, `www.coindesk.com`, `cointelegraph.com`, `feeds.bbci.co.uk`, `api.alternative.me`, and `raw.githubusercontent.com`. Server-side RSS/calendar collection avoids relying on third-party CORS proxies. All market/news APIs and chart libraries remain free; provider terms and availability apply.
+
+Tests cover Heikin-Ashi recursion, raw-price isolation, source parsing/link safety, DST conversion, date-only FOMC handling, profile/event/stale-data gates, next-bar historical entry and adverse gaps, theme/profile persistence, the full coin rail, separate perpetual data, read-only requests and mobile layout. Browser mocks test behavior; native provider checks and deployed-site verification separately establish connectivity at test time.
