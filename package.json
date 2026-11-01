@@ -12,7 +12,8 @@
     "format": "prettier --write src shared server tests *.js *.json *.html *.md",
     "build:firebase": "vite build --mode firebase",
     "deploy:firebase": "npx --yes firebase-tools@15.34.2 deploy --only hosting --project sharp-nex",
-    "test:firebase": "npm run build:firebase && playwright test --config playwright.firebase.config.js"
+    "test:firebase": "npm run build:firebase && playwright test --config playwright.firebase.config.js",
+    "build:pages": "vite build --mode firebase --base=/stock-screener/"
   },
   "dependencies": {
     "d3-hierarchy": "^3.1.2",
