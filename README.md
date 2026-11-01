@@ -8,7 +8,7 @@ GitHub Pages hosts this public project without a Google account, Firebase CLI si
 
 **One-time activation:** open [Repository Settings → Pages](https://github.com/miku0027-ops/stock-screener/settings/pages) and select **GitHub Actions** under **Build and deployment → Source**. GitHub requires a repository administrator to enable this setting; the Codex GitHub integration does not have Pages administration permission. After enabling it, run **Deploy SHARPNEX to GitHub Pages** from the Actions tab once. Later pushes deploy automatically. No Google authentication is involved.
 
-Every push to `main` runs `.github/workflows/deploy-pages.yml`: install locked dependencies, run unit tests, build the static app for its `/stock-screener/` base path, and deploy through GitHub's short-lived workflow token. No manually maintained deployment secrets are required. The existing market-data workflow updates global snapshots independently; crypto is polled from Binance directly. Feed limits and snapshot freshness behavior below still apply.
+Every push to `main` runs `.github/workflows/deploy-pages.yml`: install locked dependencies, run unit tests, build the static app for its `/stock-screener/` base path, and deploy through GitHub's short-lived workflow token. No manually maintained deployment secrets are required. The existing market-data workflow updates global snapshots independently; crypto streams from Binance directly with a labeled REST fallback. Feed limits and snapshot freshness behavior below still apply.
 
 Use `npm run build:pages` to reproduce the hosted build. The Firebase configuration is retained as an optional target; its deployment authentication is not required for GitHub Pages. If Firebase is preferred later, GitHub Actions with Google Workload Identity Federation can avoid recurring Codex sign-in, but a Google administrator must authorize that federation once.
 
@@ -33,11 +33,11 @@ Vite runs on port **5173** and proxies `/api` to Express on **3001**. For a prod
 
 ## Data sources and limitations
 
-| Source                                                    | Coverage                                                    | Behavior                                                                                                                                                                                        |
-| --------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Binance public market data (`data-api.binance.vision`)    | Crypto pairs denominated in USDT                            | Crypto quotes sampled on a 2-second target cadence; 1.8-second local server cache; exchange availability and geographic restrictions apply. This is polling, not a tick-by-tick WebSocket feed. |
-| Yahoo Finance chart endpoint (`query1.finance.yahoo.com`) | Indices, equities, futures, currencies and macro indicators | Unofficial public interface; 60-second cache. Quotes may be delayed, rate-limited, unavailable or from a closed session.                                                                        |
-| TradingView Lightweight Charts                            | Interactive chart rendering                                 | Open-source chart library; attribution is retained. It supplies no market data.                                                                                                                 |
+| Source                                                    | Coverage                                                    | Behavior                                                                                                                                                                                                                     |
+| --------------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Binance public market data (`data-api.binance.vision`)    | Crypto pairs denominated in USDT                            | Shared all-market mini-ticker WebSocket updates changed coins each second; REST fallback targets five seconds. The optional local API retains its 1.8-second quote cache. Geographic restrictions and provider limits apply. |
+| Yahoo Finance chart endpoint (`query1.finance.yahoo.com`) | Indices, equities, futures, currencies and macro indicators | Unofficial public interface; 60-second cache. Quotes may be delayed, rate-limited, unavailable or from a closed session.                                                                                                     |
+| TradingView Lightweight Charts                            | Interactive chart rendering                                 | Open-source chart library; attribution is retained. It supplies no market data.                                                                                                                                              |
 
 **Free feeds cannot guarantee exchange-grade real-time coverage of every market.** The market map labels UTC; hunt modals use the browser locale with an explicit timezone. SGX / STI is the Straits Times equity index, not an SGX futures feed. Commodities are front-month futures, not spot prices. Exchange index currencies are denomination context; index values are index points. Treasury yield is in percent. FX quote direction is shown in the symbol.
 
@@ -51,7 +51,7 @@ Public endpoints can change without notice. Review provider terms before commerc
 
 Allow HTTPS access to:
 
-- `data-api.binance.vision`
+- `data-api.binance.vision`; WebSocket access to `data-stream.binance.vision`
 - `query1.finance.yahoo.com`
 - `api.hyperliquid.xyz`, `data.binance.vision`, `raw.githubusercontent.com`
 
@@ -83,7 +83,7 @@ Each cloud task already has an isolated checkout. Work in `/workspace/stock-scre
 
 The Firebase build does **not** require Cloud Functions, Cloud Run, Blaze billing, a database, or a separately hosted Node server. It uses:
 
-- Binance's public CORS-enabled market endpoints directly in the browser, sampled on a 2-second target cadence.
+- Binance's public WebSocket and CORS-enabled REST market endpoints directly in the browser; the shared coin feed publishes once per second when updates arrive.
 - Real Yahoo quotes and chart history published to the dedicated `market-data` branch of this public GitHub repository. The GitHub Actions workflow requests intraday updates every five minutes; longer histories refresh hourly. GitHub schedules can be delayed or disabled after inactivity. Hosted global quotes are labeled **SNAPSHOT**, and failed or overdue updates are labeled **STALE**. Market closures also affect provider timestamps. This is not exchange-grade streaming.
 - Firebase Hosting's free-tier static service, subject to its storage and transfer quotas. Scheduled standard GitHub-hosted runners are free for this public repository. No paid plan is enabled by these instructions.
 
@@ -109,29 +109,33 @@ The static app fetches the `market-data` branch through `raw.githubusercontent.c
 
 Run `npm run test:firebase` to verify the built static app, snapshot freshness labels, direct crypto requests and chart loading without a Node API. These browser tests use intercepted responses; real provider/export checks are separate.
 
-## Trade hunt: one-minute discovery
+## Streaming coin coverage
 
-The default view is a compact watch queue and candle chart. Click a pair or **Inspect setup** to open Plan / Evidence / Sources in a modal. Entry reference, fixed stop/target, cost-adjusted reward/risk, expiry, live bid/ask, profile checks and optional position sizing stay out of the main workspace. Candlestick and Heikin-Ashi are the only price-chart styles; raw OHLC drives the calculations. The RSI indicator is a separate line pane.
+The coin rail covers all active Binance USDT spot instruments returned by exchange metadata. A shared `!miniTicker@arr` WebSocket subscribes to Binance's public data backend, which publishes changed tickers on a **1-second cadence**. Provider updates are coalesced into one UI render per second. Real changes flash green/red; unchanged prices do not flash, and no prices are interpolated. Last update times and quiet/unavailable rows remain visible. A 60-second REST seed refreshes catalog prices and volume ranking; disconnected streams use a labeled 5-second REST fallback with 429 backoff. Hidden tabs and pause close the feed. The Crypto map expands to the whole active coin universe; the global overview retains its 49 curated instruments.
 
-Eight liquid pairs plus the selected coin are scanned at a 15-second target cadence after completion; selected bid/ask quotes target 2 seconds. The searchable coin rail is a separate 30-second catalog, not a claim to scan every listed asset. Binance spot and Hyperliquid perpetuals use independent candles, clocks and contract metadata. Five-minute analysis is also available but has no matched multi-year study. Background tabs stop requests; rate limits back off; expired or stale inputs block recommendations. No trading credentials, wallet or order submission exists.
+The default **Live tick** color shows change between successive provider observations, with the actual sample interval in the tooltip and CSV. A separate **2s** mode retains the original strictly timed sample calculation for the ten curated crypto instruments. Those sample windows are not interchangeable. Global indices, equities and commodity feeds remain delayed snapshots and neutral in fast modes; their 1D/1W/1M colors are available. Quiet coins do not necessarily trade every second.
 
-Profiles store risk and reward goals locally, alongside theme preferences. They cannot make low-risk/high-return trades exist. Profile targets act as minimum gross-R filters; they never extend a detected target to improve its displayed R:R. Sizing includes estimated transaction costs but excludes exchange limits, leverage and liquidation. Calendar sources must be fresh and covered high-impact events must be outside their blocking windows.
+GitHub Pages is static hosting. The exchange operates the live WebSocket backend; there is no one-second GitHub Actions job or hidden paid server. This direct data path requires no Google login or API key. All-market source: `wss://data-stream.binance.vision/ws/!miniTicker@arr`. Selected spot market prints use `@aggTrade`; perpetual prints use Hyperliquid's public `trades` subscription. They are labeled **Market prints / Live executions**, separate from unexecuted research ideas. The selected forming candle can incorporate observed trade prices; only completed source OHLC enters the signal engine.
 
-### Measured research, not invented accuracy
+## Combined trade hunt: 1m–14m
 
-The shared engine was evaluated on **7,885,280 real one-minute candles**, 180 checksum-verified monthly Binance archives, BTC/ETH spot and USD-M perpetuals, January 2023–September 2026. Twenty-four fixed candidates use 2023–24 training and 2025 validation; January–September 2026 is held out of selection. Fees, slippage, spread, funding assumptions, next-bar entries, stop-first ambiguity and adverse gaps are included.
+The default **All <15m** view scans RSI divergence, EMA trend pullbacks and range breakouts together. Quick controls select 1m, 3m or 5m; the menu includes every integer interval through 14m. Custom intervals are derived from contiguous one-minute candles on UTC epoch boundaries, with no invented gap bars. The scanner loads up to 2,400 source minutes per asset, then requests five recent minutes. All selected timeframes reuse that history, rather than multiplying exchange requests.
 
-**None of the tested models demonstrated a profitable edge after costs.** Held-out win frequencies are 10.0% / 33.3% for BTC/ETH spot (10 / 15 trades) and 14.8% / 26.7% for Binance perpetuals (27 / 60 trades). These small samples do not establish predictive accuracy. Negative net expectancy and uncertainty intervals remain visible in the modal. All current candidates are conditional research watches, not qualified entry recommendations. Binance perpetual evidence does not validate Hyperliquid, and live profile/calendar filters were not historically backtested.
+Spot scans cover the selected coin plus a maximum of 24 liquid pairs, excluding designated stablecoins, on a 10-second target cadence after scan completion. Perpetual scans cover up to eight pairs on a 20-second cadence to respect the venue's public rate budget. Quotes target one second independently; network delays and rate limits still apply. The 500+ coin quote stream does not imply every coin has historical strategies evaluated continuously. Active, cost-feasible candidates rank ahead of idle rows. Entry references remain conditional; stale, expired, invalidated, high-spread, event-blocked or unsupported setups cannot qualify.
 
-See [the complete reproducible protocol](scripts/hunt/README.md) and [measured report](public/research/hunt-validation.json). The **Reproduce multi-year hunt research** workflow uses free GitHub runners and public archives, then publishes the report with GitHub's ephemeral token. No Google authentication is needed. Subsequent rule changes require a new untouched evaluation range; the system does not retune on the inspected holdout until it looks profitable.
+Click a candidate or **Inspect setup** for entry/stop/target, cost-adjusted R:R, expiry, entry checks, risk sizing and empirical evidence. Price charts offer candlesticks and Heikin-Ashi; indicators use raw OHLC. There are no orders, wallets, leverage recommendations or execution credentials.
 
-Implementation: `shared/hunt/engine.js`, `shared/hunt/assessment.js`, `src/hunt-data.js`, `src/HuntDesk.jsx`, `src/HuntChart.jsx`, and `scripts/hunt/`. The former verbose five-minute desk and seven-day baseline are superseded.
+### Reproducible evidence
 
-## Two-second heatmap
+The v2 study uses **8,055,200 unique source candles** and evaluates 168 family/timeframe/asset/venue combinations. Training is 2023–24, validation 2025, and the new holdout is October 1–30, 2026. The previously inspected January–September 2026 period is not reused as an untouched holdout. Rules are frozen before inspecting October. Fees, slippage, spread, funding assumptions, next-bar entry, stop-first ambiguous candles and adverse gaps are included.
 
-The default live heatmap uses **2s crypto change**, calculated as `(currentPrice / previousPrice - 1) × 100` between consecutive Binance snapshot timestamps. A return is shown only when those snapshots are 1.5–3.5 seconds apart. Initial samples, repeated timestamps, missed intervals, paused feeds and stale results are neutral. Numbers use six decimal places in this mode; flashes require an actual price change. Global markets are neutral in 2s mode because their free feeds cannot provide equivalent timing. Switch to 1D/1W/1M for global performance colors.
+Thirteen October samples were positive, each with just 1–7 trades. **None demonstrated the required edge.** Research candidates show measured evidence and uncertainty, not an invented success probability. Studies cover BTC/ETH only; Binance perpetual results do not validate Hyperliquid. The combined scanner is not a backtested portfolio, and live news/calendar/profile filters are not historically validated.
 
-Requests target one batch every two seconds without overlapping requests. Network latency, browser background-tab throttling and exchange limits can prevent exact timing. Hidden tabs stop polling. HTTP 429 responses back off for 60 seconds. Slow global snapshot requests are independent of crypto refreshes. No paid feed, synthetic price tick or guaranteed timing is implied. CSV exports include sample interval in milliseconds; tile tooltips show the observed interval.
+See [the v2 protocol and data gaps](scripts/hunt/DISCOVERY-PROTOCOL.md), [all measured results](public/research/discovery-validation.json), and [the archived v1 protocol](scripts/hunt/README.md). **Reproduce multi-year hunt research** runs the study in GitHub and publishes only the resulting JSON to `market-data`. Free data/news refresh remains independent. No Google authentication is required.
+
+## Release freshness
+
+The build writes `version.json` with its Git revision. Open tabs check that manifest once per minute and on return to the tab; a newer release offers a query-busted reload. Old Atlas tabs need an initial reload because they predate that mechanism. Deployed JavaScript/CSS filenames are content-hashed. The build identifier and report hashes make a release and its research reproducible.
 
 ## Declared supply unlocks
 

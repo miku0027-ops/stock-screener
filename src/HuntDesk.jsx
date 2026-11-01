@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import {
   Crosshair,
   ArrowUpRight,
@@ -17,7 +23,13 @@ import {
 import { priceLabel as price } from "./price-format.js";
 import HuntChart from "./HuntChart.jsx";
 import { scanMarket, huntQuote, SCAN_SYMBOLS } from "./hunt-data.js";
-import { DEFAULT_RULE, PROTOCOL } from "../shared/hunt/engine.js";
+import {
+  DISCOVERY_PROTOCOL as PROTOCOL,
+  BASE_RULES,
+  TIMEFRAMES,
+  FAMILY_NAMES,
+} from "../shared/hunt/strategies.js";
+import MarketTape from "./MarketTape.jsx";
 import { assessHunt } from "../shared/hunt/assessment.js";
 import { profileFor, eventWindow } from "../shared/analysis.js";
 import { getJSON } from "./trading-data.js";
@@ -49,8 +61,8 @@ function useReport() {
     let dead = false;
     (async () => {
       for (const url of [
-        `${DATA_ROOT}/hunt-validation.json`,
-        `${import.meta.env.BASE_URL}research/hunt-validation.json`,
+        `${DATA_ROOT}/discovery-validation.json`,
+        `${import.meta.env.BASE_URL}research/discovery-validation.json`,
       ])
         try {
           const d = await getJSON(url, c.signal);
@@ -103,7 +115,7 @@ function useFocusModal(ref, onClose) {
   }, []);
 }
 function Evidence({ report, model, interval, venue }) {
-  if (interval !== "1m" || !model)
+  if (!model)
     return (
       <div className="hunt-empty small">
         <ShieldCheck size={22} />
@@ -118,6 +130,9 @@ function Evidence({ report, model, interval, venue }) {
   const s = model.test;
   return (
     <>
+      <h3 className="evidence-family">
+        {FAMILY_NAMES[model.family]} · {interval} · Binance {venue}
+      </h3>
       <div className="hunt-note">
         <ShieldCheck size={16} />
         <span>
@@ -145,7 +160,7 @@ function Evidence({ report, model, interval, venue }) {
         </span>
       </div>
       <p className="muted">
-        Jan–Sep 2026 holdout · 95% win-rate interval{" "}
+        October 2026 holdout · 95% win-rate interval{" "}
         {s.winInterval
           ? `${pct(s.winInterval[0])}–${pct(s.winInterval[1])}`
           : "unavailable"}
@@ -172,25 +187,36 @@ function Evidence({ report, model, interval, venue }) {
           Rule selection
           <b>
             {model.selectionAdequate
-              ? "24 fixed candidates"
+              ? "8 candidates / family"
               : "Insufficient sample · fixed default"}
           </b>
         </span>
         <span>
-          Source candles
+          Training / development bars
           <b>
-            {model.rows.toLocaleString()} · {model.gaps} gap(s)
+            {model.rows.toLocaleString()} · {model.missingDays?.length || 0}{" "}
+            missing holdout day(s)
           </b>
         </span>
       </div>
       <details>
         <summary>Method & limits</summary>
         <p>
-          Wilder RSI(14), confirmed swing divergence, EMA(50) trend, relative
-          volume, next-bar entry, fixed stop and target. One position per asset;
-          10-bar time stop; stop first if a candle touches both levels. Targets
-          never move to improve a result. Top five training rules compete on
-          validation only; the final holdout does not select the rule.
+          {model.family === "divergence"
+            ? "Wilder RSI(14) divergence with confirmed pivots and a subsequent closed breakout."
+            : model.family === "pullback"
+              ? "EMA20/50 trend alignment, a pullback to EMA20, a closed reclaim and at least a two-point RSI recovery."
+              : "A closed break of the previous 20-bar range, EMA20/50 trend alignment, volume and at least 50% candle body."}{" "}
+          Relative-volume threshold {model.rule.volume}×; target{" "}
+          {model.rule.targetR}R. Entries use the next bar's open, within 0.5
+          ATR. Stops and targets stay fixed; stops win ambiguous candles. The
+          time limit is{" "}
+          {Math.max(
+            2,
+            Math.min(10, Math.ceil(30 / Number(interval.slice(0, -1)))),
+          )}{" "}
+          bars. Top three training rules compete on 2025 validation only.
+          October does not select the rule.
         </p>
         <p>
           Costs per side: {report.costs[venue].feeBps} bps fee +{" "}
@@ -227,11 +253,16 @@ function HuntModal({
   const sameCandidate =
     !snapshot.candidate ||
     (current?.candidate?.confirmedAt === snapshot.candidate.confirmedAt &&
-      current?.candidate?.direction === snapshot.candidate.direction);
+      current?.candidate?.direction === snapshot.candidate.direction &&
+      current?.candidate?.family === snapshot.candidate.family);
   const data =
     current && sameCandidate ? current : { ...snapshot, status: "stale" };
   const model = report?.models.find(
-      (m) => m.symbol === data.symbol && m.venue === data.venue,
+      (m) =>
+        m.symbol === data.symbol &&
+        m.venue === data.venue &&
+        m.interval === data.interval &&
+        m.family === (data.candidate?.family || "divergence"),
     ),
     a = assessHunt(data, quote, research, profileId, model, now, paused),
     c = data.candidate,
@@ -271,7 +302,9 @@ function HuntModal({
                   {data.venue === "spot" ? "USDT · Spot" : "USD · Perpetual"}
                 </small>
               </h2>
-              <span>{data.interval} · RSI divergence</span>
+              <span>
+                {data.interval} · {FAMILY_NAMES[c?.family] || "Combined hunt"}
+              </span>
             </div>
           </div>
           <button
@@ -289,7 +322,7 @@ function HuntModal({
           <span>
             {c
               ? `${c.direction === 1 ? "Long" : "Short"} · ${Math.max(0, Math.ceil((c.expiresAt - now) / 1000))}s left`
-              : "Waiting for a new divergence"}
+              : "Waiting for a new setup"}
           </span>
         </div>
         <div className="hunt-tabs" role="tablist" aria-label="Hunt details">
@@ -363,7 +396,7 @@ function HuntModal({
                 <div className="hunt-empty small">
                   <Crosshair />
                   <b>No active setup</b>
-                  <span>Waiting for a new confirmed divergence.</span>
+                  <span>Waiting for a confirmed setup.</span>
                 </div>
               )}
               <details open={!c}>
@@ -418,7 +451,7 @@ function HuntModal({
                 Conditional research levels · no orders.{" "}
                 {eligible
                   ? "Historical results do not guarantee the next outcome."
-                  : "No qualified entry recommendation."}
+                  : "Conditional research · not an execution instruction."}
               </p>
             </>
           )}
@@ -474,10 +507,10 @@ function HuntModal({
                 )}
               </div>
               <p>
-                Quotes requested every 2s; candle scans every 15s after
-                completion. Provider latency and limits can delay updates.
-                Signals use completed raw candles; Heikin-Ashi only changes the
-                display.
+                Quotes target 1s; candle scans run 10s after completion for spot
+                and 20s for perpetuals. Provider latency and limits can delay
+                updates. Signals use completed raw candles; Heikin-Ashi only
+                changes the display.
               </p>
               <p>
                 Cost assumptions:{" "}
@@ -537,9 +570,13 @@ export default function HuntDesk({
   symbol = "BTCUSDT",
   onSymbol,
   research,
+  feed,
 }) {
   const [venue, setVenue] = useState("spot"),
     [interval, setIntervalValue] = useState("1m"),
+    [scope, setScope] = useState("all"),
+    [tickBar, setTickBar] = useState(null),
+    [family, setFamily] = useState("blend"),
     [kind, setKind] = useState("candles"),
     [results, setResults] = useState({}),
     [quote, setQuote] = useState(null),
@@ -548,12 +585,45 @@ export default function HuntDesk({
     [onlySetups, setOnlySetups] = useState(false),
     [busy, setBusy] = useState(false),
     [errors, setErrors] = useState({});
-  const report = useReport(),
-    names = useMemo(
-      () => [symbol, ...SCAN_SYMBOLS.filter((s) => s !== symbol)],
-      [symbol],
-    ),
-    key = `${venue}:${interval}:${symbol}`;
+  const report = useReport();
+  const liquid = (feed?.rows || [])
+    .filter(
+      (r) =>
+        ![
+          "USDC",
+          "USDE",
+          "USD1",
+          "FDUSD",
+          "TUSD",
+          "DAI",
+          "USDP",
+          "USDD",
+          "AEUR",
+          "EURI",
+        ].includes(r.symbol),
+    )
+    .slice(0, 24)
+    .map((r) => r.id);
+  const universeKey = (
+    venue === "spot" && liquid.length ? liquid : SCAN_SYMBOLS
+  ).join("|");
+  const names = useMemo(
+    () =>
+      [symbol, ...universeKey.split("|").filter((s) => s !== symbol)].slice(
+        0,
+        venue === "spot" ? 24 : 8,
+      ),
+    [symbol, universeKey, venue],
+  );
+  const key = `${venue}:${interval}:${symbol}`;
+  const modelFor = (s, tf, f) =>
+    report?.models.find(
+      (m) =>
+        m.symbol === s &&
+        m.venue === venue &&
+        m.interval === tf &&
+        m.family === f,
+    );
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
@@ -570,32 +640,44 @@ export default function HuntDesk({
         let cursor = 0;
         await Promise.all(
           [0, 1].map(async () => {
-            while (cursor < names.length && !dead && !rateLimited) {
+            while (
+              cursor < names.length &&
+              !dead &&
+              !rateLimited &&
+              !document.hidden
+            ) {
               const s = names[cursor++],
-                k = `${venue}:${interval}:${s}`,
-                model =
-                  interval === "1m"
-                    ? report?.models.find(
-                        (m) => m.symbol === s && m.venue === venue,
-                      )
-                    : null;
+                intervals = scope === "all" ? TIMEFRAMES : [scope];
               try {
-                const d = await scanMarket(
-                  s,
-                  venue,
-                  interval,
-                  model?.rule || DEFAULT_RULE,
-                  controller.signal,
-                );
-                if (!dead) {
-                  setResults((p) => ({ ...p, [k]: d }));
-                  setErrors((p) => ({ ...p, [k]: null }));
+                for (const tf of intervals) {
+                  const k = `${venue}:${tf}:${s}`;
+                  const rules = Object.fromEntries(
+                    Object.keys(BASE_RULES).map((f) => [
+                      f,
+                      modelFor(s, tf, f)?.rule || BASE_RULES[f],
+                    ]),
+                  );
+                  const d = await scanMarket(
+                    s,
+                    venue,
+                    tf,
+                    rules,
+                    controller.signal,
+                    family,
+                  );
+                  if (!dead) {
+                    setResults((p) => ({ ...p, [k]: d }));
+                    setErrors((p) => ({ ...p, [k]: null }));
+                  }
                 }
               } catch (e) {
                 if (e.status === 429) rateLimited = true;
                 if (!dead) {
-                  setErrors((p) => ({ ...p, [k]: e.message }));
-                  setResults((p) => ({ ...p, [k]: null }));
+                  for (const tf of intervals) {
+                    const k = `${venue}:${tf}:${s}`;
+                    setErrors((p) => ({ ...p, [k]: e.message }));
+                    setResults((p) => ({ ...p, [k]: null }));
+                  }
                 }
               }
             }
@@ -603,7 +685,11 @@ export default function HuntDesk({
         );
         if (!dead) setBusy(false);
       }
-      if (!dead) timer = setTimeout(update, rateLimited ? 60000 : 15000);
+      if (!dead)
+        timer = setTimeout(
+          update,
+          rateLimited ? 60000 : venue === "spot" ? 10000 : 20000,
+        );
     }
     update();
     return () => {
@@ -611,7 +697,7 @@ export default function HuntDesk({
       controller.abort();
       clearTimeout(timer);
     };
-  }, [mode, paused, venue, interval, names, report]);
+  }, [mode, paused, venue, scope, family, names, report]);
   useEffect(() => {
     setQuote(null);
     if (mode !== "live" || paused) return;
@@ -619,7 +705,7 @@ export default function HuntDesk({
     let dead = false,
       timer;
     async function update() {
-      let delay = 2000;
+      let delay = 1000;
       if (!document.hidden) {
         const start = Date.now();
         try {
@@ -640,9 +726,55 @@ export default function HuntDesk({
       clearTimeout(timer);
     };
   }, [mode, paused, symbol, venue]);
-  const data = results[key],
+  const onPrint = useCallback(
+    (t) => {
+      const bucket =
+        Math.floor(t.time / (Number(interval.slice(0, -1)) * 60000)) *
+        Number(interval.slice(0, -1)) *
+        60;
+      setTickBar((old) =>
+        old?.key === key && old.id === t.id
+          ? old
+          : old?.key === key && old.time === bucket
+            ? {
+                ...old,
+                id: t.id,
+                high: Math.max(old.high, t.price),
+                low: Math.min(old.low, t.price),
+                close: t.price,
+              }
+            : {
+                key,
+                id: t.id,
+                time: bucket,
+                high: t.price,
+                low: t.price,
+                close: t.price,
+              },
+      );
+    },
+    [key, interval],
+  );
+  const stored = results[key],
+    forming = stored?.currentCandle;
+  const data =
+      stored && forming && tickBar?.key === key && tickBar.time === forming.time
+        ? {
+            ...stored,
+            currentCandle: {
+              ...forming,
+              high: Math.max(forming.high, tickBar.high),
+              low: Math.min(forming.low, tickBar.low),
+              close: tickBar.close,
+            },
+          }
+        : stored,
     model = report?.models.find(
-      (m) => m.symbol === symbol && m.venue === venue,
+      (m) =>
+        m.symbol === symbol &&
+        m.venue === venue &&
+        m.interval === interval &&
+        m.family === (data?.candidate?.family || "divergence"),
     ),
     assessment = assessHunt(
       data,
@@ -654,28 +786,43 @@ export default function HuntDesk({
       paused || mode !== "live",
     );
   const rows = names
-    .map((s) => ({
-      symbol: s,
-      data: results[`${venue}:${interval}:${s}`],
-      error: errors[`${venue}:${interval}:${s}`],
-    }))
+    .flatMap((s) =>
+      (scope === "all" ? TIMEFRAMES : [scope]).map((tf) => ({
+        symbol: s,
+        interval: tf,
+        data: results[`${venue}:${tf}:${s}`],
+        error: errors[`${venue}:${tf}:${s}`],
+      })),
+    )
     .map((r) => ({
       ...r,
       active:
         !paused &&
         mode === "live" &&
         r.data?.candidate &&
+        r.data.candidate.netR >= 1 &&
         r.data.status === "ready" &&
-        now - r.data.receivedAt < 40000 &&
+        now - r.data.receivedAt < 45000 &&
         now < r.data.candidate.expiresAt,
     }))
-    .sort((a, b) => Number(!!b.active) - Number(!!a.active));
-  const visible = onlySetups ? rows.filter((r) => r.active) : rows,
+    .sort(
+      (a, b) =>
+        Number(!!b.active) - Number(!!a.active) ||
+        (b.data?.candidate?.netR || -100) - (a.data?.candidate?.netR || -100),
+    );
+  const visible = onlySetups
+      ? rows.filter((r) => r.active)
+      : scope === "all"
+        ? [
+            ...rows.filter((r) => r.active),
+            ...rows.filter((r) => !r.active && r.interval === interval),
+          ]
+        : rows,
     active = rows.filter((r) => r.active).length,
     fresh = rows.filter(
       (r) =>
         r.data?.status === "ready" &&
-        now - r.data.receivedAt < 40000 &&
+        now - r.data.receivedAt < 45000 &&
         !paused,
     ).length,
     calendar = eventWindow(research, now);
@@ -692,6 +839,7 @@ export default function HuntDesk({
   function inspect(d) {
     if (d) {
       onSymbol(d.symbol);
+      setIntervalValue(d.interval);
       setModal(d);
     }
   }
@@ -707,18 +855,19 @@ export default function HuntDesk({
               ? "Paused"
               : busy
                 ? "Scanning"
-                : `${fresh}/${names.length} fresh`}
+                : `${fresh}/${names.length * (scope === "all" ? 14 : 1)} fresh`}
           </span>
         </div>
         <div className="hunt-controls">
           <div className="hunt-segment" aria-label="Analysis timeframe">
-            {["1m", "5m"].map((v) => (
+            {["1m", "3m", "5m"].map((v) => (
               <button
                 key={v}
-                aria-pressed={interval === v}
-                className={interval === v ? "active" : ""}
+                aria-pressed={scope === v}
+                className={scope === v ? "active" : ""}
                 onClick={() => {
                   setIntervalValue(v);
+                  setScope(v);
                   setModal(null);
                 }}
               >
@@ -726,6 +875,39 @@ export default function HuntDesk({
               </button>
             ))}
           </div>
+          <select
+            className="hunt-select"
+            aria-label="More timeframes"
+            value={scope}
+            onChange={(e) => {
+              setScope(e.target.value);
+              if (e.target.value !== "all") setIntervalValue(e.target.value);
+              setModal(null);
+            }}
+          >
+            {TIMEFRAMES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+            <option value="all">All &lt;15m</option>
+          </select>
+          <select
+            className="hunt-select"
+            aria-label="Strategy family"
+            value={family}
+            onChange={(e) => {
+              setFamily(e.target.value);
+              setModal(null);
+            }}
+          >
+            <option value="blend">Combined hunt</option>
+            {Object.entries(FAMILY_NAMES).map(([v, label]) => (
+              <option key={v} value={v}>
+                {label}
+              </option>
+            ))}
+          </select>
           <div className="hunt-segment" aria-label="Market type">
             {["spot", "perp"].map((v) => (
               <button
@@ -784,8 +966,8 @@ export default function HuntDesk({
               const c = r.active ? r.data.candidate : null;
               return (
                 <button
-                  key={r.symbol}
-                  aria-label={`Hunt ${r.symbol}`}
+                  key={`${r.symbol}:${r.interval}`}
+                  aria-label={`Hunt ${r.symbol} ${r.interval}`}
                   className={`hunt-row ${symbol === r.symbol ? "selected" : ""}`}
                   onClick={() => {
                     onSymbol(r.symbol);
@@ -793,7 +975,9 @@ export default function HuntDesk({
                   }}
                 >
                   <span className="hunt-row-main">
-                    <b>{r.symbol.replace("USDT", "")}</b>
+                    <b>
+                      {r.symbol.replace("USDT", "")} <em>{r.interval}</em>
+                    </b>
                     <small
                       className={
                         c?.direction === 1
@@ -804,13 +988,13 @@ export default function HuntDesk({
                       }
                     >
                       {c
-                        ? `${c.direction === 1 ? "Long" : "Short"} · ${c.stage === "triggered" ? "Breakout" : "Watch"}`
+                        ? `${c.direction === 1 ? "Long" : "Short"} · ${c.stage === "triggered" ? FAMILY_NAMES[c.family] : "Divergence watch"}`
                         : r.error
                           ? "Unavailable"
                           : paused
                             ? "Paused"
                             : r.data?.status === "ready" &&
-                                now - r.data.receivedAt < 40000
+                                now - r.data.receivedAt < 45000
                               ? "No setup"
                               : "Waiting"}
                     </small>
@@ -834,9 +1018,9 @@ export default function HuntDesk({
             )}
           </div>
           <div className="hunt-queue-foot">
-            {names.length} pairs · scans ~15s
+            {names.length} pairs · scans ~{venue === "spot" ? 10 : 20}s
             <br />
-            Quotes 2s · completed-bar signals
+            Quotes 1s · completed-bar signals
           </div>
         </aside>
         <div className="hunt-chart-panel">
@@ -904,7 +1088,7 @@ export default function HuntDesk({
               </span>
               <b>
                 {data?.candidate
-                  ? `${data.candidate.direction === 1 ? "Bullish" : "Bearish"} divergence`
+                  ? `${data.candidate.direction === 1 ? "Long" : "Short"} · ${FAMILY_NAMES[data.candidate.family]}`
                   : "Waiting for the next setup"}
               </b>
             </div>
@@ -914,6 +1098,12 @@ export default function HuntDesk({
                 : "No entry call"}
             </span>
           </div>
+          <MarketTape
+            symbol={symbol}
+            venue={venue}
+            enabled={mode === "live" && !paused}
+            onPrint={onPrint}
+          />
         </div>
       </div>
       <div className="hunt-statusbar">
@@ -938,13 +1128,11 @@ export default function HuntDesk({
           disabled={!data}
         >
           <ShieldCheck size={12} />
-          {interval !== "1m"
-            ? "5m · untested"
-            : !model
-              ? "Unvalidated asset"
-              : model.verdict === "positive-sample"
-                ? "Historical sample available"
-                : "No demonstrated edge"}
+          {!model
+            ? "Unvalidated asset"
+            : model.verdict === "positive-sample"
+              ? "Historical sample available"
+              : "No demonstrated edge"}
         </button>
         <span>
           {profileFor(profileId).risk}% risk preference · research only
@@ -953,7 +1141,13 @@ export default function HuntDesk({
       {modal && (
         <HuntModal
           snapshot={modal}
-          current={results[`${modal.venue}:${modal.interval}:${modal.symbol}`]}
+          current={
+            modal.venue === venue &&
+            modal.interval === interval &&
+            modal.symbol === symbol
+              ? data
+              : results[`${modal.venue}:${modal.interval}:${modal.symbol}`]
+          }
           quote={
             quote?.symbol === modal.symbol && quote.venue === modal.venue
               ? quote

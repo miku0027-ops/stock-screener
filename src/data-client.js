@@ -50,7 +50,7 @@ function emptyQuote(m) {
   };
 }
 export async function loadHistory(asset, period, signal) {
-  if (!staticHosting)
+  if (!staticHosting && markets.some((m) => m.id === asset.id))
     return json(
       `/api/history?symbol=${encodeURIComponent(asset.id)}&period=${period}`,
       signal,
@@ -83,13 +83,23 @@ export async function loadHistory(asset, period, signal) {
   if (!candles.length) throw new Error("No candles");
   return { candles, provider: "Binance", asOf: candles.at(-1).time * 1000 };
 }
-async function cryptoQuotes(period, signal) {
+async function cryptoQuotes(period, signal, streamRows) {
   const assets = markets.filter((m) => m.provider === "Binance");
   {
-    const data = await json(
-      `${cryptoBase}/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(assets.map((m) => m.id)))}`,
-      signal,
-    );
+    const data = streamRows?.length
+      ? streamRows.map((q) => ({
+          symbol: q.id,
+          lastPrice: q.price,
+          priceChangePercent: q.change,
+          highPrice: q.high ?? q.price,
+          lowPrice: q.low ?? q.price,
+          quoteVolume: q.volume,
+          closeTime: q.asOf,
+        }))
+      : await json(
+          `${cryptoBase}/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(assets.map((m) => m.id)))}`,
+          signal,
+        );
     if (!Array.isArray(data)) throw new Error("Invalid crypto quotes");
     const quotes = assets.map((m) => {
       const q = data.find((q) => q.symbol === m.id);
@@ -134,7 +144,7 @@ async function cryptoQuotes(period, signal) {
     );
   }
 }
-export async function loadMarkets(period, signal) {
+export async function loadMarkets(period, signal, streamRows) {
   if (!staticHosting) return json(`/api/markets?period=${period}`, signal);
   // Global feeds must never hold up a two-second crypto sample.
   if (Date.now() >= (snapshotRetry.get(period) || 0)) {
@@ -149,7 +159,9 @@ export async function loadMarkets(period, signal) {
       .finally(() => snapshotRequests.delete(period));
     snapshotRequests.set(period, job);
   }
-  const [crypto] = await Promise.allSettled([cryptoQuotes(period, signal)]);
+  const [crypto] = await Promise.allSettled([
+    cryptoQuotes(period, signal, streamRows),
+  ]);
   if (crypto.status === "rejected" && !snapshots.has(period))
     await snapshotRequests.get(period);
   if (signal?.aborted) throw new DOMException("Aborted", "AbortError");

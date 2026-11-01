@@ -105,7 +105,11 @@ export default function HuntChart({ data, kind, theme }) {
         position: e.direction === "bull" ? "belowBar" : "aboveBar",
         color: e.direction === "bull" ? "#a6e6b5" : "#f2a0a7",
         shape: e.direction === "bull" ? "arrowUp" : "arrowDown",
-        text: e.direction === "bull" ? "Bull div" : "Bear div",
+        text: e.label
+          ? `${e.direction === "bull" ? "Bull" : "Bear"} ${e.label === "RSI divergence" ? "RSI" : e.label === "Trend pullback" ? "pullback" : "breakout"}`
+          : e.direction === "bull"
+            ? "Bull div"
+            : "Bear div",
       })),
     );
     if (h.first) {

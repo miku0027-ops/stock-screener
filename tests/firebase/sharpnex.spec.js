@@ -1,4 +1,7 @@
 import { test, expect } from "@playwright/test";
+test.beforeEach(async ({ page }) => {
+  await page.routeWebSocket(/wss:\/\//, (ws) => ws.close());
+});
 import { markets } from "../../shared/markets.js";
 import { demoSnapshot } from "../../shared/demo.js";
 async function feeds(page) {
@@ -235,7 +238,9 @@ test("Perpetual analysis uses independent venue candles and read-only requests, 
   expect(requests).toContain("candleSnapshot");
   expect(
     requests.every((v) =>
-      ["metaAndAssetCtxs", "l2Book", "candleSnapshot"].includes(v),
+      ["metaAndAssetCtxs", "l2Book", "candleSnapshot", "recentTrades"].includes(
+        v,
+      ),
     ),
   ).toBe(true);
   await page.getByLabel("Search all coins").fill("PEPE");

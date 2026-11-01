@@ -1,63 +1,26 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Search, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { priceLabel as num } from "./price-format.js";
-import { coinUniverse } from "./market-intelligence.js";
-export default function CoinRail({ quotes, mode, paused, selected, onSelect }) {
-  const [all, setAll] = useState([]),
-    [search, setSearch] = useState(""),
-    [status, setStatus] = useState("loading"),
-    [received, setReceived] = useState(0),
-    [now, setNow] = useState(Date.now()),
+export default function CoinRail({
+  quotes,
+  mode,
+  paused,
+  selected,
+  onSelect,
+  feed,
+}) {
+  const [search, setSearch] = useState(""),
     [open, setOpen] = useState(false);
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  useEffect(() => {
-    if (mode !== "live" || paused) return;
-    const c = new AbortController();
-    let dead = false,
-      timer;
-    async function update() {
-      if (!document.hidden) {
-        try {
-          const d = await coinUniverse(c.signal);
-          if (!dead) {
-            setAll(d);
-            setReceived(Date.now());
-            setStatus("ready");
-          }
-        } catch {
-          if (!dead) setStatus("unavailable");
-        }
-      }
-      if (!dead) timer = setTimeout(update, 30000);
-    }
-    update();
-    return () => {
-      dead = true;
-      c.abort();
-      clearTimeout(timer);
-    };
-  }, [mode, paused]);
-  const known = quotes.filter((q) => q.provider === "Binance");
-  const rows = useMemo(() => {
-    const raw = mode === "live" && all.length ? all : known;
-    return raw
-      .map((r) => {
-        const q = known.find((q) => q.id === r.id);
-        return q?.price != null && mode === "live" && q.status === "live"
-          ? { ...r, price: q.price, asOf: q.asOf }
-          : r;
-      })
-      .filter((r) =>
-        `${r.symbol} ${r.id} ${r.name || ""}`
-          .toLowerCase()
-          .includes(search.toLowerCase()),
-      );
-  }, [all, quotes, search, mode]);
+  const rows = (
+    mode === "live" && feed?.rows.length
+      ? feed.rows
+      : quotes.filter((q) => q.provider === "Binance")
+  ).filter((r) =>
+    `${r.symbol} ${r.id}`.toLowerCase().includes(search.toLowerCase()),
+  );
   const stale =
-    mode === "live" && (paused || status !== "ready" || now - received > 45000);
+    mode === "live" &&
+    (paused || !["stream", "fallback"].includes(feed?.status));
   return (
     <aside
       className={`coin-rail ${open ? "rail-open" : ""}`}
@@ -71,7 +34,13 @@ export default function CoinRail({ quotes, mode, paused, selected, onSelect }) {
         <div className="rail-heading">
           <b>Markets</b>
           <span>
-            {mode === "demo" ? "DEMO" : stale ? "LIMITED / STALE" : "30s FEED"}
+            {mode === "demo"
+              ? "DEMO"
+              : stale
+                ? "LIMITED / STALE"
+                : feed?.status === "stream"
+                  ? "1s STREAM"
+                  : "5s FALLBACK"}
           </span>
         </div>
         <p className="rail-subtitle">Binance spot · USDT</p>
@@ -96,7 +65,8 @@ export default function CoinRail({ quotes, mode, paused, selected, onSelect }) {
           {rows.map((q, i) => (
             <button
               key={q.id}
-              className={`coin-row ${selected === q.id ? "selected" : ""}`}
+              className={`coin-row ${selected === q.id ? "selected" : ""} ${!paused && q.flash ? `coin-flash-${q.flash}` : ""} ${!q.asOf || Date.now() - q.asOf > 120000 ? "coin-quiet" : ""}`}
+              title={`${q.id} · updated ${q.asOf ? new Date(q.asOf).toLocaleTimeString() : "—"} · 24h change${!q.asOf || Date.now() - q.asOf > 120000 ? " · no recent price update" : ""}`}
               aria-label={`Analyze ${q.id}`}
               onClick={() => {
                 onSelect(q.id);
@@ -129,7 +99,9 @@ export default function CoinRail({ quotes, mode, paused, selected, onSelect }) {
             ? "Illustrative catalog"
             : stale
               ? "Last known prices · stale"
-              : "Sorted by 24h volume"}
+              : feed?.status === "stream"
+                ? "1s stream · real changes only"
+                : "REST fallback · 5s snapshots"}
         </div>
       </div>
     </aside>

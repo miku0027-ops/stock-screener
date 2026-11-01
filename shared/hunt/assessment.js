@@ -18,7 +18,7 @@ export function assessHunt(
     "Fresh candles",
     data?.status === "ready" &&
       !paused &&
-      now - data.receivedAt < 40000 &&
+      now - data.receivedAt < 45000 &&
       now - data.receivedAt >= 0,
   );
   add(
@@ -52,6 +52,7 @@ export function assessHunt(
     (c.direction === 1 ? bar.low <= c.stop : bar.high >= c.stop);
   const targetTouched =
     bar &&
+    bar.time * 1000 >= c.confirmedAt &&
     c.stage === "triggered" &&
     (c.direction === 1 ? bar.high >= c.target : bar.low <= c.target);
   add(
@@ -62,7 +63,7 @@ export function assessHunt(
       projected.distance > 0 &&
       projected.reward > 0,
   );
-  add("Closed-bar breakout", c.stage === "triggered");
+  add("Closed-bar confirmation", c.stage === "triggered");
   add("Entry within 0.5 ATR", q && Math.abs(entry - c.entry) <= c.atr * 0.5);
   add("Net reward ≥ risk", projected.netR >= 1);
   add("Spread within profile", q && q.spreadBps <= p.maxSpread);
@@ -80,7 +81,8 @@ export function assessHunt(
     );
   // Research qualification is stricter than merely passing technical filters.
   const supported =
-    data.interval === "1m" &&
+    model?.interval === data.interval &&
+    model?.family === c.family &&
     data.venue === "spot" &&
     model?.symbol === data.symbol &&
     model?.venue === "spot" &&

@@ -20,20 +20,26 @@ jobs:
       - run: python -m pip install numpy==2.3.5
       - uses: actions/cache@v4
         with:
-          path: /tmp/sharpnex-history
-          key: sharpnex-archives-2023-01-2026-09-v1
+          path: |
+            /tmp/sharpnex-history
+            /tmp/sharpnex-october
+          key: sharpnex-archives-through-2026-10-v2
       - name: Download and verify official SHA-256 checksums
         run: node scripts/hunt/download.mjs /tmp/sharpnex-history
       - name: Normalize and audit candles
         run: python scripts/hunt/convert.py /tmp/sharpnex-history
+      - name: Verify independent October daily archives
+        run: node scripts/hunt/download-october.mjs /tmp/sharpnex-october
+      - name: Normalize available October data and preserve missing-day gaps
+        run: python scripts/hunt/convert.py /tmp/sharpnex-october --allow-missing
       - name: Run causal engine tests
         run: npm test
       - name: Train, validate and evaluate frozen holdout
-        run: node scripts/hunt/research.mjs /tmp/sharpnex-history /tmp/hunt-report/hunt-validation.json
+        run: node scripts/hunt/research-discovery.mjs /tmp/sharpnex-history /tmp/sharpnex-october /tmp/hunt-report/discovery-validation.json
       - uses: actions/upload-artifact@v4
         with:
           name: hunt-validation
-          path: /tmp/hunt-report/hunt-validation.json
+          path: /tmp/hunt-report/discovery-validation.json
   publish:
     needs: research
     runs-on: ubuntu-latest
@@ -54,8 +60,8 @@ jobs:
           path: /tmp/hunt-report
       - name: Publish report without replacing other market data
         run: |
-          cp /tmp/hunt-report/hunt-validation.json hunt-validation.json
-          git add hunt-validation.json
+          cp /tmp/hunt-report/discovery-validation.json discovery-validation.json
+          git add discovery-validation.json
           if git diff --cached --quiet; then exit 0; fi
-          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Publish reproducible one-minute hunt study'
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Publish reproducible multi-timeframe discovery study'
           git push origin HEAD:market-data

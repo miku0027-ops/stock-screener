@@ -123,6 +123,7 @@ function assessmentCase() {
   d.receivedAt = now;
   d.rule = DEFAULT_RULE;
   d.candidate.relativeVolume = 2;
+  d.candidate.family = "divergence";
   d.currentCandle = candles.at(-1);
   const quote = {
     symbol: d.symbol,
@@ -143,7 +144,13 @@ function assessmentCase() {
     })),
     events: [],
   };
-  const model = { symbol: d.symbol, venue: "spot", verdict: "positive-sample" };
+  const model = {
+    symbol: d.symbol,
+    venue: "spot",
+    verdict: "positive-sample",
+    interval: "1m",
+    family: "divergence",
+  };
   return { d, quote, research, model };
 }
 test("Eligibility fails closed for events, stale data, chasing, pause, unmatched evidence and invalidated stops", () => {

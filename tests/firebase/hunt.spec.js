@@ -1,4 +1,7 @@
 import { test, expect } from "@playwright/test";
+test.beforeEach(async ({ page }) => {
+  await page.routeWebSocket(/wss:\/\//, (ws) => ws.close());
+});
 import fixture from "../fixtures/hunt-candles.json" with { type: "json" };
 import { markets } from "../../shared/markets.js";
 import { demoSnapshot } from "../../shared/demo.js";
@@ -111,14 +114,14 @@ test("A real historical divergence fixture produces a conditional plan modal, ne
   await expect(modal).toContainText("Stop reference");
   await expect(modal).toContainText("Target reference");
   await expect(modal).toContainText("Net reward / risk");
-  await expect(modal).toContainText("No qualified entry recommendation");
+  await expect(modal).toContainText("Conditional research");
   await modal.getByText("Risk sizing", { exact: true }).click();
   await page.getByLabel("Equity in USD").fill("1000");
   await expect(modal).toContainText("$2.50");
   await page.getByRole("tab", { name: "Evidence", exact: true }).click();
   await expect(modal).toContainText("No demonstrated edge after costs");
-  await expect(modal).toContainText("10.0%");
-  await expect(modal).toContainText("10");
+  await expect(modal).toContainText("October 2026 holdout");
+  await expect(modal).toContainText("Historical frequency");
   await page.getByRole("tab", { name: "Sources", exact: true }).click();
   await expect(modal).toContainText("Binance spot");
   await page.keyboard.press("Escape");
@@ -128,7 +131,7 @@ test("A real historical divergence fixture produces a conditional plan modal, ne
   ).toBeFocused();
   expect(errors).toEqual([]);
 });
-test("Quote polling targets two seconds, pausing stops it, and expired hunts cannot remain eligible in an open modal", async ({
+test("Quote polling targets one second, pausing stops it, and expired hunts cannot remain eligible in an open modal", async ({
   page,
 }) => {
   const mock = await setup(page);
@@ -145,9 +148,7 @@ test("Quote polling targets two seconds, pausing stops it, and expired hunts can
   await expect(page.locator(".hunt-title")).toContainText("Paused");
   await page.getByRole("button", { name: "Inspect setup" }).click();
   await expect(page.locator(".hunt-modal-status")).toContainText("0s left");
-  await expect(page.getByRole("dialog")).toContainText(
-    "No qualified entry recommendation",
-  );
+  await expect(page.getByRole("dialog")).toContainText("Conditional research");
 });
 test("HTTP 429 backs off instead of hammering the quote API", async ({
   page,
@@ -201,8 +202,6 @@ test("An open empty-state modal survives a candle-feed outage without displaying
   await expect(page.locator(".hunt-chart-overlay")).toContainText(
     "Source unavailable",
   );
-  await expect(page.getByRole("dialog")).toContainText(
-    "No qualified entry recommendation",
-  );
+  await expect(page.getByRole("dialog")).toContainText("Conditional research");
   expect(errors).toEqual([]);
 });

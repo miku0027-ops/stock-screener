@@ -1,5 +1,9 @@
 import { getJSON, hyperJSON } from "./trading-data.js";
-import { liveScan, DEFAULT_RULE } from "../shared/hunt/engine.js";
+import {
+  liveDiscovery,
+  BASE_RULES,
+  minutesOf,
+} from "../shared/hunt/strategies.js";
 const base = "https://data-api.binance.vision/api/v3",
   cache = new Map();
 let metadata = null,
@@ -39,33 +43,32 @@ async function contract(symbol, signal) {
   if (index < 0) throw Error("No supported perpetual");
   return { coin, context: m.contexts[index], asOf: m.at };
 }
-export async function scanMarket(
-  symbol,
-  venue,
-  interval = "1m",
-  rule = DEFAULT_RULE,
-  signal,
-) {
-  if (!/^[A-Z0-9]{2,20}USDT$/.test(symbol) || !["1m", "5m"].includes(interval))
-    throw Error("Unsupported market");
-  const ms = interval === "1m" ? 60000 : 300000,
-    start = Date.now(),
-    key = `${venue}:${symbol}:${interval}`,
-    old = cache.get(key),
-    incremental = old && start - old.at < ms * 2;
+async function oneMinuteHistory(symbol, venue, signal) {
+  const start = Date.now(),
+    key = `${venue}:${symbol}`,
+    old = cache.get(key);
+  if (old && start - old.at < 8000) return old;
+  const incremental = old && start - old.at < 180000;
   let incoming,
     clock,
     derivatives = null;
   if (venue === "spot") {
-    const [rows, time] = await Promise.all([
-      getJSON(
-        `${base}/klines?symbol=${symbol}&interval=${interval}&limit=${incremental ? 3 : 500}`,
+    const rows = [];
+    let endTime;
+    for (let page = 0; page < (incremental ? 1 : 3); page++) {
+      const data = await getJSON(
+        `${base}/klines?symbol=${symbol}&interval=1m&limit=${incremental ? 5 : 1000}${endTime ? `&endTime=${endTime}` : ""}`,
         signal,
-      ),
-      getJSON(`${base}/time`, signal),
-    ]);
-    if (!Array.isArray(rows) || !Number.isFinite(time.serverTime))
-      throw Error("Invalid exchange response");
+      );
+      if (!Array.isArray(data) || !data.length)
+        throw Error("Candles unavailable");
+      rows.unshift(...data);
+      if (incremental || data.length < 1000) break;
+      const next = Number(data[0][0]) - 1;
+      if (endTime && next >= endTime) break;
+      endTime = next;
+    }
+    const time = await getJSON(`${base}/time`, signal);
     clock = time.serverTime;
     incoming = rows.map((r) => ({
       time: +r[0] / 1000,
@@ -83,8 +86,8 @@ export async function scanMarket(
             type: "candleSnapshot",
             req: {
               coin,
-              interval,
-              startTime: start - (incremental ? 3 : 502) * ms,
+              interval: "1m",
+              startTime: start - (incremental ? 5 : 2400) * 60000,
               endTime: start,
             },
           },
@@ -92,8 +95,7 @@ export async function scanMarket(
         ),
         hyperJSON({ type: "l2Book", coin }, signal),
       ]);
-    if (!Array.isArray(rows) || !Number.isFinite(book.time))
-      throw Error("Invalid perpetual candles");
+    if (!Array.isArray(rows)) throw Error("Perpetual candles unavailable");
     clock = book.time;
     incoming = rows.map((r) => ({
       time: +r.t / 1000,
@@ -121,6 +123,12 @@ export async function scanMarket(
         asOf,
       };
   }
+  if (
+    !Number.isFinite(clock) ||
+    Math.abs(clock - Date.now()) > 10000 ||
+    Date.now() - start > 20000
+  )
+    throw Error("Exchange clock or response stale");
   const candles = [
     ...new Map(
       [...(incremental ? old.candles : []), ...incoming].map((c) => [
@@ -130,37 +138,47 @@ export async function scanMarket(
     ).values(),
   ]
     .sort((a, b) => a.time - b.time)
-    .slice(-600);
+    .slice(-2400);
   if (
     candles.some(
       (c) =>
         ![c.time, c.open, c.high, c.low, c.close, c.volume].every(
           Number.isFinite,
         ) ||
+        c.time % 60 !== 0 ||
+        c.time * 1000 > clock ||
         c.low <= 0 ||
         c.volume < 0 ||
-        c.time * 1000 > clock ||
-        c.time % (ms / 1000) !== 0 ||
         c.high < Math.max(c.open, c.close) ||
         c.low > Math.min(c.open, c.close),
     )
   )
     throw Error("Invalid OHLC");
-  const result = liveScan(candles, clock, ms / 1000, rule, venue),
-    latency = Date.now() - start;
-  if (latency > 8000 || Math.abs(clock - Date.now()) > 10000)
-    throw Error("Exchange response stale");
-  cache.set(key, { candles, at: Date.now() });
+  const value = { candles, clock, derivatives, at: Date.now() };
+  cache.set(key, value);
+  return value;
+}
+export async function scanMarket(
+  symbol,
+  venue,
+  interval = "1m",
+  rules = BASE_RULES,
+  signal,
+  family = "blend",
+) {
+  if (!/^[A-Z0-9]{2,20}USDT$/.test(symbol)) throw Error("Unsupported market");
+  minutesOf(interval);
+  const h = await oneMinuteHistory(symbol, venue, signal),
+    result = liveDiscovery(h.candles, h.clock, interval, rules, venue, family);
   return {
     ...result,
     symbol,
     venue,
     interval,
-    rule,
-    derivatives,
-    currentCandle: incoming.at(-1),
-    receivedAt: Date.now(),
-    price: incoming.at(-1)?.close,
+    rule: result.candidate?.rule || rules.divergence || BASE_RULES.divergence,
+    derivatives: h.derivatives,
+    receivedAt: h.at,
+    price: h.candles.at(-1)?.close,
   };
 }
 export async function huntQuote(symbol, venue, signal) {

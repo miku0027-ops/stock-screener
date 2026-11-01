@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 test.beforeEach(async ({ page }) => {
+  await page.routeWebSocket(/wss:\/\//, (ws) => ws.close());
+});
+test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem("sharpnex-profile", '"defensive"');
     localStorage.setItem("sharpnex-view", '"heatmap"');
@@ -10,9 +13,9 @@ import { markets } from "../../shared/markets.js";
 import unlocks from "../../data/announced-unlocks.json" with { type: "json" };
 async function feeds(page, { failCandles = false } = {}) {
   const now = Date.now(),
-    end = Math.floor(now / 300000) * 300000;
-  const rows = Array.from({ length: 150 }, (_, i) => {
-    const time = end - (149 - i) * 300000,
+    end = Math.floor(now / 60000) * 60000;
+  const rows = Array.from({ length: 900 }, (_, i) => {
+    const time = end - (899 - i) * 60000,
       p = 100 + Math.sin(i * 0.4) * 3 + i * 0.01;
     return [
       time,
@@ -21,7 +24,7 @@ async function feeds(page, { failCandles = false } = {}) {
       String(p - 2),
       String(p + 0.1),
       "100",
-      time + 299999,
+      time + 59999,
     ];
   });
   let count = 0;
@@ -35,13 +38,13 @@ async function feeds(page, { failCandles = false } = {}) {
         json: { bids: [["99", "2"]], asks: [["100", "2"]] },
       });
     if (url.pathname.endsWith("/klines")) {
-      if (url.searchParams.get("interval") === "5m") {
+      if (url.searchParams.get("interval") === "1m") {
         limits.push(url.searchParams.get("limit"));
         return failCandles
           ? route.fulfill({ status: 503, body: "unavailable" })
           : route.fulfill({
               json:
-                url.searchParams.get("limit") === "3" ? rows.slice(-3) : rows,
+                url.searchParams.get("limit") === "5" ? rows.slice(-5) : rows,
             });
       }
       return route.fulfill({
@@ -109,6 +112,10 @@ test("two-second heatmap samples real changes, leaves global markets neutral and
   const mock = await feeds(page);
   await page.goto("/");
   await expect(page.locator(".asset-price")).toContainText("97,433.18");
+  await page
+    .getByLabel("Heatmap timeframe")
+    .getByRole("button", { name: "2s", exact: true })
+    .click();
   await expect(
     page
       .getByLabel("Heatmap timeframe")
@@ -138,21 +145,19 @@ test("one-minute hunt and optional five-minute analysis use candles, incremental
   const mock = await feeds(page);
   await page.goto("/");
   await page.getByLabel("Trade hunt", { exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: "1m", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByLabel("More timeframes")).toHaveValue("all");
   await page.getByRole("button", { name: "5m", exact: true }).click();
   await expect(page.locator(".five-minute-chart canvas").first()).toBeVisible();
-  await expect(page.locator(".hunt-queue-foot")).toContainText("Quotes 2s");
+  await expect(page.locator(".hunt-queue-foot")).toContainText("Quotes 1s");
   await expect
-    .poll(() => mock.limits.includes("3"), { timeout: 25000 })
+    .poll(() => mock.limits.includes("5"), { timeout: 25000 })
     .toBe(true);
-  await page.getByLabel("Hunt ETHUSDT", { exact: true }).click();
+  await page.getByLabel("Hunt ETHUSDT 5m", { exact: true }).click();
   await expect(page.locator(".hunt-chart-heading")).toContainText("ETHUSDT");
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.getByRole("tab", { name: "Evidence", exact: true }).click();
   await expect(page.locator(".hunt-modal-body")).toContainText(
-    "No matched backtest",
+    "October 2026 holdout",
   );
   await page.keyboard.press("Escape");
   expect(errors).toEqual([]);

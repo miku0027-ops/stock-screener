@@ -5484,4 +5484,196 @@ main {
     height: calc(100dvh - 64px);
   }
 }
-@media(min-width:1201px){.app-shell .dashboard-grid{height:calc(100dvh - 300px);min-height:480px}}
+@media (min-width: 1201px) {
+  .app-shell .dashboard-grid {
+    height: calc(100dvh - 300px);
+    min-height: 480px;
+  }
+}
+/* One-second source updates change color, never fabricate intermediate prices. */
+.coin-row .coin-numbers b {
+  font-variant-numeric: tabular-nums;
+  transition: color 0.35s ease;
+}
+.coin-row.coin-flash-up {
+  background: color-mix(in srgb, var(--green) 12%, var(--panel));
+}
+.coin-row.coin-flash-down {
+  background: color-mix(in srgb, var(--red) 12%, var(--panel));
+}
+.coin-flash-up .coin-numbers b {
+  color: var(--green);
+}
+.coin-flash-down .coin-numbers b {
+  color: var(--red);
+}
+.hunt-controls {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.hunt-select {
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--text);
+  background: var(--panel);
+  font-size: 11px;
+  max-width: 145px;
+}
+.hunt-row-main b em {
+  font-weight: 400;
+  font-size: 9px;
+  color: var(--muted);
+  font-style: normal;
+  margin-left: 4px;
+}
+.hunt-row-main small {
+  line-height: 1.4;
+}
+.hunt-row {
+  min-height: 66px;
+}
+.hunt-row.selected {
+  border-radius: 0;
+}
+.market-tape {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 11px 16px;
+  border-top: 1px solid var(--line);
+  height: 60px;
+  min-width: 0;
+  overflow: hidden;
+}
+.market-tape > span {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 10px;
+}
+.market-tape > span small {
+  font-size: 9px;
+  color: var(--muted);
+}
+.market-tape > div {
+  display: flex;
+  overflow: auto;
+  gap: 18px;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: none;
+}
+.market-tape > div > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  white-space: nowrap;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.market-tape b {
+  font-weight: 500;
+}
+.market-tape > div small {
+  font-size: 9px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.evidence-family {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  margin: 0 0 13px;
+}
+.release-notice {
+  position: fixed;
+  bottom: 16px;
+  right: 18px;
+  z-index: 1001;
+  background: var(--accent);
+  color: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 10px 13px;
+  font-size: 12px;
+  box-shadow: 0 4px 24px #0003;
+}
+@media (min-width: 851px) {
+  .hunt-desk .five-minute-chart {
+    height: clamp(270px, calc(100dvh - 470px), 700px);
+    min-height: 270px;
+  }
+  .hunt-queue {
+    max-height: calc(100dvh - 335px);
+    min-height: 300px;
+  }
+  .hunt-live {
+    margin-left: 2px;
+  }
+}
+@media (max-width: 1200px) {
+  .hunt-toolbar {
+    align-items: flex-start;
+  }
+  .hunt-title {
+    padding-top: 8px;
+  }
+  .hunt-controls {
+    gap: 6px;
+  }
+  .hunt-select {
+    max-width: 125px;
+  }
+}
+@media (max-width: 600px) {
+  .hunt-controls {
+    justify-content: flex-start;
+    gap: 7px;
+  }
+  .hunt-select {
+    font-size: 10px;
+    padding: 7px;
+    max-width: 121px;
+  }
+  .hunt-select[aria-label="More timeframes"] {
+    max-width: 84px;
+  }
+  .hunt-toolbar {
+    gap: 10px;
+  }
+  .hunt-title {
+    padding-top: 0;
+  }
+  .hunt-controls > .icon-button {
+    width: 28px;
+    height: 28px;
+  }
+  .hunt-queue {
+    min-height: 0;
+  }
+  .hunt-row-main small {
+    max-width: 135px;
+    font-size: 9px;
+  }
+  .market-tape {
+    padding: 10px 12px;
+    height: 56px;
+    gap: 12px;
+  }
+  .hunt-desk .five-minute-chart {
+    height: 285px;
+    min-height: 285px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coin-row,
+  .coin-row .coin-numbers b {
+    transition: none;
+  }
+  .heat-tile {
+    animation: none !important;
+  }
+}
+.coin-row.coin-quiet .coin-numbers{opacity:.65}

@@ -8,6 +8,7 @@ for venue in ['spot','futures/um']:
   chunks=[]
   for item in manifest['archives']:
    if item['venue']!=venue or item['symbol']!=symbol: continue
+   if item['status']=='missing' and '--allow-missing' in sys.argv: continue
    if item['status']!='verified': raise ValueError('Incomplete archive set')
    source=pathlib.Path(item['file'])
    if hashlib.sha256(source.read_bytes()).hexdigest()!=item['sha256']: raise ValueError('Checksum changed')

@@ -42,6 +42,8 @@ import {
 import { markets, groups, marketContext } from "../shared/markets";
 import { demoSnapshot, demoHistory } from "../shared/demo";
 import "./styles.css";
+import { useCryptoFeed } from "./crypto-feed.js";
+import ReleaseNotice from "./ReleaseNotice.jsx";
 import Brand from "./Brand.jsx";
 import CoinRail from "./CoinRail.jsx";
 import TraderProfile from "./TraderProfile.jsx";
@@ -346,7 +348,7 @@ function App() {
         })),
   );
   const [colorWindow, setColorWindow] = useState(
-    mode === "demo" ? "period" : "2s",
+    mode === "demo" ? "period" : "tick",
   );
   const [period, setPeriod] = useState("1D"),
     [chartPeriod, setChartPeriod] = useState("1D"),
@@ -369,6 +371,9 @@ function App() {
     [flashes, setFlashes] = useState({}),
     [clock, setClock] = useState(new Date()),
     [expanded, setExpanded] = useState(false);
+  const cryptoFeed = useCryptoFeed(mode === "live" && !paused);
+  const feedRef = useRef(cryptoFeed);
+  feedRef.current = cryptoFeed;
   const previous = useRef({}),
     searchRef = useRef(null),
     modalRef = useRef(null);
@@ -450,7 +455,11 @@ function App() {
       }
       setLoading(true);
       try {
-        const data = await loadMarkets(period, controller.signal);
+        const data = await loadMarkets(
+          period,
+          controller.signal,
+          feedRef.current.status === "stream" ? feedRef.current.rows : null,
+        );
         if (stopped) return;
         if (data.available === 0) {
           setFallback(true);
@@ -543,15 +552,94 @@ function App() {
       return next;
     });
   }
-  const asset = quotes.find((q) => q.id === selected) || quotes[0];
-  const displayedQuotes = quotes.map((q) => ({
+  const feedById = new Map(cryptoFeed.rows.map((q) => [q.id, q]));
+  const liveQuotes = quotes.map((q) => {
+    const v = mode === "live" && !paused ? feedById.get(q.id) : null;
+    if (!v || !(v.price > 0) || q.asOf > v.asOf) return q;
+    return {
+      ...q,
+      price: v.price,
+      asOf: v.asOf,
+      high: v.high ?? q.high,
+      low: v.low ?? q.low,
+      volume: v.volume,
+      status:
+        ["stream", "fallback"].includes(cryptoFeed.status) &&
+        Date.now() - v.asOf < 120000
+          ? "live"
+          : "stale",
+      change:
+        period === "1D"
+          ? v.change
+          : q.price > 0 && Number.isFinite(q.change)
+            ? (v.price / (q.price / (1 + q.change / 100)) - 1) * 100
+            : null,
+      tickChange: v.tickChange,
+      tickInterval: v.tickInterval,
+    };
+  });
+  const expandedCrypto =
+    mode === "live" &&
+    (category === "Crypto" ||
+      search ||
+      view === "watchlist" ||
+      view === "movers");
+  const extras = expandedCrypto
+    ? cryptoFeed.rows
+        .filter((r) => !liveQuotes.some((q) => q.id === r.id))
+        .map((r) => ({
+          ...r,
+          name: r.symbol,
+          provider: "Binance",
+          group: "Crypto",
+          type: "Cryptocurrency",
+          currency: "USDT",
+          weight: Math.max(1, Math.log10(Math.max(10, r.volume)) - 3),
+          sampleInterval: r.tickInterval,
+          status:
+            ["stream", "fallback"].includes(cryptoFeed.status) &&
+            Date.now() - r.asOf < 120000
+              ? "live"
+              : "stale",
+          spark: [],
+          change: period === "1D" ? r.change : null,
+        }))
+    : [];
+  const allQuotes = [
+    ...liveQuotes.filter(
+      (q) =>
+        category !== "Crypto" ||
+        !cryptoFeed.rows.length ||
+        q.provider !== "Binance" ||
+        feedById.has(q.id),
+    ),
+    ...extras,
+  ];
+  const asset = allQuotes.find((q) => q.id === selected) || liveQuotes[0];
+  const liveFlashes = {
+    ...flashes,
+    ...Object.fromEntries(
+      cryptoFeed.rows
+        .filter((q) => !paused && q.flash)
+        .map((q) => [q.id, q.flash]),
+    ),
+  };
+  const displayedQuotes = allQuotes.map((q) => ({
     ...q,
+    sampleInterval: colorWindow === "tick" ? q.tickInterval : q.sampleInterval,
     change:
-      colorWindow === "2s"
-        ? mode === "live" && !paused && Date.now() - (fetchedAt || 0) < 8000
-          ? (q.twoSecondChange ?? null)
+      colorWindow === "tick"
+        ? mode === "live" &&
+          !paused &&
+          cryptoFeed.status === "stream" &&
+          Date.now() - q.asOf < 6000
+          ? (q.tickChange ?? null)
           : null
-        : q.change,
+        : colorWindow === "2s"
+          ? mode === "live" && !paused && Date.now() - (fetchedAt || 0) < 8000
+            ? (q.twoSecondChange ?? null)
+            : null
+          : q.change,
   }));
   const filtered = displayedQuotes.filter(
     (q) =>
@@ -590,7 +678,9 @@ function App() {
         "Name",
         "Price",
         "Currency",
-        colorWindow === "2s" ? "Sample change (%)" : "Change (%)",
+        ["2s", "tick"].includes(colorWindow)
+          ? "Sample change (%)"
+          : "Change (%)",
         "Sample interval (ms)",
         "Source",
         "Status",
@@ -602,7 +692,7 @@ function App() {
         q.price ?? "",
         q.currency,
         q.change ?? "",
-        colorWindow === "2s" ? (q.sampleInterval ?? "") : "",
+        ["2s", "tick"].includes(colorWindow) ? (q.sampleInterval ?? "") : "",
         q.provider,
         q.status,
         q.asOf ? new Date(q.asOf).toISOString() : "DEMO",
@@ -625,6 +715,7 @@ function App() {
       <div className="workspace">
         <header className="topbar">
           <Brand />
+          <ReleaseNotice />
           <div className="top-nav">
             <button
               aria-label="Trade hunt"
@@ -717,6 +808,7 @@ function App() {
         <div className="terminal-body">
           <CoinRail
             quotes={quotes}
+            feed={cryptoFeed}
             mode={mode}
             paused={paused}
             selected={signalSymbol}
@@ -754,6 +846,7 @@ function App() {
                 symbol={signalSymbol}
                 onSymbol={setSignalSymbol}
                 research={research}
+                feed={cryptoFeed}
               />
             ) : view === "news" ? (
               <ResearchBoard research={research} quotes={quotes} />
@@ -867,6 +960,15 @@ function App() {
                         aria-label="Heatmap timeframe"
                       >
                         <button
+                          className={colorWindow === "tick" ? "active" : ""}
+                          onClick={() => {
+                            setColorWindow("tick");
+                            setPeriod("1D");
+                          }}
+                        >
+                          Live tick
+                        </button>
+                        <button
                           className={colorWindow === "2s" ? "active" : ""}
                           onClick={() => {
                             setColorWindow("2s");
@@ -877,7 +979,7 @@ function App() {
                         </button>
                         {["1D", "1W", "1M"].map((p) => (
                           <button
-                            key={p}
+                            key={p === "tick" ? "Live tick" : p}
                             className={
                               colorWindow === "period" && period === p
                                 ? "active"
@@ -888,16 +990,18 @@ function App() {
                               setPeriod(p);
                             }}
                           >
-                            {p}
+                            {p === "tick" ? "Live tick" : p}
                           </button>
                         ))}
                       </div>
                       <span className="toolbar-note">
-                        {colorWindow === "2s"
-                          ? "2s crypto samples · global feeds neutral"
-                          : period === "1D"
-                            ? "Session change"
-                            : "Period change"}{" "}
+                        {colorWindow === "tick"
+                          ? "1s crypto stream · changes only when traded"
+                          : colorWindow === "2s"
+                            ? "2s crypto samples · global feeds neutral"
+                            : period === "1D"
+                              ? "Session change"
+                              : "Period change"}{" "}
                         <button
                           className="inline-icon"
                           title="How changes are calculated"
@@ -987,8 +1091,8 @@ function App() {
                             selected={selected}
                             onSelect={selectAsset}
                             sizeBy={sizeBy}
-                            flashes={flashes}
-                            fast={colorWindow === "2s"}
+                            flashes={liveFlashes}
+                            fast={["2s", "tick"].includes(colorWindow)}
                           />
                         ))}
                       </div>
@@ -1104,10 +1208,10 @@ function App() {
                           {["1D", "1W", "1M", "3M", "1Y"].map((p) => (
                             <button
                               className={chartPeriod === p ? "active" : ""}
-                              key={p}
+                              key={p === "tick" ? "Live tick" : p}
                               onClick={() => setChartPeriod(p)}
                             >
-                              {p}
+                              {p === "tick" ? "Live tick" : p}
                             </button>
                           ))}
                         </div>

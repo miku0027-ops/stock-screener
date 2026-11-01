@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 test.beforeEach(async ({ page }) => {
+  await page.routeWebSocket(/wss:\/\//, (ws) => ws.close());
+});
+test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem("sharpnex-profile", '"defensive"');
     localStorage.setItem("sharpnex-view", '"heatmap"');
