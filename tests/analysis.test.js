@@ -353,3 +353,20 @@ test("Publisher fallback keeps explicit timezone offsets, rejects stale weeks an
   assert.equal("forecast" in result[0], false);
   assert.throws(() => parseWeeklyCalendar(rows, now + 14 * 86400000));
 });
+
+test("Political calendar placeholders never masquerade as precise election times", () => {
+  const [event] = parseWeeklyCalendar(
+    [
+      {
+        title: "Congressional Elections",
+        country: "USD",
+        impact: "High",
+        date: "2026-11-01T10:16:00-05:00",
+      },
+    ],
+    now,
+  );
+  assert.equal(event.at, null);
+  assert.equal(event.timePrecision, "day");
+  assert.equal(event.date, "2026-11-01");
+});

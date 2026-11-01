@@ -342,9 +342,14 @@ export function parseWeeklyCalendar(rows, now = Date.now()) {
     .map((r) => ({
       id: `ff-${r.at}-${plain(r.title)}`,
       title: plain(r.title),
-      at: r.at,
-      date: new Date(r.at).toISOString().slice(0, 10),
-      timePrecision: "minute",
+      // Election/all-day placeholders in publisher feeds are not precise release times.
+      at: /elections?|all[ -]?day|tentative|holiday/i.test(r.title)
+        ? null
+        : r.at,
+      date: r.date.slice(0, 10),
+      timePrecision: /elections?|all[ -]?day|tentative|holiday/i.test(r.title)
+        ? "day"
+        : "minute",
       priority: "major",
       source: "Forex Factory / Fair Economy · publisher-reported",
       url: WEEKLY_CALENDAR_URL,
