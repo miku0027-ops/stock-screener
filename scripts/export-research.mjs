@@ -9,6 +9,8 @@ import {
   parseBLS,
   parseFOMC,
   parseFRED,
+  parseWeeklyCalendar,
+  WEEKLY_CALENDAR_URL,
 } from "../shared/research.js";
 const dir = path.resolve(process.argv[2] || "/tmp/atlas-market-data"),
   file = path.join(dir, "research.json"),
@@ -105,7 +107,35 @@ const results = await Promise.all(
             items,
           };
         } catch (fallbackError) {
-          e = new Error(`${e.message}; ${fallbackError.message}`);
+          try {
+            const response = await fetch(WEEKLY_CALENDAR_URL, {
+              dispatcher,
+              signal: AbortSignal.timeout(20000),
+            });
+            if (!response.ok)
+              throw Error(`Publisher calendar HTTP ${response.status}`);
+            const items = parseWeeklyCalendar(await response.json(), now);
+            return {
+              source: {
+                id: s.id,
+                name: "Forex Factory · US event calendar",
+                url: WEEKLY_CALENDAR_URL,
+                kind: "calendar",
+                checkedAt: now,
+                status: "ok",
+                count: items.length,
+                fallback: true,
+                primaryError: `${e.message}; ${fallbackError.message}`,
+                coverage:
+                  "Publisher-reported high-impact USD events, current week only. Times may change; not independently verified.",
+              },
+              items,
+            };
+          } catch (publisherError) {
+            e = new Error(
+              `${e.message}; ${fallbackError.message}; ${publisherError.message}`,
+            );
+          }
         }
       }
       const old = previous.sources?.find((v) => v.id === s.id);

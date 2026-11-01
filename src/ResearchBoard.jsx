@@ -29,6 +29,7 @@ export function EventRibbon({ research }) {
                 ? `${e.date} · time unspecified`
                 : date(e.at)}
             </small>
+            <small>{e.source}</small>
           </a>
         ))
       ) : (
@@ -62,7 +63,7 @@ export default function ResearchBoard({ research, quotes }) {
           </div>
           <h2>World monitor</h2>
           <p>
-            Publisher headlines, official calendars and observed markets. No
+            Publisher headlines, published calendars and observed markets. No
             generated news or inferred price targets.
           </p>
         </div>
@@ -163,7 +164,7 @@ export default function ResearchBoard({ research, quotes }) {
                   : "Unavailable / stale"}
               </span>
               <small>{s.checkedAt ? date(s.checkedAt) : "Not checked"}</small>
-              {s.fallback && <small>Official fallback · {s.coverage}</small>}
+              {s.fallback && <small>Fallback coverage · {s.coverage}</small>}
             </div>
           ))}
           {!research && <p>Source status unavailable.</p>}

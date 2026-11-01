@@ -17,6 +17,7 @@ import {
   parseBLS,
   parseFOMC,
   parseFRED,
+  parseWeeklyCalendar,
 } from "../shared/research.js";
 const now = Date.parse("2026-11-01T12:00:00Z");
 const calendar = {
@@ -327,4 +328,28 @@ test("FRED fallback preserves official attribution and converts explicitly label
   );
   assert.equal(dateOnly.at, null);
   assert.equal(dateOnly.timePrecision, "day");
+});
+
+test("Publisher fallback keeps explicit timezone offsets, rejects stale weeks and discards forecasts", () => {
+  const rows = [
+    {
+      title: "USD report",
+      country: "USD",
+      date: "2026-11-01T10:00:00-05:00",
+      impact: "High",
+      forecast: "invented",
+    },
+    {
+      title: "Other region",
+      country: "EUR",
+      date: "2026-11-02T10:00:00+01:00",
+      impact: "High",
+    },
+  ];
+  const result = parseWeeklyCalendar(rows, now);
+  assert.equal(result.length, 1);
+  assert.equal(result[0].at, Date.parse("2026-11-01T15:00:00Z"));
+  assert.match(result[0].source, /publisher-reported/);
+  assert.equal("forecast" in result[0], false);
+  assert.throws(() => parseWeeklyCalendar(rows, now + 14 * 86400000));
 });

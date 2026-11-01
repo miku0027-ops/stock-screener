@@ -311,3 +311,42 @@ export function parseFRED(html, releaseId, sourceURL, now = Date.now()) {
   if (!events.length) throw Error("No upcoming FRED release dates verified");
   return events;
 }
+
+export const WEEKLY_CALENDAR_URL =
+  "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
+export function parseWeeklyCalendar(rows, now = Date.now()) {
+  if (!Array.isArray(rows) || rows.length === 0 || rows.length > 500)
+    throw Error("Invalid publisher calendar");
+  const dated = rows
+    .filter(
+      (r) =>
+        typeof r.date === "string" &&
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/.test(
+          r.date,
+        ),
+    )
+    .map((r) => ({ ...r, at: Date.parse(r.date) }))
+    .filter((r) => Number.isFinite(r.at));
+  if (
+    !dated.length ||
+    Math.min(...dated.map((r) => r.at)) > now + 36 * 3600000 ||
+    Math.max(...dated.map((r) => r.at)) < now ||
+    Math.max(...dated.map((r) => r.at)) > now + 9 * 86400000
+  )
+    throw Error("Publisher calendar does not cover the current week");
+  return dated
+    .filter(
+      (r) =>
+        r.country === "USD" && r.impact === "High" && r.at >= now - 86400000,
+    )
+    .map((r) => ({
+      id: `ff-${r.at}-${plain(r.title)}`,
+      title: plain(r.title),
+      at: r.at,
+      date: new Date(r.at).toISOString().slice(0, 10),
+      timePrecision: "minute",
+      priority: "major",
+      source: "Forex Factory / Fair Economy · publisher-reported",
+      url: WEEKLY_CALENDAR_URL,
+    }));
+}
