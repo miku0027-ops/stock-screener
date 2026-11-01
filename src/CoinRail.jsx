@@ -1,10 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Search, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { priceLabel as num } from "./price-format.js";
 import { coinUniverse } from "./market-intelligence.js";
-const num = (v) =>
-  Number.isFinite(v)
-    ? v.toLocaleString("en-US", { maximumFractionDigits: v < 1 ? 7 : 2 })
-    : "—";
 export default function CoinRail({ quotes, mode, paused, selected, onSelect }) {
   const [all, setAll] = useState([]),
     [search, setSearch] = useState(""),

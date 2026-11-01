@@ -5,6 +5,7 @@ import {
   LineSeries,
   createSeriesMarkers,
 } from "lightweight-charts";
+import { pricePrecision } from "./price-format.js";
 import { heikinAshi } from "../shared/analysis.js";
 export default function HuntChart({ data, kind, theme }) {
   const ref = useRef(null),
@@ -84,8 +85,7 @@ export default function HuntChart({ data, kind, theme }) {
       h.identity = identity;
     }
     const last = data.candles.at(-1).close;
-    const precision =
-      last < 1 ? Math.min(8, Math.max(4, Math.ceil(-Math.log10(last)) + 3)) : 2;
+    const precision = pricePrecision(last);
     h.price.applyOptions({
       priceFormat: { type: "price", precision, minMove: 10 ** -precision },
     });

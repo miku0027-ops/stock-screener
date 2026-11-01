@@ -14,6 +14,7 @@ import {
   Search,
   ShieldCheck,
 } from "lucide-react";
+import { priceLabel as price } from "./price-format.js";
 import HuntChart from "./HuntChart.jsx";
 import { scanMarket, huntQuote, SCAN_SYMBOLS } from "./hunt-data.js";
 import { DEFAULT_RULE, PROTOCOL } from "../shared/hunt/engine.js";
@@ -314,7 +315,7 @@ function HuntModal({
                       {c.stage === "watch"
                         ? "Breakout level"
                         : "Reference entry"}
-                      <b>{num(c.entry)}</b>
+                      <b>{price(c.entry)}</b>
                       <small>
                         {c.stage === "watch"
                           ? "Wait for candle close"
@@ -322,12 +323,12 @@ function HuntModal({
                       </small>
                     </span>
                     <span>
-                      Stop reference<b className="negative">{num(p.stop)}</b>
+                      Stop reference<b className="negative">{price(p.stop)}</b>
                       <small>Not a guaranteed fill</small>
                     </span>
                     <span>
                       Target reference
-                      <b className="positive">{num(p.target)}</b>
+                      <b className="positive">{price(p.target)}</b>
                       <small>{data.rule.targetR}R gross</small>
                     </span>
                     <span>
@@ -338,7 +339,9 @@ function HuntModal({
                   <div className="hunt-facts">
                     <span>
                       Executable-side quote
-                      <b>{num(c.direction === 1 ? quote?.ask : quote?.bid)}</b>
+                      <b>
+                        {price(c.direction === 1 ? quote?.ask : quote?.bid)}
+                      </b>
                     </span>
                     <span>
                       Entry distance
@@ -349,7 +352,7 @@ function HuntModal({
                       </b>
                     </span>
                     <span>
-                      Round-trip cost estimate<b>{num(p.cost)} / unit</b>
+                      Round-trip cost estimate<b>{price(p.cost)} / unit</b>
                     </span>
                     <span>
                       Expiry<b>{stamp(c.expiresAt)}</b>
@@ -813,7 +816,7 @@ export default function HuntDesk({
                     </small>
                   </span>
                   <span className="hunt-row-right">
-                    <b>{c ? `${num(c.netR)}R` : num(r.data?.price)}</b>
+                    <b>{c ? `${num(c.netR)}R` : price(r.data?.price)}</b>
                     <small>
                       {c ? "net · est." : venue === "spot" ? "USDT" : "USD"}
                     </small>
@@ -846,7 +849,7 @@ export default function HuntDesk({
                 <span>{interval}</span>
               </h2>
               <span className="hunt-price">
-                {num(
+                {price(
                   quote?.symbol === symbol && quote?.venue === venue
                     ? quote.price
                     : data?.price,
