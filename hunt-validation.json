@@ -1,0 +1,4411 @@
+{
+  "protocol": "sharpnex-hunt-v1",
+  "generatedAt": 1793524525839,
+  "timeframe": "1m",
+  "source": "Binance public monthly archives",
+  "sourceUrl": "https://data.binance.vision/",
+  "costs": {
+    "spot": {
+      "feeBps": 10,
+      "slippageBps": 2,
+      "halfSpreadBps": 0.5,
+      "fundingBps": 0
+    },
+    "perp": {
+      "feeBps": 5,
+      "slippageBps": 2,
+      "halfSpreadBps": 0.5,
+      "fundingBps": 1
+    }
+  },
+  "candidates": 24,
+  "splits": {
+    "train": [
+      1672531200,
+      1735689600
+    ],
+    "validation": [
+      1735689600,
+      1767225600
+    ],
+    "test": [
+      1767225600,
+      1790812800
+    ]
+  },
+  "models": [
+    {
+      "symbol": "BTCUSDT",
+      "venue": "spot",
+      "selectionAdequate": false,
+      "rule": {
+        "right": 2,
+        "delta": 3,
+        "targetR": 2,
+        "volume": 0.8
+      },
+      "rows": 1971280,
+      "gaps": 1,
+      "train": {
+        "trades": 34,
+        "wins": 6,
+        "winRate": 0.17647058823529413,
+        "winInterval": [
+          0.08348855603569685,
+          0.33514067740052156
+        ],
+        "expectancyR": -0.26948612124061644,
+        "profitFactor": 0.11768843407053893,
+        "maxDrawdownR": 9.162528122180959,
+        "totalR": -9.162528122180959
+      },
+      "validation": {
+        "trades": 14,
+        "wins": 4,
+        "winRate": 0.2857142857142857,
+        "winInterval": [
+          0.11721187910109099,
+          0.5464954117248438
+        ],
+        "expectancyR": -0.10950953758455571,
+        "profitFactor": 0.5809237532385576,
+        "maxDrawdownR": 1.53313352618378,
+        "totalR": -1.53313352618378
+      },
+      "test": {
+        "trades": 10,
+        "wins": 1,
+        "winRate": 0.1,
+        "winInterval": [
+          0.01787574951572113,
+          0.4041563854975721
+        ],
+        "expectancyR": -0.5247774158737313,
+        "profitFactor": 0.036523846585063184,
+        "maxDrawdownR": 5.247774158737313,
+        "totalR": -5.247774158737313
+      },
+      "stress": {
+        "trades": 10,
+        "wins": 1,
+        "winRate": 0.1,
+        "winInterval": [
+          0.01787574951572113,
+          0.4041563854975721
+        ],
+        "expectancyR": -0.6127717640932592,
+        "profitFactor": 0.004784364094981878,
+        "maxDrawdownR": 6.127717640932592,
+        "totalR": -6.127717640932592
+      },
+      "monthly": [
+        {
+          "month": "2026-01",
+          "trades": 2,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.6576280471103807
+          ],
+          "expectancyR": -0.3799150726364148,
+          "profitFactor": 0,
+          "maxDrawdownR": 0.7598301452728295,
+          "totalR": -0.7598301452728295
+        },
+        {
+          "month": "2026-02",
+          "trades": 3,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.5615060804490177
+          ],
+          "expectancyR": -0.6554270898250713,
+          "profitFactor": 0,
+          "maxDrawdownR": 1.9662812694752139,
+          "totalR": -1.9662812694752139
+        },
+        {
+          "month": "2026-03",
+          "trades": 1,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.7934567085261071
+          ],
+          "expectancyR": -1,
+          "profitFactor": 0,
+          "maxDrawdownR": 1,
+          "totalR": -1
+        },
+        {
+          "month": "2026-04",
+          "trades": 1,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.7934567085261071
+          ],
+          "expectancyR": -0.8097147170082513,
+          "profitFactor": 0,
+          "maxDrawdownR": 0.8097147170082513,
+          "totalR": -0.8097147170082513
+        },
+        {
+          "month": "2026-05",
+          "trades": 0,
+          "wins": 0,
+          "winRate": null,
+          "winInterval": null,
+          "expectancyR": null,
+          "profitFactor": null,
+          "maxDrawdownR": 0,
+          "totalR": 0
+        },
+        {
+          "month": "2026-06",
+          "trades": 2,
+          "wins": 1,
+          "winRate": 0.5,
+          "winInterval": [
+            0.09452865480086614,
+            0.9054713451991339
+          ],
+          "expectancyR": -0.1410673428188049,
+          "profitFactor": 0.41352607690434895,
+          "maxDrawdownR": 0.4810694466147559,
+          "totalR": -0.2821346856376098
+        },
+        {
+          "month": "2026-07",
+          "trades": 0,
+          "wins": 0,
+          "winRate": null,
+          "winInterval": null,
+          "expectancyR": null,
+          "profitFactor": null,
+          "maxDrawdownR": 0,
+          "totalR": 0
+        },
+        {
+          "month": "2026-08",
+          "trades": 0,
+          "wins": 0,
+          "winRate": null,
+          "winInterval": null,
+          "expectancyR": null,
+          "profitFactor": null,
+          "maxDrawdownR": 0,
+          "totalR": 0
+        },
+        {
+          "month": "2026-09",
+          "trades": 1,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.7934567085261071
+          ],
+          "expectancyR": -0.4298133413434085,
+          "profitFactor": 0,
+          "maxDrawdownR": 0.4298133413434085,
+          "totalR": -0.4298133413434085
+        }
+      ],
+      "selection": [],
+      "trainingCandidates": [
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 2,
+            "wins": 0,
+            "winRate": 0,
+            "winInterval": [
+              0,
+              0.6576280471103807
+            ],
+            "expectancyR": -0.8052216517257553,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.6104433034515107,
+            "totalR": -1.6104433034515107
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 2,
+            "wins": 0,
+            "winRate": 0,
+            "winInterval": [
+              0,
+              0.6576280471103807
+            ],
+            "expectancyR": -0.8052216517257553,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.6104433034515107,
+            "totalR": -1.6104433034515107
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 17,
+            "wins": 5,
+            "winRate": 0.29411764705882354,
+            "winInterval": [
+              0.13279793865556402,
+              0.5313353332621391
+            ],
+            "expectancyR": -0.22666835861840817,
+            "profitFactor": 0.34195828640711934,
+            "maxDrawdownR": 4.346763415544836,
+            "totalR": -3.853362096512939
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 12,
+            "wins": 4,
+            "winRate": 0.3333333333333333,
+            "winInterval": [
+              0.13811783989736134,
+              0.609382412602386
+            ],
+            "expectancyR": -0.1643541356440064,
+            "profitFactor": 0.4701627325539531,
+            "maxDrawdownR": 2.9792257117493524,
+            "totalR": -1.9722496277280765
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 51,
+            "wins": 7,
+            "winRate": 0.13725490196078433,
+            "winInterval": [
+              0.06811015331542726,
+              0.25721952342631627
+            ],
+            "expectancyR": -0.41259717395032774,
+            "profitFactor": 0.05391646491947835,
+            "maxDrawdownR": 21.050117257693906,
+            "totalR": -21.042455871466714
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 36,
+            "wins": 6,
+            "winRate": 0.16666666666666666,
+            "winInterval": [
+              0.07870340628564097,
+              0.3189111473467432
+            ],
+            "expectancyR": -0.39412988533102933,
+            "profitFactor": 0.0625593499928967,
+            "maxDrawdownR": 14.196337258144247,
+            "totalR": -14.188675871917056
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 2,
+            "wins": 0,
+            "winRate": 0,
+            "winInterval": [
+              0,
+              0.6576280471103807
+            ],
+            "expectancyR": -0.8052216517257553,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.6104433034515107,
+            "totalR": -1.6104433034515107
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 2,
+            "wins": 0,
+            "winRate": 0,
+            "winInterval": [
+              0,
+              0.6576280471103807
+            ],
+            "expectancyR": -0.8052216517257553,
+            "profitFactor": 0,
+            "maxDrawdownR": 1.6104433034515107,
+            "totalR": -1.6104433034515107
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 14,
+            "wins": 4,
+            "winRate": 0.2857142857142857,
+            "winInterval": [
+              0.11721187910109099,
+              0.5464954117248438
+            ],
+            "expectancyR": -0.24629859555376118,
+            "profitFactor": 0.33015504236910176,
+            "maxDrawdownR": 3.7561975617870567,
+            "totalR": -3.4481803377526568
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 10,
+            "wins": 3,
+            "winRate": 0.3,
+            "winInterval": [
+              0.10778928748621183,
+              0.6032267800204347
+            ],
+            "expectancyR": -0.21576337227255732,
+            "profitFactor": 0.40146554594410144,
+            "maxDrawdownR": 2.9792257117493524,
+            "totalR": -2.1576337227255733
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 41,
+            "wins": 6,
+            "winRate": 0.14634146341463414,
+            "winInterval": [
+              0.0688415452945541,
+              0.2844375526858926
+            ],
+            "expectancyR": -0.3824894143099538,
+            "profitFactor": 0.05406441235949557,
+            "maxDrawdownR": 15.689727372935298,
+            "totalR": -15.682065986708107
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 30,
+            "wins": 5,
+            "winRate": 0.16666666666666666,
+            "winInterval": [
+              0.07336434240351683,
+              0.33564705185680177
+            ],
+            "expectancyR": -0.3842401722252584,
+            "profitFactor": 0.05291009839426804,
+            "maxDrawdownR": 11.534866552984944,
+            "totalR": -11.527205166757753
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 5,
+            "wins": 1,
+            "winRate": 0.2,
+            "winInterval": [
+              0.03622316096978745,
+              0.6244717358814613
+            ],
+            "expectancyR": -0.36839389242703857,
+            "profitFactor": 0.05286517598756802,
+            "maxDrawdownR": 1.8703432735421672,
+            "totalR": -1.8419694621351927
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 5,
+            "wins": 1,
+            "winRate": 0.2,
+            "winInterval": [
+              0.03622316096978745,
+              0.6244717358814613
+            ],
+            "expectancyR": -0.36839389242703857,
+            "profitFactor": 0.05286517598756802,
+            "maxDrawdownR": 1.8703432735421672,
+            "totalR": -1.8419694621351927
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 34,
+            "wins": 6,
+            "winRate": 0.17647058823529413,
+            "winInterval": [
+              0.08348855603569685,
+              0.33514067740052156
+            ],
+            "expectancyR": -0.26948612124061644,
+            "profitFactor": 0.11768843407053893,
+            "maxDrawdownR": 9.162528122180959,
+            "totalR": -9.162528122180959
+          },
+          "validation": {
+            "trades": 14,
+            "wins": 4,
+            "winRate": 0.2857142857142857,
+            "winInterval": [
+              0.11721187910109099,
+              0.5464954117248438
+            ],
+            "expectancyR": -0.10950953758455571,
+            "profitFactor": 0.5809237532385576,
+            "maxDrawdownR": 1.53313352618378,
+            "totalR": -1.53313352618378
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 26,
+            "wins": 5,
+            "winRate": 0.19230769230769232,
+            "winInterval": [
+              0.08506935771788268,
+              0.3787663615465
+            ],
+            "expectancyR": -0.26359778497542896,
+            "profitFactor": 0.12394093777789915,
+            "maxDrawdownR": 6.853542409361153,
+            "totalR": -6.853542409361153
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 89,
+            "wins": 9,
+            "winRate": 0.10112359550561797,
+            "winInterval": [
+              0.05411793406379983,
+              0.1811386750424629
+            ],
+            "expectancyR": -0.37063689457831095,
+            "profitFactor": 0.044313346618244875,
+            "maxDrawdownR": 32.98668361746967,
+            "totalR": -32.98668361746967
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 53,
+            "wins": 6,
+            "winRate": 0.11320754716981132,
+            "winInterval": [
+              0.052929589110686695,
+              0.22576770301339144
+            ],
+            "expectancyR": -0.3832319547480875,
+            "profitFactor": 0.04732293134158135,
+            "maxDrawdownR": 20.31129360164864,
+            "totalR": -20.31129360164864
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 5,
+            "wins": 1,
+            "winRate": 0.2,
+            "winInterval": [
+              0.03622316096978745,
+              0.6244717358814613
+            ],
+            "expectancyR": -0.36839389242703857,
+            "profitFactor": 0.05286517598756802,
+            "maxDrawdownR": 1.8703432735421672,
+            "totalR": -1.8419694621351927
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 5,
+            "wins": 1,
+            "winRate": 0.2,
+            "winInterval": [
+              0.03622316096978745,
+              0.6244717358814613
+            ],
+            "expectancyR": -0.36839389242703857,
+            "profitFactor": 0.05286517598756802,
+            "maxDrawdownR": 1.8703432735421672,
+            "totalR": -1.8419694621351927
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 26,
+            "wins": 4,
+            "winRate": 0.15384615384615385,
+            "winInterval": [
+              0.06149933998929477,
+              0.33531584418313565
+            ],
+            "expectancyR": -0.29142165537785725,
+            "profitFactor": 0.06025102317396931,
+            "maxDrawdownR": 7.576963039824288,
+            "totalR": -7.576963039824288
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 18,
+            "wins": 3,
+            "winRate": 0.16666666666666666,
+            "winInterval": [
+              0.05836470400465757,
+              0.39222499638359243
+            ],
+            "expectancyR": -0.2926654070558045,
+            "profitFactor": 0.042397953493600954,
+            "maxDrawdownR": 5.296351138411456,
+            "totalR": -5.267977327004481
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 59,
+            "wins": 4,
+            "winRate": 0.06779661016949153,
+            "winInterval": [
+              0.026678187098391565,
+              0.16175749881667106
+            ],
+            "expectancyR": -0.37973363390907877,
+            "profitFactor": 0.021222695706849922,
+            "maxDrawdownR": 22.404284400635646,
+            "totalR": -22.404284400635646
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 35,
+            "wins": 3,
+            "winRate": 0.08571428571428572,
+            "winInterval": [
+              0.029581831005296905,
+              0.22379599071162518
+            ],
+            "expectancyR": -0.4024055496930752,
+            "profitFactor": 0.016290653912367076,
+            "maxDrawdownR": 14.08419423925763,
+            "totalR": -14.08419423925763
+          }
+        }
+      ],
+      "verdict": "no-demonstrated-edge"
+    },
+    {
+      "symbol": "ETHUSDT",
+      "venue": "spot",
+      "selectionAdequate": false,
+      "rule": {
+        "right": 2,
+        "delta": 3,
+        "targetR": 2,
+        "volume": 0.8
+      },
+      "rows": 1971280,
+      "gaps": 1,
+      "train": {
+        "trades": 40,
+        "wins": 6,
+        "winRate": 0.15,
+        "winInterval": [
+          0.07061091708507435,
+          0.2907262603902003
+        ],
+        "expectancyR": -0.19793091411855515,
+        "profitFactor": 0.2816773848867597,
+        "maxDrawdownR": 8.775701728432098,
+        "totalR": -7.917236564742206
+      },
+      "validation": {
+        "trades": 28,
+        "wins": 4,
+        "winRate": 0.14285714285714285,
+        "winInterval": [
+          0.056989129307017855,
+          0.31490173044877334
+        ],
+        "expectancyR": -0.34236932731783315,
+        "profitFactor": 0.0774827244943379,
+        "maxDrawdownR": 9.827122253544212,
+        "totalR": -9.586341164899329
+      },
+      "test": {
+        "trades": 15,
+        "wins": 5,
+        "winRate": 0.3333333333333333,
+        "winInterval": [
+          0.15176100694691236,
+          0.5828687484878701
+        ],
+        "expectancyR": -0.2592145617768094,
+        "profitFactor": 0.18887063541692736,
+        "maxDrawdownR": 4.10239171912819,
+        "totalR": -3.888218426652141
+      },
+      "stress": {
+        "trades": 15,
+        "wins": 2,
+        "winRate": 0.13333333333333333,
+        "winInterval": [
+          0.0373604698913593,
+          0.3788249920651624
+        ],
+        "expectancyR": -0.4005427214275335,
+        "profitFactor": 0.008587483839073758,
+        "maxDrawdownR": 6.031851726291704,
+        "totalR": -6.0081408214130025
+      },
+      "monthly": [
+        {
+          "month": "2026-01",
+          "trades": 3,
+          "wins": 1,
+          "winRate": 0.3333333333333333,
+          "winInterval": [
+            0.0614903152761605,
+            0.7923450448735121
+          ],
+          "expectancyR": -0.22182448745681296,
+          "profitFactor": 0.26784413773152654,
+          "maxDrawdownR": 0.6654734623704389,
+          "totalR": -0.6654734623704389
+        },
+        {
+          "month": "2026-02",
+          "trades": 1,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.7934567085261071
+          ],
+          "expectancyR": -0.1854955052397776,
+          "profitFactor": 0,
+          "maxDrawdownR": 0.1854955052397776,
+          "totalR": -0.1854955052397776
+        },
+        {
+          "month": "2026-03",
+          "trades": 5,
+          "wins": 2,
+          "winRate": 0.4,
+          "winInterval": [
+            0.1176182311592533,
+            0.769280067791163
+          ],
+          "expectancyR": -0.14559737193360958,
+          "profitFactor": 0.3803772340112988,
+          "maxDrawdownR": 0.9547390011772069,
+          "totalR": -0.7279868596680479
+        },
+        {
+          "month": "2026-04",
+          "trades": 2,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.6576280471103807
+          ],
+          "expectancyR": -0.3982711492635861,
+          "profitFactor": 0,
+          "maxDrawdownR": 0.7965422985271722,
+          "totalR": -0.7965422985271722
+        },
+        {
+          "month": "2026-05",
+          "trades": 0,
+          "wins": 0,
+          "winRate": null,
+          "winInterval": null,
+          "expectancyR": null,
+          "profitFactor": null,
+          "maxDrawdownR": 0,
+          "totalR": 0
+        },
+        {
+          "month": "2026-06",
+          "trades": 3,
+          "wins": 1,
+          "winRate": 0.3333333333333333,
+          "winInterval": [
+            0.0614903152761605,
+            0.7923450448735121
+          ],
+          "expectancyR": -0.5756311977742509,
+          "profitFactor": 0.0004886473130103989,
+          "maxDrawdownR": 1.7277378477796566,
+          "totalR": -1.7268935933227527
+        },
+        {
+          "month": "2026-07",
+          "trades": 0,
+          "wins": 0,
+          "winRate": null,
+          "winInterval": null,
+          "expectancyR": null,
+          "profitFactor": null,
+          "maxDrawdownR": 0,
+          "totalR": 0
+        },
+        {
+          "month": "2026-08",
+          "trades": 0,
+          "wins": 0,
+          "winRate": null,
+          "winInterval": null,
+          "expectancyR": null,
+          "profitFactor": null,
+          "maxDrawdownR": 0,
+          "totalR": 0
+        },
+        {
+          "month": "2026-09",
+          "trades": 1,
+          "wins": 1,
+          "winRate": 1,
+          "winInterval": [
+            0.20654329147389294,
+            1
+          ],
+          "expectancyR": 0.214173292476049,
+          "profitFactor": null,
+          "maxDrawdownR": 0,
+          "totalR": 0.214173292476049
+        }
+      ],
+      "selection": [],
+      "trainingCandidates": [
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 6,
+            "wins": 0,
+            "winRate": 0,
+            "winInterval": [
+              0,
+              0.3903430336530645
+            ],
+            "expectancyR": -0.5122020121959684,
+            "profitFactor": 0,
+            "maxDrawdownR": 3.07321207317581,
+            "totalR": -3.07321207317581
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 6,
+            "wins": 0,
+            "winRate": 0,
+            "winInterval": [
+              0,
+              0.3903430336530645
+            ],
+            "expectancyR": -0.5122020121959684,
+            "profitFactor": 0,
+            "maxDrawdownR": 3.07321207317581,
+            "totalR": -3.07321207317581
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 19,
+            "wins": 2,
+            "winRate": 0.10526315789473684,
+            "winInterval": [
+              0.029357941395096593,
+              0.313945504948417
+            ],
+            "expectancyR": -0.35975162064892086,
+            "profitFactor": 0.02802801060389305,
+            "maxDrawdownR": 6.835280792329496,
+            "totalR": -6.835280792329496
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 14,
+            "wins": 2,
+            "winRate": 0.14285714285714285,
+            "winInterval": [
+              0.040093073737921175,
+              0.39941907763863693
+            ],
+            "expectancyR": -0.3478922580507282,
+            "profitFactor": 0.03889492637671142,
+            "maxDrawdownR": 4.870491612710195,
+            "totalR": -4.870491612710195
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 47,
+            "wins": 5,
+            "winRate": 0.10638297872340426,
+            "winInterval": [
+              0.046304099555199416,
+              0.22594539692012788
+            ],
+            "expectancyR": -0.33559943433548195,
+            "profitFactor": 0.027799321053926743,
+            "maxDrawdownR": 15.773173413767653,
+            "totalR": -15.773173413767653
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 34,
+            "wins": 4,
+            "winRate": 0.11764705882352941,
+            "winInterval": [
+              0.04671370973436122,
+              0.26621174796298774
+            ],
+            "expectancyR": -0.32987432458779686,
+            "profitFactor": 0.022960728364537424,
+            "maxDrawdownR": 11.215727035985093,
+            "totalR": -11.215727035985093
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 6,
+            "wins": 0,
+            "winRate": 0,
+            "winInterval": [
+              0,
+              0.3903430336530645
+            ],
+            "expectancyR": -0.5122020121959684,
+            "profitFactor": 0,
+            "maxDrawdownR": 3.07321207317581,
+            "totalR": -3.07321207317581
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 6,
+            "wins": 0,
+            "winRate": 0,
+            "winInterval": [
+              0,
+              0.3903430336530645
+            ],
+            "expectancyR": -0.5122020121959684,
+            "profitFactor": 0,
+            "maxDrawdownR": 3.07321207317581,
+            "totalR": -3.07321207317581
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 19,
+            "wins": 2,
+            "winRate": 0.10526315789473684,
+            "winInterval": [
+              0.029357941395096593,
+              0.313945504948417
+            ],
+            "expectancyR": -0.35975162064892086,
+            "profitFactor": 0.02802801060389305,
+            "maxDrawdownR": 6.835280792329496,
+            "totalR": -6.835280792329496
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 14,
+            "wins": 2,
+            "winRate": 0.14285714285714285,
+            "winInterval": [
+              0.040093073737921175,
+              0.39941907763863693
+            ],
+            "expectancyR": -0.3478922580507282,
+            "profitFactor": 0.03889492637671142,
+            "maxDrawdownR": 4.870491612710195,
+            "totalR": -4.870491612710195
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 40,
+            "wins": 4,
+            "winRate": 0.1,
+            "winInterval": [
+              0.03957888759557486,
+              0.23052074380473897
+            ],
+            "expectancyR": -0.3445742574438138,
+            "profitFactor": 0.01876426710404652,
+            "maxDrawdownR": 13.782970297752552,
+            "totalR": -13.782970297752552
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 30,
+            "wins": 4,
+            "winRate": 0.13333333333333333,
+            "winInterval": [
+              0.05309569424218104,
+              0.2968168394441695
+            ],
+            "expectancyR": -0.3363467806656574,
+            "profitFactor": 0.025456218849716772,
+            "maxDrawdownR": 10.090403419969721,
+            "totalR": -10.090403419969721
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 9,
+            "wins": 4,
+            "winRate": 0.4444444444444444,
+            "winInterval": [
+              0.188775429471914,
+              0.7333526542559703
+            ],
+            "expectancyR": 0.09385275607436824,
+            "profitFactor": 1.6733047752257566,
+            "maxDrawdownR": 1.1910716818756293,
+            "totalR": 0.8446748046693142
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 6,
+            "wins": 3,
+            "winRate": 0.5,
+            "winInterval": [
+              0.18761280689940868,
+              0.8123871931005913
+            ],
+            "expectancyR": 0.04833322170871306,
+            "profitFactor": 1.4125901235456226,
+            "maxDrawdownR": 0.6441275347011559,
+            "totalR": 0.28999933025227836
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 40,
+            "wins": 6,
+            "winRate": 0.15,
+            "winInterval": [
+              0.07061091708507435,
+              0.2907262603902003
+            ],
+            "expectancyR": -0.19793091411855515,
+            "profitFactor": 0.2816773848867597,
+            "maxDrawdownR": 8.775701728432098,
+            "totalR": -7.917236564742206
+          },
+          "validation": {
+            "trades": 28,
+            "wins": 4,
+            "winRate": 0.14285714285714285,
+            "winInterval": [
+              0.056989129307017855,
+              0.31490173044877334
+            ],
+            "expectancyR": -0.34236932731783315,
+            "profitFactor": 0.0774827244943379,
+            "maxDrawdownR": 9.827122253544212,
+            "totalR": -9.586341164899329
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 19,
+            "wins": 3,
+            "winRate": 0.15789473684210525,
+            "winInterval": [
+              0.055203710399278266,
+              0.3756592764317668
+            ],
+            "expectancyR": -0.24177634951566002,
+            "profitFactor": 0.17772347873640423,
+            "maxDrawdownR": 5.197236776550519,
+            "totalR": -4.59375064079754
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 79,
+            "wins": 9,
+            "winRate": 0.11392405063291139,
+            "winInterval": [
+              0.06110510202849083,
+              0.20254987324963025
+            ],
+            "expectancyR": -0.27650219320534375,
+            "profitFactor": 0.16199114428261396,
+            "maxDrawdownR": 22.46344637187834,
+            "totalR": -21.843673263222158
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 42,
+            "wins": 5,
+            "winRate": 0.11904761904761904,
+            "winInterval": [
+              0.05193726765019084,
+              0.2500068180710754
+            ],
+            "expectancyR": -0.25760253447014125,
+            "profitFactor": 0.15083161881829532,
+            "maxDrawdownR": 11.44275096984547,
+            "totalR": -10.819306447745934
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 6,
+            "wins": 2,
+            "winRate": 0.3333333333333333,
+            "winInterval": [
+              0.09676933255921683,
+              0.7000116786584712
+            ],
+            "expectancyR": -0.03437307457680805,
+            "profitFactor": 0.8152846021379809,
+            "maxDrawdownR": 1.0530710040942632,
+            "totalR": -0.2062384474608483
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 4,
+            "wins": 2,
+            "winRate": 0.5,
+            "winInterval": [
+              0.15003570882017148,
+              0.8499642911798285
+            ],
+            "expectancyR": 0.08635179448464121,
+            "profitFactor": 1.6114760300683804,
+            "maxDrawdownR": 0.5061268569197899,
+            "totalR": 0.34540717793856485
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 32,
+            "wins": 3,
+            "winRate": 0.09375,
+            "winInterval": [
+              0.032400962626319516,
+              0.24218499335778831
+            ],
+            "expectancyR": -0.22569106967094646,
+            "profitFactor": 0.1639260702497789,
+            "maxDrawdownR": 7.8256003652232655,
+            "totalR": -7.222114229470287
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 15,
+            "wins": 2,
+            "winRate": 0.13333333333333333,
+            "winInterval": [
+              0.0373604698913593,
+              0.3788249920651624
+            ],
+            "expectancyR": -0.2086296545765662,
+            "profitFactor": 0.2253324895985184,
+            "maxDrawdownR": 3.7329309544014717,
+            "totalR": -3.1294448186484933
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 59,
+            "wins": 5,
+            "winRate": 0.0847457627118644,
+            "winInterval": [
+              0.036741491306199775,
+              0.1835202461416055
+            ],
+            "expectancyR": -0.28235088788118273,
+            "profitFactor": 0.1258077313845487,
+            "maxDrawdownR": 17.262188520742757,
+            "totalR": -16.65870238498978
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 31,
+            "wins": 3,
+            "winRate": 0.0967741935483871,
+            "winInterval": [
+              0.03346403609464399,
+              0.2490028999817704
+            ],
+            "expectancyR": -0.23891996619849132,
+            "profitFactor": 0.1869177668286233,
+            "maxDrawdownR": 8.01000508790621,
+            "totalR": -7.406518952153231
+          }
+        }
+      ],
+      "verdict": "no-demonstrated-edge"
+    },
+    {
+      "symbol": "BTCUSDT",
+      "venue": "perp",
+      "selectionAdequate": true,
+      "rule": {
+        "right": 2,
+        "delta": 5,
+        "targetR": 2,
+        "volume": 0.8
+      },
+      "rows": 1971360,
+      "gaps": 0,
+      "train": {
+        "trades": 119,
+        "wins": 12,
+        "winRate": 0.10084033613445378,
+        "winInterval": [
+          0.058629716308506635,
+          0.16801663150851956
+        ],
+        "expectancyR": -0.3374321469378076,
+        "profitFactor": 0.023078630663663426,
+        "maxDrawdownR": 40.154425485599106,
+        "totalR": -40.154425485599106
+      },
+      "validation": {
+        "trades": 34,
+        "wins": 11,
+        "winRate": 0.3235294117647059,
+        "winInterval": [
+          0.19131451326458573,
+          0.4915741595188061
+        ],
+        "expectancyR": -0.1841776989960051,
+        "profitFactor": 0.43121179624422457,
+        "maxDrawdownR": 6.86377982793155,
+        "totalR": -6.262041765864174
+      },
+      "test": {
+        "trades": 27,
+        "wins": 4,
+        "winRate": 0.14814814814814814,
+        "winInterval": [
+          0.059158318596448906,
+          0.32479063346829484
+        ],
+        "expectancyR": -0.44132491920773526,
+        "profitFactor": 0.030109353889272092,
+        "maxDrawdownR": 11.915772818608852,
+        "totalR": -11.915772818608852
+      },
+      "stress": {
+        "trades": 27,
+        "wins": 0,
+        "winRate": 0,
+        "winInterval": [
+          6.938893903907228e-18,
+          0.12455903714463581
+        ],
+        "expectancyR": -0.5533781773640583,
+        "profitFactor": 0,
+        "maxDrawdownR": 14.941210788829572,
+        "totalR": -14.941210788829572
+      },
+      "monthly": [
+        {
+          "month": "2026-01",
+          "trades": 4,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.48990002040399916
+          ],
+          "expectancyR": -0.30842110499086683,
+          "profitFactor": 0,
+          "maxDrawdownR": 1.2336844199634673,
+          "totalR": -1.2336844199634673
+        },
+        {
+          "month": "2026-02",
+          "trades": 3,
+          "wins": 1,
+          "winRate": 0.3333333333333333,
+          "winInterval": [
+            0.0614903152761605,
+            0.7923450448735121
+          ],
+          "expectancyR": -0.42837355703136537,
+          "profitFactor": 0.05691064779147806,
+          "maxDrawdownR": 1.2851206710940961,
+          "totalR": -1.2851206710940961
+        },
+        {
+          "month": "2026-03",
+          "trades": 6,
+          "wins": 2,
+          "winRate": 0.3333333333333333,
+          "winInterval": [
+            0.09676933255921683,
+            0.7000116786584712
+          ],
+          "expectancyR": -0.3818831296055533,
+          "profitFactor": 0.09290670032585736,
+          "maxDrawdownR": 2.388346516122637,
+          "totalR": -2.29129877763332
+        },
+        {
+          "month": "2026-04",
+          "trades": 4,
+          "wins": 1,
+          "winRate": 0.25,
+          "winInterval": [
+            0.045586062644636216,
+            0.6993639475573634
+          ],
+          "expectancyR": -0.4496377090073016,
+          "profitFactor": 0.031075395238307178,
+          "maxDrawdownR": 1.8562340425564487,
+          "totalR": -1.7985508360292064
+        },
+        {
+          "month": "2026-05",
+          "trades": 3,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.5615060804490177
+          ],
+          "expectancyR": -0.5075323771469681,
+          "profitFactor": 0,
+          "maxDrawdownR": 1.5225971314409041,
+          "totalR": -1.5225971314409041
+        },
+        {
+          "month": "2026-06",
+          "trades": 2,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.6576280471103807
+          ],
+          "expectancyR": -0.5409254368690689,
+          "profitFactor": 0,
+          "maxDrawdownR": 1.0818508737381378,
+          "totalR": -1.0818508737381378
+        },
+        {
+          "month": "2026-07",
+          "trades": 2,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.6576280471103807
+          ],
+          "expectancyR": -0.7208094529339584,
+          "profitFactor": 0,
+          "maxDrawdownR": 1.4416189058679167,
+          "totalR": -1.4416189058679167
+        },
+        {
+          "month": "2026-08",
+          "trades": 1,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.7934567085261071
+          ],
+          "expectancyR": -0.5765347408151694,
+          "profitFactor": 0,
+          "maxDrawdownR": 0.5765347408151694,
+          "totalR": -0.5765347408151694
+        },
+        {
+          "month": "2026-09",
+          "trades": 2,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.6576280471103807
+          ],
+          "expectancyR": -0.3422582310133171,
+          "profitFactor": 0,
+          "maxDrawdownR": 0.6845164620266342,
+          "totalR": -0.6845164620266342
+        }
+      ],
+      "selection": [
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 103,
+            "wins": 11,
+            "winRate": 0.10679611650485436,
+            "winInterval": [
+              0.060686713355145916,
+              0.1811816225739304
+            ],
+            "expectancyR": -0.31850757559528,
+            "profitFactor": 0.09877215867461356,
+            "maxDrawdownR": 32.806280286313836,
+            "totalR": -32.806280286313836
+          },
+          "validation": {
+            "trades": 32,
+            "wins": 9,
+            "winRate": 0.28125,
+            "winInterval": [
+              0.15564406845647866,
+              0.4537483693811179
+            ],
+            "expectancyR": -0.22965349451605857,
+            "profitFactor": 0.2688215447488077,
+            "maxDrawdownR": 7.904279117221156,
+            "totalR": -7.348911824513874
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 152,
+            "wins": 18,
+            "winRate": 0.11842105263157894,
+            "winInterval": [
+              0.07623319170162929,
+              0.17942126769817152
+            ],
+            "expectancyR": -0.32353033823031657,
+            "profitFactor": 0.0769340547222893,
+            "maxDrawdownR": 49.17661141100812,
+            "totalR": -49.17661141100812
+          },
+          "validation": {
+            "trades": 47,
+            "wins": 13,
+            "winRate": 0.2765957446808511,
+            "winInterval": [
+              0.16936405991152936,
+              0.41758835700689967
+            ],
+            "expectancyR": -0.20360630230510635,
+            "profitFactor": 0.3448395535417703,
+            "maxDrawdownR": 10.124863501047281,
+            "totalR": -9.569496208339999
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 119,
+            "wins": 12,
+            "winRate": 0.10084033613445378,
+            "winInterval": [
+              0.058629716308506635,
+              0.16801663150851956
+            ],
+            "expectancyR": -0.3374321469378076,
+            "profitFactor": 0.023078630663663426,
+            "maxDrawdownR": 40.154425485599106,
+            "totalR": -40.154425485599106
+          },
+          "validation": {
+            "trades": 34,
+            "wins": 11,
+            "winRate": 0.3235294117647059,
+            "winInterval": [
+              0.19131451326458573,
+              0.4915741595188061
+            ],
+            "expectancyR": -0.1841776989960051,
+            "profitFactor": 0.43121179624422457,
+            "maxDrawdownR": 6.86377982793155,
+            "totalR": -6.262041765864174
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 133,
+            "wins": 19,
+            "winRate": 0.14285714285714285,
+            "winInterval": [
+              0.09340160831673866,
+              0.21236505912941805
+            ],
+            "expectancyR": -0.3443752164989826,
+            "profitFactor": 0.09938055675168045,
+            "maxDrawdownR": 46.244121791258074,
+            "totalR": -45.80190379436469
+          },
+          "validation": {
+            "trades": 57,
+            "wins": 11,
+            "winRate": 0.19298245614035087,
+            "winInterval": [
+              0.11132633377760481,
+              0.3134093733701362
+            ],
+            "expectancyR": -0.35040330768393535,
+            "profitFactor": 0.11370635586061802,
+            "maxDrawdownR": 19.972988537984314,
+            "totalR": -19.972988537984314
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 166,
+            "wins": 15,
+            "winRate": 0.09036144578313253,
+            "winInterval": [
+              0.05552452283752021,
+              0.14372937020164095
+            ],
+            "expectancyR": -0.3658924620586462,
+            "profitFactor": 0.05421758392923474,
+            "maxDrawdownR": 60.73814870173526,
+            "totalR": -60.73814870173526
+          },
+          "validation": {
+            "trades": 51,
+            "wins": 11,
+            "winRate": 0.21568627450980393,
+            "winInterval": [
+              0.12493811244188556,
+              0.3462662287881296
+            ],
+            "expectancyR": -0.3221130985863161,
+            "profitFactor": 0.15554650602842301,
+            "maxDrawdownR": 16.983135320609403,
+            "totalR": -16.427768027902122
+          }
+        }
+      ],
+      "trainingCandidates": [
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 24,
+            "wins": 7,
+            "winRate": 0.2916666666666667,
+            "winInterval": [
+              0.14914460334164278,
+              0.49168063658709704
+            ],
+            "expectancyR": -0.2011458796002765,
+            "profitFactor": 0.3194714808171427,
+            "maxDrawdownR": 5.118858440941999,
+            "totalR": -4.827501110406636
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 23,
+            "wins": 6,
+            "winRate": 0.2608695652173913,
+            "winInterval": [
+              0.1254844588924897,
+              0.4647039054375056
+            ],
+            "expectancyR": -0.21064040936063674,
+            "profitFactor": 0.3170428220669263,
+            "maxDrawdownR": 5.136086745830008,
+            "totalR": -4.844729415294645
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 76,
+            "wins": 17,
+            "winRate": 0.2236842105263158,
+            "winInterval": [
+              0.1446106442066905,
+              0.3293477934999686
+            ],
+            "expectancyR": -0.2635642619924501,
+            "profitFactor": 0.20092768043941162,
+            "maxDrawdownR": 20.501549093339847,
+            "totalR": -20.03088391142621
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 62,
+            "wins": 11,
+            "winRate": 0.1774193548387097,
+            "winInterval": [
+              0.10206333434361749,
+              0.2904180148338023
+            ],
+            "expectancyR": -0.2890954802351958,
+            "profitFactor": 0.17374442309195268,
+            "maxDrawdownR": 18.31953739985436,
+            "totalR": -17.923919774582142
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 133,
+            "wins": 19,
+            "winRate": 0.14285714285714285,
+            "winInterval": [
+              0.09340160831673866,
+              0.21236505912941805
+            ],
+            "expectancyR": -0.3443752164989826,
+            "profitFactor": 0.09938055675168045,
+            "maxDrawdownR": 46.244121791258074,
+            "totalR": -45.80190379436469
+          },
+          "validation": {
+            "trades": 57,
+            "wins": 11,
+            "winRate": 0.19298245614035087,
+            "winInterval": [
+              0.11132633377760481,
+              0.3134093733701362
+            ],
+            "expectancyR": -0.35040330768393535,
+            "profitFactor": 0.11370635586061802,
+            "maxDrawdownR": 19.972988537984314,
+            "totalR": -19.972988537984314
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 104,
+            "wins": 12,
+            "winRate": 0.11538461538461539,
+            "winInterval": [
+              0.0672491122978073,
+              0.1909221314522854
+            ],
+            "expectancyR": -0.36697943929777516,
+            "profitFactor": 0.07059184838915704,
+            "maxDrawdownR": 38.53303212722059,
+            "totalR": -38.16586168696862
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 20,
+            "wins": 5,
+            "winRate": 0.25,
+            "winInterval": [
+              0.11186005278940309,
+              0.4687050099580636
+            ],
+            "expectancyR": -0.2812577144142346,
+            "profitFactor": 0.17726620283823658,
+            "maxDrawdownR": 5.771541684962644,
+            "totalR": -5.625154288284691
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 20,
+            "wins": 5,
+            "winRate": 0.25,
+            "winInterval": [
+              0.11186005278940309,
+              0.4687050099580636
+            ],
+            "expectancyR": -0.2812577144142346,
+            "profitFactor": 0.17726620283823658,
+            "maxDrawdownR": 5.771541684962644,
+            "totalR": -5.625154288284691
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 60,
+            "wins": 13,
+            "winRate": 0.21666666666666667,
+            "winInterval": [
+              0.13122921046407016,
+              0.3362026834734252
+            ],
+            "expectancyR": -0.28699634123501916,
+            "profitFactor": 0.10417248728797944,
+            "maxDrawdownR": 17.690445656014788,
+            "totalR": -17.21978047410115
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 53,
+            "wins": 9,
+            "winRate": 0.16981132075471697,
+            "winInterval": [
+              0.09199841772223752,
+              0.29225536823734133
+            ],
+            "expectancyR": -0.3142056194184346,
+            "profitFactor": 0.10059729752719235,
+            "maxDrawdownR": 17.048515454449255,
+            "totalR": -16.652897829177036
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 97,
+            "wins": 15,
+            "winRate": 0.15463917525773196,
+            "winInterval": [
+              0.09601037466762025,
+              0.23958128591690042
+            ],
+            "expectancyR": -0.33776773423404083,
+            "profitFactor": 0.06591664762809862,
+            "maxDrawdownR": 33.205688217595345,
+            "totalR": -32.76347022070196
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 79,
+            "wins": 10,
+            "winRate": 0.12658227848101267,
+            "winInterval": [
+              0.07023187936799044,
+              0.2175655557370775
+            ],
+            "expectancyR": -0.34603474154166153,
+            "profitFactor": 0.06780257746398406,
+            "maxDrawdownR": 27.70391502204323,
+            "totalR": -27.33674458179126
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 41,
+            "wins": 5,
+            "winRate": 0.12195121951219512,
+            "winInterval": [
+              0.053232579973408245,
+              0.25544507648844866
+            ],
+            "expectancyR": -0.34898792522163347,
+            "profitFactor": 0.07818656563419331,
+            "maxDrawdownR": 14.308504934086972,
+            "totalR": -14.308504934086972
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 34,
+            "wins": 4,
+            "winRate": 0.11764705882352941,
+            "winInterval": [
+              0.04671370973436122,
+              0.26621174796298774
+            ],
+            "expectancyR": -0.3636984953445351,
+            "profitFactor": 0.08821522036870144,
+            "maxDrawdownR": 12.365748841714193,
+            "totalR": -12.365748841714193
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 152,
+            "wins": 18,
+            "winRate": 0.11842105263157894,
+            "winInterval": [
+              0.07623319170162929,
+              0.17942126769817152
+            ],
+            "expectancyR": -0.32353033823031657,
+            "profitFactor": 0.0769340547222893,
+            "maxDrawdownR": 49.17661141100812,
+            "totalR": -49.17661141100812
+          },
+          "validation": {
+            "trades": 47,
+            "wins": 13,
+            "winRate": 0.2765957446808511,
+            "winInterval": [
+              0.16936405991152936,
+              0.41758835700689967
+            ],
+            "expectancyR": -0.20360630230510635,
+            "profitFactor": 0.3448395535417703,
+            "maxDrawdownR": 10.124863501047281,
+            "totalR": -9.569496208339999
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 103,
+            "wins": 11,
+            "winRate": 0.10679611650485436,
+            "winInterval": [
+              0.060686713355145916,
+              0.1811816225739304
+            ],
+            "expectancyR": -0.31850757559528,
+            "profitFactor": 0.09877215867461356,
+            "maxDrawdownR": 32.806280286313836,
+            "totalR": -32.806280286313836
+          },
+          "validation": {
+            "trades": 32,
+            "wins": 9,
+            "winRate": 0.28125,
+            "winInterval": [
+              0.15564406845647866,
+              0.4537483693811179
+            ],
+            "expectancyR": -0.22965349451605857,
+            "profitFactor": 0.2688215447488077,
+            "maxDrawdownR": 7.904279117221156,
+            "totalR": -7.348911824513874
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 246,
+            "wins": 25,
+            "winRate": 0.1016260162601626,
+            "winInterval": [
+              0.06978655540314754,
+              0.1457163872613247
+            ],
+            "expectancyR": -0.3794209891543937,
+            "profitFactor": 0.051161125947414496,
+            "maxDrawdownR": 93.33756333198085,
+            "totalR": -93.33756333198085
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 166,
+            "wins": 15,
+            "winRate": 0.09036144578313253,
+            "winInterval": [
+              0.05552452283752021,
+              0.14372937020164095
+            ],
+            "expectancyR": -0.3658924620586462,
+            "profitFactor": 0.05421758392923474,
+            "maxDrawdownR": 60.73814870173526,
+            "totalR": -60.73814870173526
+          },
+          "validation": {
+            "trades": 51,
+            "wins": 11,
+            "winRate": 0.21568627450980393,
+            "winInterval": [
+              0.12493811244188556,
+              0.3462662287881296
+            ],
+            "expectancyR": -0.3221130985863161,
+            "profitFactor": 0.15554650602842301,
+            "maxDrawdownR": 16.983135320609403,
+            "totalR": -16.427768027902122
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 36,
+            "wins": 4,
+            "winRate": 0.1111111111111111,
+            "winInterval": [
+              0.04406568908741834,
+              0.2531512901503632
+            ],
+            "expectancyR": -0.3613281166235263,
+            "profitFactor": 0.0080001982532048,
+            "maxDrawdownR": 13.007812198446947,
+            "totalR": -13.007812198446947
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 29,
+            "wins": 3,
+            "winRate": 0.10344827586206896,
+            "winInterval": [
+              0.035814240381301043,
+              0.26385447247069155
+            ],
+            "expectancyR": -0.38155365883014364,
+            "profitFactor": 0.007860799235702867,
+            "maxDrawdownR": 11.065056106074165,
+            "totalR": -11.065056106074165
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 119,
+            "wins": 12,
+            "winRate": 0.10084033613445378,
+            "winInterval": [
+              0.058629716308506635,
+              0.16801663150851956
+            ],
+            "expectancyR": -0.3374321469378076,
+            "profitFactor": 0.023078630663663426,
+            "maxDrawdownR": 40.154425485599106,
+            "totalR": -40.154425485599106
+          },
+          "validation": {
+            "trades": 34,
+            "wins": 11,
+            "winRate": 0.3235294117647059,
+            "winInterval": [
+              0.19131451326458573,
+              0.4915741595188061
+            ],
+            "expectancyR": -0.1841776989960051,
+            "profitFactor": 0.43121179624422457,
+            "maxDrawdownR": 6.86377982793155,
+            "totalR": -6.262041765864174
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 80,
+            "wins": 6,
+            "winRate": 0.075,
+            "winInterval": [
+              0.03482477485108787,
+              0.15412200097380097
+            ],
+            "expectancyR": -0.35375438028653083,
+            "profitFactor": 0.023621418814334966,
+            "maxDrawdownR": 28.300350422922467,
+            "totalR": -28.300350422922467
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 181,
+            "wins": 16,
+            "winRate": 0.08839779005524862,
+            "winInterval": [
+              0.055143548023166934,
+              0.13876085444900382
+            ],
+            "expectancyR": -0.3812012747844781,
+            "profitFactor": 0.02133361964740332,
+            "maxDrawdownR": 68.99743073599053,
+            "totalR": -68.99743073599053
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 118,
+            "wins": 8,
+            "winRate": 0.06779661016949153,
+            "winInterval": [
+              0.034750758644526016,
+              0.1280967417165986
+            ],
+            "expectancyR": -0.381373156318428,
+            "profitFactor": 0.02518166838206301,
+            "maxDrawdownR": 45.00203244557451,
+            "totalR": -45.00203244557451
+          }
+        }
+      ],
+      "verdict": "no-demonstrated-edge"
+    },
+    {
+      "symbol": "ETHUSDT",
+      "venue": "perp",
+      "selectionAdequate": true,
+      "rule": {
+        "right": 2,
+        "delta": 3,
+        "targetR": 2,
+        "volume": 0.8
+      },
+      "rows": 1971360,
+      "gaps": 0,
+      "train": {
+        "trades": 148,
+        "wins": 33,
+        "winRate": 0.22297297297297297,
+        "winInterval": [
+          0.16340467765703076,
+          0.2965588632961731
+        ],
+        "expectancyR": -0.21900763478719928,
+        "profitFactor": 0.25117920835354274,
+        "maxDrawdownR": 32.58728838891352,
+        "totalR": -32.41312994850549
+      },
+      "validation": {
+        "trades": 81,
+        "wins": 15,
+        "winRate": 0.18518518518518517,
+        "winInterval": [
+          0.11556188621286034,
+          0.28331790860477624
+        ],
+        "expectancyR": -0.36324266982588893,
+        "profitFactor": 0.08482038846680262,
+        "maxDrawdownR": 29.50363302174864,
+        "totalR": -29.422656255897003
+      },
+      "test": {
+        "trades": 60,
+        "wins": 16,
+        "winRate": 0.26666666666666666,
+        "winInterval": [
+          0.17132496487078852,
+          0.3900895360189135
+        ],
+        "expectancyR": -0.29391608373444367,
+        "profitFactor": 0.17669134265488404,
+        "maxDrawdownR": 17.63496502406662,
+        "totalR": -17.63496502406662
+      },
+      "stress": {
+        "trades": 60,
+        "wins": 8,
+        "winRate": 0.13333333333333333,
+        "winInterval": [
+          0.06914026978309641,
+          0.24165394590072103
+        ],
+        "expectancyR": -0.4149103464299716,
+        "profitFactor": 0.05308949728448062,
+        "maxDrawdownR": 24.894620785798296,
+        "totalR": -24.894620785798296
+      },
+      "monthly": [
+        {
+          "month": "2026-01",
+          "trades": 9,
+          "wins": 2,
+          "winRate": 0.2222222222222222,
+          "winInterval": [
+            0.06322376231222723,
+            0.5474166563271946
+          ],
+          "expectancyR": -0.34464048062588015,
+          "profitFactor": 0.10561570874441163,
+          "maxDrawdownR": 3.1017643256329213,
+          "totalR": -3.1017643256329213
+        },
+        {
+          "month": "2026-02",
+          "trades": 9,
+          "wins": 4,
+          "winRate": 0.4444444444444444,
+          "winInterval": [
+            0.188775429471914,
+            0.7333526542559703
+          ],
+          "expectancyR": -0.16805958854934056,
+          "profitFactor": 0.5081628362408988,
+          "maxDrawdownR": 2.3680242278199146,
+          "totalR": -1.512536296944065
+        },
+        {
+          "month": "2026-03",
+          "trades": 13,
+          "wins": 4,
+          "winRate": 0.3076923076923077,
+          "winInterval": [
+            0.12680497161618087,
+            0.5763111218666236
+          ],
+          "expectancyR": -0.17723797332762062,
+          "profitFactor": 0.3248237090976512,
+          "maxDrawdownR": 3.0243514597051635,
+          "totalR": -2.304093653259068
+        },
+        {
+          "month": "2026-04",
+          "trades": 4,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.48990002040399916
+          ],
+          "expectancyR": -0.30296550923776844,
+          "profitFactor": 0,
+          "maxDrawdownR": 1.2118620369510738,
+          "totalR": -1.2118620369510738
+        },
+        {
+          "month": "2026-05",
+          "trades": 1,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.7934567085261071
+          ],
+          "expectancyR": -0.4021985987411077,
+          "profitFactor": 0,
+          "maxDrawdownR": 0.4021985987411077,
+          "totalR": -0.4021985987411077
+        },
+        {
+          "month": "2026-06",
+          "trades": 10,
+          "wins": 3,
+          "winRate": 0.3,
+          "winInterval": [
+            0.10778928748621183,
+            0.6032267800204347
+          ],
+          "expectancyR": -0.5820168970484454,
+          "profitFactor": 0.045091864342096576,
+          "maxDrawdownR": 6.095004067039946,
+          "totalR": -5.820168970484454
+        },
+        {
+          "month": "2026-07",
+          "trades": 4,
+          "wins": 1,
+          "winRate": 0.25,
+          "winInterval": [
+            0.045586062644636216,
+            0.6993639475573634
+          ],
+          "expectancyR": -0.3711670924192624,
+          "profitFactor": 0.15036422348648495,
+          "maxDrawdownR": 1.4846683696770495,
+          "totalR": -1.4846683696770495
+        },
+        {
+          "month": "2026-08",
+          "trades": 7,
+          "wins": 2,
+          "winRate": 0.2857142857142857,
+          "winInterval": [
+            0.0822171657090155,
+            0.6410709098517873
+          ],
+          "expectancyR": -0.16253177009478453,
+          "profitFactor": 0.1555485344127931,
+          "maxDrawdownR": 1.3124399842709713,
+          "totalR": -1.1377223906634917
+        },
+        {
+          "month": "2026-09",
+          "trades": 3,
+          "wins": 0,
+          "winRate": 0,
+          "winInterval": [
+            0,
+            0.5615060804490177
+          ],
+          "expectancyR": -0.21998346057112758,
+          "profitFactor": 0,
+          "maxDrawdownR": 0.6599503817133827,
+          "totalR": -0.6599503817133827
+        }
+      ],
+      "selection": [
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 148,
+            "wins": 33,
+            "winRate": 0.22297297297297297,
+            "winInterval": [
+              0.16340467765703076,
+              0.2965588632961731
+            ],
+            "expectancyR": -0.21900763478719928,
+            "profitFactor": 0.25117920835354274,
+            "maxDrawdownR": 32.58728838891352,
+            "totalR": -32.41312994850549
+          },
+          "validation": {
+            "trades": 81,
+            "wins": 15,
+            "winRate": 0.18518518518518517,
+            "winInterval": [
+              0.11556188621286034,
+              0.28331790860477624
+            ],
+            "expectancyR": -0.36324266982588893,
+            "profitFactor": 0.08482038846680262,
+            "maxDrawdownR": 29.50363302174864,
+            "totalR": -29.422656255897003
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 104,
+            "wins": 17,
+            "winRate": 0.16346153846153846,
+            "winInterval": [
+              0.1046344949733491,
+              0.24626534330798205
+            ],
+            "expectancyR": -0.27626082921764766,
+            "profitFactor": 0.10645378014663047,
+            "maxDrawdownR": 28.90528467904339,
+            "totalR": -28.73112623863536
+          },
+          "validation": {
+            "trades": 60,
+            "wins": 9,
+            "winRate": 0.15,
+            "winInterval": [
+              0.08097349242295689,
+              0.26114825891159615
+            ],
+            "expectancyR": -0.37263276318872307,
+            "profitFactor": 0.08294533625571146,
+            "maxDrawdownR": 22.416297860035588,
+            "totalR": -22.357965791323384
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 126,
+            "wins": 19,
+            "winRate": 0.15079365079365079,
+            "winInterval": [
+              0.09871172541981235,
+              0.22353938670449916
+            ],
+            "expectancyR": -0.2807172004448772,
+            "profitFactor": 0.1756415463471554,
+            "maxDrawdownR": 35.54452569646256,
+            "totalR": -35.37036725605453
+          },
+          "validation": {
+            "trades": 76,
+            "wins": 10,
+            "winRate": 0.13157894736842105,
+            "winInterval": [
+              0.07306803021855036,
+              0.22554322005699518
+            ],
+            "expectancyR": -0.396205061531625,
+            "profitFactor": 0.08123340024061126,
+            "maxDrawdownR": 30.1115846764035,
+            "totalR": -30.1115846764035
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 221,
+            "wins": 42,
+            "winRate": 0.19004524886877827,
+            "winInterval": [
+              0.1437849834160658,
+              0.24689716792959268
+            ],
+            "expectancyR": -0.281582292778944,
+            "profitFactor": 0.17046562560188352,
+            "maxDrawdownR": 62.40384514455465,
+            "totalR": -62.22968670414662
+          },
+          "validation": {
+            "trades": 109,
+            "wins": 16,
+            "winRate": 0.14678899082568808,
+            "winInterval": [
+              0.09241831740304014,
+              0.22520922421281786
+            ],
+            "expectancyR": -0.38060535421728836,
+            "profitFactor": 0.09317048488423883,
+            "maxDrawdownR": 41.48598360968443,
+            "totalR": -41.48598360968443
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 153,
+            "wins": 24,
+            "winRate": 0.1568627450980392,
+            "winInterval": [
+              0.10773416494874159,
+              0.22280059113637868
+            ],
+            "expectancyR": -0.2891782005499447,
+            "profitFactor": 0.12836391265983446,
+            "maxDrawdownR": 44.41842312454958,
+            "totalR": -44.24426468414154
+          },
+          "validation": {
+            "trades": 73,
+            "wins": 9,
+            "winRate": 0.1232876712328767,
+            "winInterval": [
+              0.06623676164045252,
+              0.21800510734717915
+            ],
+            "expectancyR": -0.39890809544583233,
+            "profitFactor": 0.06493448019457618,
+            "maxDrawdownR": 29.178623036257964,
+            "totalR": -29.12029096754576
+          }
+        }
+      ],
+      "trainingCandidates": [
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 24,
+            "wins": 4,
+            "winRate": 0.16666666666666666,
+            "winInterval": [
+              0.06678568000728924,
+              0.3585347038786943
+            ],
+            "expectancyR": -0.2509477668816059,
+            "profitFactor": 0.23019869159317044,
+            "maxDrawdownR": 6.022746405158542,
+            "totalR": -6.022746405158542
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 19,
+            "wins": 2,
+            "winRate": 0.10526315789473684,
+            "winInterval": [
+              0.029357941395096593,
+              0.313945504948417
+            ],
+            "expectancyR": -0.27171423582043563,
+            "profitFactor": 0.2329382911511873,
+            "maxDrawdownR": 5.565628183615949,
+            "totalR": -5.162570480588277
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 80,
+            "wins": 17,
+            "winRate": 0.2125,
+            "winInterval": [
+              0.13712274217035494,
+              0.3142236061817758
+            ],
+            "expectancyR": -0.2815385889458371,
+            "profitFactor": 0.17311609973851036,
+            "maxDrawdownR": 22.523087115666968,
+            "totalR": -22.523087115666968
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 61,
+            "wins": 11,
+            "winRate": 0.18032786885245902,
+            "winInterval": [
+              0.10379034061426573,
+              0.2947439336787807
+            ],
+            "expectancyR": -0.28299403150229846,
+            "profitFactor": 0.18585111803906643,
+            "maxDrawdownR": 17.262635921640207,
+            "totalR": -17.262635921640207
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 127,
+            "wins": 22,
+            "winRate": 0.1732283464566929,
+            "winInterval": [
+              0.11727034762153574,
+              0.248374829447531
+            ],
+            "expectancyR": -0.3195528336053428,
+            "profitFactor": 0.1285812017864846,
+            "maxDrawdownR": 40.58320986787854,
+            "totalR": -40.58320986787854
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 91,
+            "wins": 14,
+            "winRate": 0.15384615384615385,
+            "winInterval": [
+              0.09391127768535097,
+              0.2418232523099254
+            ],
+            "expectancyR": -0.31975409758226975,
+            "profitFactor": 0.13747891929747263,
+            "maxDrawdownR": 29.097622879986545,
+            "totalR": -29.097622879986545
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 21,
+            "wins": 3,
+            "winRate": 0.14285714285714285,
+            "winInterval": [
+              0.04980921798213492,
+              0.346364941492295
+            ],
+            "expectancyR": -0.3084938977259369,
+            "profitFactor": 0.08942361345390885,
+            "maxDrawdownR": 6.478371852244675,
+            "totalR": -6.478371852244675
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 16,
+            "wins": 1,
+            "winRate": 0.0625,
+            "winInterval": [
+              0.01111905730833121,
+              0.2832926836802987
+            ],
+            "expectancyR": -0.3511372454796507,
+            "profitFactor": 0.06692091264151821,
+            "maxDrawdownR": 5.618195927674411,
+            "totalR": -5.618195927674411
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 62,
+            "wins": 11,
+            "winRate": 0.1774193548387097,
+            "winInterval": [
+              0.10206333434361749,
+              0.2904180148338023
+            ],
+            "expectancyR": -0.31841541724934647,
+            "profitFactor": 0.07204715450443738,
+            "maxDrawdownR": 19.74175586945948,
+            "totalR": -19.74175586945948
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 49,
+            "wins": 6,
+            "winRate": 0.12244897959183673,
+            "winInterval": [
+              0.057347477598098245,
+              0.2424466240188096
+            ],
+            "expectancyR": -0.35521704298985735,
+            "profitFactor": 0.044057105873812334,
+            "maxDrawdownR": 17.40563510650301,
+            "totalR": -17.40563510650301
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 96,
+            "wins": 14,
+            "winRate": 0.14583333333333334,
+            "winInterval": [
+              0.0889012461783118,
+              0.2300199249567662
+            ],
+            "expectancyR": -0.3429140299379843,
+            "profitFactor": 0.06229443084692198,
+            "maxDrawdownR": 32.919746874046496,
+            "totalR": -32.919746874046496
+          }
+        },
+        {
+          "rule": {
+            "right": 1,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 72,
+            "wins": 7,
+            "winRate": 0.09722222222222222,
+            "winInterval": [
+              0.04789571126116793,
+              0.18735249025356804
+            ],
+            "expectancyR": -0.3808800774000975,
+            "profitFactor": 0.03112094766538774,
+            "maxDrawdownR": 27.42336557280702,
+            "totalR": -27.42336557280702
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 50,
+            "wins": 13,
+            "winRate": 0.26,
+            "winInterval": [
+              0.15871379651367384,
+              0.3955342198899992
+            ],
+            "expectancyR": -0.14378255548803287,
+            "profitFactor": 0.39319047206258245,
+            "maxDrawdownR": 7.363286214809675,
+            "totalR": -7.189127774401643
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 32,
+            "wins": 6,
+            "winRate": 0.1875,
+            "winInterval": [
+              0.08889423936162782,
+              0.3530949575492244
+            ],
+            "expectancyR": -0.18730567017500063,
+            "profitFactor": 0.23709873547746166,
+            "maxDrawdownR": 6.167939886008052,
+            "totalR": -5.99378144560002
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 148,
+            "wins": 33,
+            "winRate": 0.22297297297297297,
+            "winInterval": [
+              0.16340467765703076,
+              0.2965588632961731
+            ],
+            "expectancyR": -0.21900763478719928,
+            "profitFactor": 0.25117920835354274,
+            "maxDrawdownR": 32.58728838891352,
+            "totalR": -32.41312994850549
+          },
+          "validation": {
+            "trades": 81,
+            "wins": 15,
+            "winRate": 0.18518518518518517,
+            "winInterval": [
+              0.11556188621286034,
+              0.28331790860477624
+            ],
+            "expectancyR": -0.36324266982588893,
+            "profitFactor": 0.08482038846680262,
+            "maxDrawdownR": 29.50363302174864,
+            "totalR": -29.422656255897003
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 86,
+            "wins": 15,
+            "winRate": 0.1744186046511628,
+            "winInterval": [
+              0.10864674362052464,
+              0.26803399225238944
+            ],
+            "expectancyR": -0.21807092121658536,
+            "profitFactor": 0.26206339645142357,
+            "maxDrawdownR": 18.928257665034373,
+            "totalR": -18.75409922462634
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 221,
+            "wins": 42,
+            "winRate": 0.19004524886877827,
+            "winInterval": [
+              0.1437849834160658,
+              0.24689716792959268
+            ],
+            "expectancyR": -0.281582292778944,
+            "profitFactor": 0.17046562560188352,
+            "maxDrawdownR": 62.40384514455465,
+            "totalR": -62.22968670414662
+          },
+          "validation": {
+            "trades": 109,
+            "wins": 16,
+            "winRate": 0.14678899082568808,
+            "winInterval": [
+              0.09241831740304014,
+              0.22520922421281786
+            ],
+            "expectancyR": -0.38060535421728836,
+            "profitFactor": 0.09317048488423883,
+            "maxDrawdownR": 41.48598360968443,
+            "totalR": -41.48598360968443
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 3,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 126,
+            "wins": 19,
+            "winRate": 0.15079365079365079,
+            "winInterval": [
+              0.09871172541981235,
+              0.22353938670449916
+            ],
+            "expectancyR": -0.2807172004448772,
+            "profitFactor": 0.1756415463471554,
+            "maxDrawdownR": 35.54452569646256,
+            "totalR": -35.37036725605453
+          },
+          "validation": {
+            "trades": 76,
+            "wins": 10,
+            "winRate": 0.13157894736842105,
+            "winInterval": [
+              0.07306803021855036,
+              0.22554322005699518
+            ],
+            "expectancyR": -0.396205061531625,
+            "profitFactor": 0.08123340024061126,
+            "maxDrawdownR": 30.1115846764035,
+            "totalR": -30.1115846764035
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 39,
+            "wins": 6,
+            "winRate": 0.15384615384615385,
+            "winInterval": [
+              0.07247373845051469,
+              0.2972976986573431
+            ],
+            "expectancyR": -0.25230679058382594,
+            "profitFactor": 0.11140350350324273,
+            "maxDrawdownR": 10.014123273177244,
+            "totalR": -9.839964832769212
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 1.5,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 26,
+            "wins": 3,
+            "winRate": 0.11538461538461539,
+            "winInterval": [
+              0.04003171821149494,
+              0.28976293086898336
+            ],
+            "expectancyR": -0.2626949713675849,
+            "profitFactor": 0.07006504068515919,
+            "maxDrawdownR": 7.00422769596524,
+            "totalR": -6.830069255557208
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 104,
+            "wins": 17,
+            "winRate": 0.16346153846153846,
+            "winInterval": [
+              0.1046344949733491,
+              0.24626534330798205
+            ],
+            "expectancyR": -0.27626082921764766,
+            "profitFactor": 0.10645378014663047,
+            "maxDrawdownR": 28.90528467904339,
+            "totalR": -28.73112623863536
+          },
+          "validation": {
+            "trades": 60,
+            "wins": 9,
+            "winRate": 0.15,
+            "winInterval": [
+              0.08097349242295689,
+              0.26114825891159615
+            ],
+            "expectancyR": -0.37263276318872307,
+            "profitFactor": 0.08294533625571146,
+            "maxDrawdownR": 22.416297860035588,
+            "totalR": -22.357965791323384
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 2,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 61,
+            "wins": 6,
+            "winRate": 0.09836065573770492,
+            "winInterval": [
+              0.045863951367309724,
+              0.1984483419752358
+            ],
+            "expectancyR": -0.28883179803504344,
+            "profitFactor": 0.0754456693321421,
+            "maxDrawdownR": 17.792898120545683,
+            "totalR": -17.61873968013765
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 0.8
+          },
+          "train": {
+            "trades": 153,
+            "wins": 24,
+            "winRate": 0.1568627450980392,
+            "winInterval": [
+              0.10773416494874159,
+              0.22280059113637868
+            ],
+            "expectancyR": -0.2891782005499447,
+            "profitFactor": 0.12836391265983446,
+            "maxDrawdownR": 44.41842312454958,
+            "totalR": -44.24426468414154
+          },
+          "validation": {
+            "trades": 73,
+            "wins": 9,
+            "winRate": 0.1232876712328767,
+            "winInterval": [
+              0.06623676164045252,
+              0.21800510734717915
+            ],
+            "expectancyR": -0.39890809544583233,
+            "profitFactor": 0.06493448019457618,
+            "maxDrawdownR": 29.178623036257964,
+            "totalR": -29.12029096754576
+          }
+        },
+        {
+          "rule": {
+            "right": 2,
+            "delta": 5,
+            "targetR": 3,
+            "volume": 1.2
+          },
+          "train": {
+            "trades": 86,
+            "wins": 8,
+            "winRate": 0.09302325581395349,
+            "winInterval": [
+              0.04789171128373092,
+              0.1729592085574117
+            ],
+            "expectancyR": -0.30160031801237885,
+            "profitFactor": 0.11862900482525533,
+            "maxDrawdownR": 26.111785789472613,
+            "totalR": -25.93762734906458
+          }
+        }
+      ],
+      "verdict": "no-demonstrated-edge"
+    }
+  ],
+  "limitations": [
+    "OHLC backtest; assumed fees, spread, slippage and perpetual funding. No order-queue simulation.",
+    "No historical news, calendar or profile gating; live filters change the tested strategy.",
+    "Binance perpetual evidence is a proxy, not a Hyperliquid venue validation.",
+    "Selected BTC/ETH only; no claim across other assets. Fixed-date holdout; no probability forecast."
+  ],
+  "archives": [
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-01.zip",
+      "sha256": "b7b04483464b36c89f519bf35d6461d278c709577562108b6a00fb786b92e6a6",
+      "bytes": 1824474,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-02.zip",
+      "sha256": "b62ca5df57b1715109cb1fd57097529b28410fb36b0db5bd41dbefe7e070db68",
+      "bytes": 1688103,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-03.zip",
+      "sha256": "1cb47aae71e941d3e9d333f9c96723eb35c8b4a7ec90e819c59a7c02f89b03bb",
+      "bytes": 1907895,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-04.zip",
+      "sha256": "2c22e2e460bf0e41884bf71031eebf60224ba470b25777a4d17ddc9298390650",
+      "bytes": 1810833,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-05.zip",
+      "sha256": "cf9e0ab390e3872ddb9d807ad161933a28e374e09dbee2b9addf659856d1e656",
+      "bytes": 1859563,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-06.zip",
+      "sha256": "8dac3fe301198e752b257817542a7ded393dbe00b604f67aba6bc0090778ae95",
+      "bytes": 1806762,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-07.zip",
+      "sha256": "5cc84c767c9f4d1fa3cb3d33bd009a0b5e3a445e9c89ad2ef259c90b0365cbc3",
+      "bytes": 1805388,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-08.zip",
+      "sha256": "8d77e6f898fba3aa5bf643d128e0aaa1b722ea6881cd26a3d19088705117a1d7",
+      "bytes": 1781029,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-09.zip",
+      "sha256": "ea43f6e612b54e165c47ea30955b8d9e825b1d3ad1846f12c03ad0f0fced9029",
+      "bytes": 1729534,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-10.zip",
+      "sha256": "153f1322695d16a12cab261b7798045323d9f893b19d35d95ffe94a62530b4de",
+      "bytes": 1829597,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-11.zip",
+      "sha256": "63aa156170b2316927ae4c4928cc78866934a02b4bbc14c730b5fe4790383a80",
+      "bytes": 1783820,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-12.zip",
+      "sha256": "947ea9b1c5dfa301f1d5ff89d28f3ee49bc73eef2cfa1f0dc4024048458eb60b",
+      "bytes": 1874380,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-01.zip",
+      "sha256": "21eeac04a76a7a35b10467e5e752fb2f8cff77cdeb57df6b50a23ce8d69bb190",
+      "bytes": 1898532,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-02.zip",
+      "sha256": "1407acbf8ad99911bdf582805699b7e85fdbc346dbe12618ce8b6369f0d8058d",
+      "bytes": 1770127,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-03.zip",
+      "sha256": "040b8e448e4243072b88b0d9908dfebed91bba943b75f4e831fa5337a2e1dab9",
+      "bytes": 1950611,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-04.zip",
+      "sha256": "6a41f002da0c8e3f60bd46c841ea4ed766fb195764ad3b6b10e4f508d29c2eb7",
+      "bytes": 1870249,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-05.zip",
+      "sha256": "42de617ed643def54b5a2c3fceb7cd2edec91aafaa01104a097b2ded5c5122d4",
+      "bytes": 1896566,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-06.zip",
+      "sha256": "93499da4990fec5471bb0d73c91116e7d20a8b2697d7a4491665d6d1b8e85c85",
+      "bytes": 1789499,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-07.zip",
+      "sha256": "97f9cd5104a33828c5c2d8d03a2796d600102ab88737d1c6da515b9609540c3c",
+      "bytes": 1912408,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-08.zip",
+      "sha256": "f69dbcebfd7108dc97825bd6c35d8d9a51745082f66617cb69de888e867e8e89",
+      "bytes": 1919190,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-09.zip",
+      "sha256": "16fe2e13728236bfbd3efee99671612daadeea3b62dfd55d8874feae9faa4946",
+      "bytes": 1829434,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-10.zip",
+      "sha256": "aa8c79ad120a8d870e23276d1ad5966f99f59bc0a1886ef5927a3808a5efee36",
+      "bytes": 1878910,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-11.zip",
+      "sha256": "9c3dad038f4b043ec51d4200f57d15a0a07b3fc32b3ea3dca6a96543b9624941",
+      "bytes": 1876449,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-12.zip",
+      "sha256": "bfce141d2a152c2b94d85b797fe18ebfa195fa0e6091a7ccc06663ae1309466f",
+      "bytes": 1929835,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-01.zip",
+      "sha256": "b69ca5b2c2d1ae00d68d2790d09138cb2a44085ff19e0da5dc98b569ea7e489e",
+      "bytes": 1917878,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-02.zip",
+      "sha256": "d84ca981d06ee6491e16597f8d43955f62cab399a9f4b6efc2ee1b4d3a37f0fc",
+      "bytes": 1718529,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-03.zip",
+      "sha256": "4837163333c9c9978255b8870a5a6de1bc48bd22a6c72fef54665a8d4e70b4df",
+      "bytes": 1919175,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-04.zip",
+      "sha256": "87bca047ca7e8b1d27913091255018e121210276726c5aa445e85da6f56e2dcc",
+      "bytes": 1846549,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-05.zip",
+      "sha256": "7acab7e40a74db53a2d6c35373ebe327eefa85b98f8c92fbe58755881e3841ee",
+      "bytes": 1904964,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-06.zip",
+      "sha256": "78872b32c4d0bbc2d89a0459539b90cff47de08a9a56fdf8d233943a32e78efc",
+      "bytes": 1817901,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-07.zip",
+      "sha256": "cf5fe0891c80e68d2d613eb5457100b7d886eee8cc913ccdd96ef45e757a5aaf",
+      "bytes": 1868400,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-08.zip",
+      "sha256": "eaf41354fc1aa96eac94ee50b3fda603cd595f95030ebf30b2ab5bea7a4462c3",
+      "bytes": 1871971,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-09.zip",
+      "sha256": "c296ba45c215934e9750ca82846c7b5d14be661649d8e4423eac834cf57330dc",
+      "bytes": 1782066,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-10.zip",
+      "sha256": "bb7f53350fe27b6d8e38b5856ffc43f9ecda9d568d5bf31d0db0cd011da7100f",
+      "bytes": 1913274,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-11.zip",
+      "sha256": "981da0b054f99b959fe6245fb363336b46908d358f37251d59bad308f375bc54",
+      "bytes": 1856815,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-12.zip",
+      "sha256": "2d5b2e1887dac1dfe450010877de7203a72e19df7a771067b980bbb07ad3069c",
+      "bytes": 1868657,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-01.zip",
+      "sha256": "58e9c620a6acda209d25766b3cf4262f3104649f5c26f247d933e0da8bb7946f",
+      "bytes": 1852279,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-02.zip",
+      "sha256": "805626ad2dc5b704d52c211996d12e9e4b1be234998f3dba4b3d34ff79be0337",
+      "bytes": 1743792,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-03.zip",
+      "sha256": "c472a865f230bf1b5b17e124770a83c083144e3e11a115733288fb8f3e3b8baa",
+      "bytes": 1911731,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-04.zip",
+      "sha256": "515b86570f0c6924f6dc2cf90589d3db90f3de9c6bfd9a22dde0429995dc5405",
+      "bytes": 1810071,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-05.zip",
+      "sha256": "d91548e94220d5211bb32447cc4b604ee266d145f2092edc5ec613328cbbc20a",
+      "bytes": 1845894,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-06.zip",
+      "sha256": "9b214199eb5063585c7ed0f59ba19323326d68ac024b85106713989399204490",
+      "bytes": 1838455,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-07.zip",
+      "sha256": "f18440bb58f0c7e1ff63cbb906132002877c4914540c8aebab920da6937cff73",
+      "bytes": 1844583,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-08.zip",
+      "sha256": "adfd0846ea580681aeb18a6bdf06660dcfcc1a7b6819ea2eecfc3c53240ec67a",
+      "bytes": 1817920,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-09.zip",
+      "sha256": "e1a821b5bf6b48d57da01c3e390b8a467a698155def5c18c2c63c0eb044a3247",
+      "bytes": 1796984,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-01.zip",
+      "sha256": "0f501c198dd70e9330e698d62fbaeaf8b4b94275a4157b859f9fc3de0498dfe4",
+      "bytes": 1886386,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-02.zip",
+      "sha256": "e19b3ba0cfb3121d51d0617a0b0f6889233d8d4e6ce6f391e573adfce2385c88",
+      "bytes": 1722282,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-03.zip",
+      "sha256": "277ce2cc1c7175df2d19ccebe081ff286bc3ef6eb028c698f86c4eca1b9b4989",
+      "bytes": 1924989,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-04.zip",
+      "sha256": "b900eb2661c1559133d58ea820a9c54d2a3fb0054ba148c7f0d86a1a790b267a",
+      "bytes": 1840076,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-05.zip",
+      "sha256": "5d75bb047ecbb013fabefd80e883b3dd6d21cd98bfbedb208147e5b2e7c395d6",
+      "bytes": 1871691,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-06.zip",
+      "sha256": "726c301fe41f23a79eed5a09ff556ffb9dbdfb54ce2a66fe2737ae61c33d07c1",
+      "bytes": 1811667,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-07.zip",
+      "sha256": "cd3bcf0ed40e17b4c4cbce1f6af1c8fe2be309db2fecdfc7436f7c453a15e177",
+      "bytes": 1829055,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-08.zip",
+      "sha256": "b0f54f67f3135d3f64ea2ca9a95f01fb18031c1b6d7ffbf552aa37e4965bcee5",
+      "bytes": 1789888,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-09.zip",
+      "sha256": "1d57af68d4f8d652bb6a4d78cd50b6ceecb4aff4b19a2cb59c7d1cba005dc386",
+      "bytes": 1742207,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-10.zip",
+      "sha256": "d14f90cbc8075341cf1dfe9cfc29dc1689a0b3c3adcc0c3a35ca360a5c78f651",
+      "bytes": 1848719,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-11.zip",
+      "sha256": "5eeb6b99e8dc6889fe9d317f373f4f587c4c8d35de9ee2854a6471d6fd7b3e1b",
+      "bytes": 1839269,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-12.zip",
+      "sha256": "6ebf84e9b991619d772af5d9835175c5e456688c33c72affa35b3aecbac30d09",
+      "bytes": 1914277,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-01.zip",
+      "sha256": "7fa68ec5fedc6eef175ed0af6e9f252062f6ceaca016106c265e6e4b724b5ef2",
+      "bytes": 1918758,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-02.zip",
+      "sha256": "de3f91fcd929d207b4382afd7a728c0f44527d6bdbcb0a585b01b0fe001e24ab",
+      "bytes": 1796355,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-03.zip",
+      "sha256": "dd10515a9b010920bac628f2ec600405ff8e41de7d0f81694fbf391ca54b86b2",
+      "bytes": 1977193,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-04.zip",
+      "sha256": "1856da8b501dbb831b9a5490e99be8564433c4a4d46de89200f0258c74dd4790",
+      "bytes": 1896608,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-05.zip",
+      "sha256": "d512aa43b5b6a5168fa1b6242fe4cf01c88e51c78bb9f4d202f0ca2e42338f96",
+      "bytes": 1935350,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-06.zip",
+      "sha256": "57e4b010904bbd754ee951ada7d9edd34bc4242379ae49fb66352e2c5f5cb525",
+      "bytes": 1842414,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-07.zip",
+      "sha256": "34a3729eb2f6dd1563715e085eb936a4034357d95cba2605b96cf1cb5c533b65",
+      "bytes": 1934815,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-08.zip",
+      "sha256": "2ccc1d0c491c63a6bfbabda39e8bd41e555a87052d77120199133e9e81bbf36c",
+      "bytes": 1941203,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-09.zip",
+      "sha256": "317e18ce04f6312b4a3de3b5504bef2001a92bf72cb8e4988e160ee327c9c737",
+      "bytes": 1852202,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-10.zip",
+      "sha256": "d1f340994285a075a97d7d0ed5e9aca3d82dadbba8f817b2f886188420a009f1",
+      "bytes": 1907533,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-11.zip",
+      "sha256": "4170f68dd576e8af35ecc9b19808dcb673c0423838bd560c7c4c1fabefdad5ad",
+      "bytes": 1921220,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-12.zip",
+      "sha256": "82018947075e35e5ac0a771bb97a22118008db2c6fb6a94f8c1a2c4ebb34d12b",
+      "bytes": 1981846,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-01.zip",
+      "sha256": "05e33ba3568c5381a36764097ea93917a7f1a93fadd1a0018e64bedb042526f6",
+      "bytes": 1962399,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-02.zip",
+      "sha256": "79c07ecaaa04a04d815f428d0617b84cc536afe95f5cb2fc62bd93c10c3adfa1",
+      "bytes": 1786957,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-03.zip",
+      "sha256": "82351bb41febb62d3680c761cf7cf9e29182435d9b4843e674ded63de3b29a32",
+      "bytes": 1957769,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-04.zip",
+      "sha256": "75ea6a45c8bed04294449ff7d56f047c235a36fac176736816c01d6892bd8687",
+      "bytes": 1895060,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-05.zip",
+      "sha256": "a2560653e2f602444d2201e44e77cdba6e48233649d22fb7e8c703ce9fc6277a",
+      "bytes": 1986381,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-06.zip",
+      "sha256": "189aa2e5daf3621f6f7f9fd58df763e0667592f3baf407270e0ad42399155c69",
+      "bytes": 1904828,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-07.zip",
+      "sha256": "e3af3ee3ac3251d313ad8987169d5c02bfd8c094bf047bbce9373eaf19ee479c",
+      "bytes": 1988465,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-08.zip",
+      "sha256": "8cd85f1c417c4c65cd32348f3e4e23c8b35dd4e5e59a20a187e2a74777bd6664",
+      "bytes": 2017496,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-09.zip",
+      "sha256": "dc1f5e05a0b873accd0ed2a854ee14086da03b08a581198b20b5658042c6dc5f",
+      "bytes": 1900520,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-10.zip",
+      "sha256": "c0b8d557384ce1cd77df8f08cb6775f350a531a1792fa9deceb05f51a3939438",
+      "bytes": 1996726,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-11.zip",
+      "sha256": "2dd6ded997100a92d11394eddccc54f1070b0fcf029c5e126859b5af80f6329e",
+      "bytes": 1931576,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-12.zip",
+      "sha256": "8fc3e01faeb240ed9f77e4ba8bbcdf42bb7b0c7004d35fe8010bd0fd9090e4a9",
+      "bytes": 1941385,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-01.zip",
+      "sha256": "0dc9c455c6d0735fe7e177d98a5088ab473c7fc1fa723710e783ff5dd49df4bb",
+      "bytes": 1928094,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-02.zip",
+      "sha256": "2109cab7fa27eee904a7d6d6dd982633579fc4091765dc8fa16c001f2da8a1c2",
+      "bytes": 1790010,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-03.zip",
+      "sha256": "d61eeba7aed3067525c6503bfbfd4f8d55585b846b67115eb85eeb1d2f857bf1",
+      "bytes": 1958005,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-04.zip",
+      "sha256": "fd01f08f331a0dcb5d89c718afb199f7cda63f43228b72ddda0bdd08bfd527c7",
+      "bytes": 1860146,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-05.zip",
+      "sha256": "9710b3d1e350bef5bf31b8d1531c5801d35f963d223d0a42e73ae86ddd376e92",
+      "bytes": 1893623,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-06.zip",
+      "sha256": "3b771e114b494805ac4cc677b34befb7e5f332bf5bd3a8a368cd21d65cd99cba",
+      "bytes": 1875936,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-07.zip",
+      "sha256": "5c98ad0cfa152fbe08df59838ead7c8bbfa433af943bbfb4d082626ebee2d83e",
+      "bytes": 1905641,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-08.zip",
+      "sha256": "038b412935c3349e95b4abe3e9cec8a7fd521d16ce73fff3c2f92d605b252b9e",
+      "bytes": 1881488,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/futures/um/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-09.zip",
+      "sha256": "c85c7ec631fa7fe3a90c30e4ef6a76aeac0b88be895872388d87a6a8fd3d2892",
+      "bytes": 1858695,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-01.zip",
+      "sha256": "664116c2f33465d191684887f0d4834c02eb0a2635ada43eca855a99e6b6b0c5",
+      "bytes": 2304509,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-02.zip",
+      "sha256": "bff03104aa247f791a12a122336cb8c928e19fea5b74276d83a248878b9a619a",
+      "bytes": 2109501,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-03.zip",
+      "sha256": "5591171a15f210af647a2fb68ab8cbad45a3a595cfe9a0eec9d06e5e84928bec",
+      "bytes": 2300446,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-04.zip",
+      "sha256": "c71baedea84f9fc1a0ad297b383505b1cb84c0a7fc111caa149aa6fb2defa5da",
+      "bytes": 2064504,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-05.zip",
+      "sha256": "c83bd079dc67b9e542d07fe9491f8b1bf513185d6d7cc4ce17710f21c8d0037b",
+      "bytes": 2111728,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-06.zip",
+      "sha256": "d8cf5d1817fa1d8cba8eaf4d189614cf05b15d7233e9e29a0156d2dee2cfaad1",
+      "bytes": 2043702,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-07.zip",
+      "sha256": "8f32a4ef47bd758b33bfaf680a71792f8d97ca4d89ae55ff3d2272cc3974560c",
+      "bytes": 2033186,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-08.zip",
+      "sha256": "b4d775d24d905660d8ad00bfa1fc0157ec83c4b4f0c4aacca8818dad5d17c6c6",
+      "bytes": 2018512,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-09.zip",
+      "sha256": "22333eaa3f971ad0686c02532b7b23d02e5e32c298d9bf4fa55894fbb755da99",
+      "bytes": 1967613,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-10.zip",
+      "sha256": "9e854972545806398d124571916348238ce39961072730c200cca3c2e0bd50a3",
+      "bytes": 2099200,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-11.zip",
+      "sha256": "4b1462878f31fd736385b761f6bb0a3f525936a6ae9f5f52c3e3b95ee2df35b4",
+      "bytes": 2056098,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2023-12.zip",
+      "sha256": "c8b684a66b5ddbb58bf116251359c2dd83a07ce46791f4caa16dd4301eb17636",
+      "bytes": 2144300,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-01.zip",
+      "sha256": "40b78258091a468f8756843f207f5913eafc1d6e756c40a78711320d93fa5e75",
+      "bytes": 2169570,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-02.zip",
+      "sha256": "431132e0db8b9fe6e5c93c8e9ba3ae37dbcfa0edcdd57618b1b78ac18d14be79",
+      "bytes": 2013843,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-03.zip",
+      "sha256": "a9af86295eae839f1d072643c67eed7fcc47bb1d82c12ef312d041eec9511e7b",
+      "bytes": 2221094,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-04.zip",
+      "sha256": "753040cbfaa72bf9b1fdc6253a3b521a9a174a664dfd0929a556be327b016bc6",
+      "bytes": 2120723,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-05.zip",
+      "sha256": "0f709143f66a09acc430d24a5f27f9accd52689c23ce10f2c0b6ea26997bfa8a",
+      "bytes": 2144250,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-06.zip",
+      "sha256": "90f4fc3f55918787848c71f4cd0f2f1a5851bbffaf6392e76e9ab555b7479d2b",
+      "bytes": 2018857,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-07.zip",
+      "sha256": "9cfd749fd2027a0c6f261bed607b49dd1256369fb41b784934544a3676f8162e",
+      "bytes": 2141506,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-08.zip",
+      "sha256": "6a1cac2a5482132dc5a030534aa028e2becc560877f2b93b7add90194f576c42",
+      "bytes": 2164472,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-09.zip",
+      "sha256": "1e30f6091b05eeb7b0449735d749354b81ab429ab1449bae82a21e316db8eac3",
+      "bytes": 2049758,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-10.zip",
+      "sha256": "13f7f9f9bed652fd152422246cfbcaefa6223692c5c37fb3ca4e72f45501e607",
+      "bytes": 2121607,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-11.zip",
+      "sha256": "c30a63bd0e8a77f2d18a2a019272b907f29a84fd5378796cf9333b041edcb12b",
+      "bytes": 2146495,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2024-12.zip",
+      "sha256": "58fef0b7c7abce7a0201efd04ed3732f236f607f3fcecf228fb8384cad1ae2c1",
+      "bytes": 2218893,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-01.zip",
+      "sha256": "8d028b2f91aad57d6b693d44449c93f9c4b7044f55f298c8a3ac40ab676dafac",
+      "bytes": 2222830,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-02.zip",
+      "sha256": "26b3795072983a66bdbe8327e0d5e71069bdd5ca831d4da3850ba68ef7a991ef",
+      "bytes": 1993970,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-03.zip",
+      "sha256": "e333601b6c721434f3cdd6670ffde2371bef7946572864c49ba6431a690ab1ca",
+      "bytes": 2215591,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-04.zip",
+      "sha256": "4103d48887f9f5ec04144b190314ec31db9e3094674e5d53a3436b338854848f",
+      "bytes": 2120466,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-05.zip",
+      "sha256": "7f95bf97e3ccfbb55cd002f124a54dc1726ced7cfd54e6fd200e59845ca95d5c",
+      "bytes": 2184868,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-06.zip",
+      "sha256": "f95f6169e253d38fb321c87984c827878634250cdcc3ff84fc3507f036bcabbd",
+      "bytes": 2074513,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-07.zip",
+      "sha256": "3377e023fe252418cfaf46c9e23b3f0d1e56fb2fd89b4191fc66262b947a0ee2",
+      "bytes": 2136490,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-08.zip",
+      "sha256": "11da1c7db8949cbdcbb757531756eda55f2a3d663cfac671c5d1a8a87911318f",
+      "bytes": 2150048,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-09.zip",
+      "sha256": "52bb4a4a52afbcc0af77e3eb92c114bf810982ca63bf02f8fe15062e59c5f44b",
+      "bytes": 2045189,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-10.zip",
+      "sha256": "985d878cacbfdde85c9e0da2e8830ab913fe01bfdcde6e488563d8194df11f6b",
+      "bytes": 2216628,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-11.zip",
+      "sha256": "c54159d1216ab07f040a96d6678748e8746ac4200cba373fb6b758f2cdd1e5e5",
+      "bytes": 2165376,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2025-12.zip",
+      "sha256": "7b47647352b01356dcd678a1438efb8baac03ed798785ed2179d428aab0cca9b",
+      "bytes": 2154846,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-01.zip",
+      "sha256": "d28b369da32a6ea84ba0af517b1847ab67b2fcc1e0e111c1b24d56ae07240cb9",
+      "bytes": 2127988,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-02.zip",
+      "sha256": "cee2e913ed07e02834e2387c65ca430fe3576f620588bad8a02229238f385407",
+      "bytes": 2021779,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-03.zip",
+      "sha256": "a2c1e689d39aa7877e218f436f15162e9a4436778a377d32e9d9b81b081381cd",
+      "bytes": 2213444,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-04.zip",
+      "sha256": "318afd4f5acfbcfbb40fbe727a77eee8e9e7b54d8941589c78a32283d90b4a01",
+      "bytes": 2088776,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-05.zip",
+      "sha256": "62983d93c35e26ec6c29116c629e443b7ddfe3d301aca83331ff58112199d8d0",
+      "bytes": 2120776,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-06.zip",
+      "sha256": "c8e1d5e70b766dd2312fc9cd7085785bb25708e27e75c21a5a5aaba61a6d07f5",
+      "bytes": 2092027,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-07.zip",
+      "sha256": "3ef15c84353da48e1c7c5fd99b9751cb036bf8986ed47f7cd1be63359c0d4f6b",
+      "bytes": 2112275,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-08.zip",
+      "sha256": "acab442e02745177063031d402929703ae983715010064b40cf811c4beb843d4",
+      "bytes": 2084946,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/BTCUSDT/1m/BTCUSDT-1m-2026-09.zip",
+      "sha256": "7a021fb5981cfdb1a56457d68fa81360ab27350c981ddfe63112b2322df44b56",
+      "bytes": 2054117,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-01.zip",
+      "sha256": "c69ea0c9b620b53f15dc5e20a1446a2f233e2d8c8dd8eaa8bf49dae92f3162c3",
+      "bytes": 1989184,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-02.zip",
+      "sha256": "4ee0c9bf3c53c038798df52b085156f0fae2c59406e3e1c02ade5f680a129a11",
+      "bytes": 1828792,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-03.zip",
+      "sha256": "e2552c2298f4b67027bfa1f7da364b0d398e96a76dae8fa2085dddf357f60a69",
+      "bytes": 2052232,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-04.zip",
+      "sha256": "87d0e7d1a21d72636f60cdd50557c90cc1921664596f5b4e9713c0365c3410c5",
+      "bytes": 1956086,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-05.zip",
+      "sha256": "fe57aa54eb3467ec40d04c1585e8019c8fb0fb2085abf28bb8e615ab5461def0",
+      "bytes": 1980623,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-06.zip",
+      "sha256": "c12d39ce1b3b6a47e09e4b5a1c64d39939b9b58108f2c6f87e39d544cb0430f3",
+      "bytes": 1907373,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-07.zip",
+      "sha256": "ad0b53a0f9b7ec4dd13c3d9c8a2f93dcbf797ea7ae40c8a109f5a275983869f2",
+      "bytes": 1920823,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-08.zip",
+      "sha256": "fd3f848b8ee996504745083b8b2a34e5bdf2bd388a8fc7edf426d8dc10bffe7f",
+      "bytes": 1884880,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-09.zip",
+      "sha256": "7bfed19a472eaa4691d1920c865d07436262e7dc9ad737509db14dc6bcc2429e",
+      "bytes": 1840420,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-10.zip",
+      "sha256": "e7c67fa12dd93c7bebd4a5893852b3b1b0ac3faf30ec2a590fa6c942fabf4e4d",
+      "bytes": 1958976,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-11.zip",
+      "sha256": "b3a5ba98d81b4bc62022d35d85d4e28c6ab7ca550d8283643191f66f6f986c66",
+      "bytes": 1960231,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2023-12.zip",
+      "sha256": "9a0d342828ced43d17a97341234ec9d6344eba9945b5a5dccc73eabb253a83bb",
+      "bytes": 2040096,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-01.zip",
+      "sha256": "2fb2c9b77365183f77e185de3578de2f3be5fefe433d7c0564f033f968d5e23c",
+      "bytes": 2050101,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-02.zip",
+      "sha256": "ede3c9d4d47a5e9fdbc2e37b7086d97d4bcceec54316dd345fe0a1f8e648c443",
+      "bytes": 1922719,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-03.zip",
+      "sha256": "b63d885ef49b4e0f2a654ab02c5dcb502fb8abeb7300f3ebff4a33aadd3d4a82",
+      "bytes": 2118386,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-04.zip",
+      "sha256": "9c6ef16ea4e0593ac4547d2f6c64c272d8f39806871473c4877885af47a67b88",
+      "bytes": 2016825,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-05.zip",
+      "sha256": "4e09e26b7a2b352d24c25f6fc6cdd531d167d460a48226e4a8080413e0bb5e66",
+      "bytes": 2054099,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-06.zip",
+      "sha256": "27040862f050687c6da296108dfcfb29e0500e0f9c8dd73669146e9e68a128c0",
+      "bytes": 1945704,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-07.zip",
+      "sha256": "bda530d17235096c0e619edff1bef56154923b980d7a73406ea66114966ba0d2",
+      "bytes": 2050486,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-08.zip",
+      "sha256": "de64ff8c0e9bd0ff9ca7fc4015948fac94087c7293915a2a7f7bb47780e98e60",
+      "bytes": 2065075,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-09.zip",
+      "sha256": "cb2ef3750b2608a871dcc6db479382e33b7d341f89ea17ed58b9fd44db88a793",
+      "bytes": 1965720,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-10.zip",
+      "sha256": "99b11df1d79a2408d639cf512f1cfc6a4df4687de9146bd6271f9489ba15a8ba",
+      "bytes": 2039885,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-11.zip",
+      "sha256": "2c3e15ae6458707b07d2d8b51ad6634756153bc65f9bbb44d5ddb7ecdbccd0c6",
+      "bytes": 2062193,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2024-12.zip",
+      "sha256": "76e33a1db36f036c1e5866de2ebc54ab825522c801e1f9c487a85be781af4716",
+      "bytes": 2126128,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-01.zip",
+      "sha256": "04ab6131e9f8ad979676b72115a8cfaf7e4f827b06f44cdf80c840d95016766d",
+      "bytes": 2120787,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-02.zip",
+      "sha256": "5ec2fb4e87e29241745ee7e9449fb86f4f44bad96508a80a1af0e308d73c6f5a",
+      "bytes": 1930330,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-03.zip",
+      "sha256": "609346fc0dc8f8f1cf283c5cb373d1bb25f26f1716fc67c3883d2176ce9cf40b",
+      "bytes": 2096749,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-04.zip",
+      "sha256": "32505b36565f7c446a3946dc6ea2f511e71d0f72c13cca2b09bb83307f198f8e",
+      "bytes": 2029272,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-05.zip",
+      "sha256": "743268912388656e3c53d21e6e4b6c2b155c1b1f67c7bcbdae5e14cc3d9c633c",
+      "bytes": 2125837,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-06.zip",
+      "sha256": "eb7641c42f642697524ce45f64c92bcc33a751b6ade791f91f70e3ec52880a70",
+      "bytes": 2034318,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-07.zip",
+      "sha256": "b95c721b528260d865585f0723d287c836f2f22bb681ac45e0c56eaaf0047bd9",
+      "bytes": 2130574,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-08.zip",
+      "sha256": "aaebc0e2baa7d7dcfcf6eb3eeb681b55a2e746dad86e758be0af7fca4391c480",
+      "bytes": 2162576,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-09.zip",
+      "sha256": "2912831352b3e194ac38f7a66a373ea78f138dfd4fe5a3ac25acb80c5ccaa0ec",
+      "bytes": 2040217,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-10.zip",
+      "sha256": "a384d1bea37e4f59f7cae491a6f3f2dffe262259a4a0bc9324310a9aef16a843",
+      "bytes": 2145592,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-11.zip",
+      "sha256": "30b80de8cbbd68edf2b2bf76154f60e6edb0f8365e08e6d5afc63657e26e0f7c",
+      "bytes": 2074392,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2025-12.zip",
+      "sha256": "57b653e4ff3558fae8d2e6da616c40e6cfad4002f131584f82ae7a80bd228293",
+      "bytes": 2079108,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-01.zip",
+      "sha256": "cadd060ab73bd03fee94708b78738144da76d007fc2170d8ad2cec678de7a654",
+      "bytes": 2068379,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-02.zip",
+      "sha256": "1ddb64d08739a40b7f66a37bccf5ca5fec58339c7f01e83311086116f41b445f",
+      "bytes": 1918913,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-03.zip",
+      "sha256": "5747c9f1f76be7afbf9513d50ea65ff6e979fa9684c75a775b6974e64c751844",
+      "bytes": 2086704,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-04.zip",
+      "sha256": "8a2f0a2907764827ca3c52416bd9357c5d6213f3816fadbd0515bf504ea75ffd",
+      "bytes": 1980853,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-05.zip",
+      "sha256": "bc0e625d18c0fa5378cecd0119aa20721b8830c24c3a55094f4c4c966ff8f710",
+      "bytes": 2023074,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-06.zip",
+      "sha256": "770fdf44aac01dbe136e5b37a10501e57069af4048e76fbb3a3a2de2e9662934",
+      "bytes": 1996139,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-07.zip",
+      "sha256": "1ad273218d6c33fd62515198276f00c0656ae002c0d1d9ab10cca0f5d0f7adc2",
+      "bytes": 2027161,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-08.zip",
+      "sha256": "f2f2fe8da85467fb8ec8185e07f16f3af9f4ebcb266633ba494e76ac73c40c0c",
+      "bytes": 2005311,
+      "status": "verified"
+    },
+    {
+      "url": "https://data.binance.vision/data/spot/monthly/klines/ETHUSDT/1m/ETHUSDT-1m-2026-09.zip",
+      "sha256": "827b46043bdc877d542edf8ff178dc0411cfa166a56fa73f2f850ad06c951b50",
+      "bytes": 1988611,
+      "status": "verified"
+    }
+  ],
+  "engineSha256": "92be1f1458d77af22808d10ba4767223ccab07cc6d0b9fa627c6a5747ecb784d"
+}
