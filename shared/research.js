@@ -121,7 +121,7 @@ export function parseNews(xml, source, now = Date.now()) {
     .slice(0, 25);
 }
 // Convert the BLS's explicit US-Eastern wall time using IANA DST rules, not a fixed offset.
-export function easternToUTC(value) {
+export function easternToUTC(value, timeZone = "America/New_York") {
   const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/.exec(value);
   if (!m) return null;
   const parts = m.slice(1).map(Number),
@@ -137,7 +137,7 @@ export function easternToUTC(value) {
   for (let i = 0; i < 3; i++) {
     const fields = Object.fromEntries(
       new Intl.DateTimeFormat("en-GB", {
-        timeZone: "America/New_York",
+        timeZone,
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
@@ -250,5 +250,64 @@ export function parseFOMC(html, now = Date.now()) {
       }
     }
   }
+  return events;
+}
+
+// FRED explicitly labels release times as US Central. Keep provenance distinct from BLS.
+export function parseFRED(html, releaseId, sourceURL, now = Date.now()) {
+  if (!html.includes("All times are US Central Time"))
+    throw Error("FRED calendar timezone unrecognized");
+  const expected = { 10: "Consumer Price Index", 50: "Employment Situation" }[
+    releaseId
+  ];
+  if (!expected) throw Error("Unsupported FRED release");
+  let day = null;
+  const events = [];
+  for (const [, row] of html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
+    const text = plain(row),
+      dm =
+        /(?:Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday) (January|February|March|April|May|June|July|August|September|October|November|December) (\d{1,2}), (\d{4})/.exec(
+          text,
+        );
+    if (dm) {
+      const stamp = Date.parse(`${dm[1]} ${dm[2]}, ${dm[3]} 00:00:00 GMT`);
+      day = Number.isFinite(stamp)
+        ? new Date(stamp).toISOString().slice(0, 10)
+        : null;
+      continue;
+    }
+    const release = /href="\/release\?rid=(\d+)"[^>]*>([^<]+)</.exec(row);
+    if (
+      !day ||
+      !release ||
+      +release[1] !== releaseId ||
+      plain(release[2]) !== expected
+    )
+      continue;
+    const time = /\b(\d{1,2}):(\d{2}) (am|pm)\b/i.exec(text);
+    let at = null;
+    if (time) {
+      const hour = (+time[1] % 12) + (time[3].toLowerCase() === "pm" ? 12 : 0);
+      if (+time[1] < 1 || +time[1] > 12 || +time[2] > 59)
+        throw Error("Invalid FRED time");
+      at = easternToUTC(
+        `${day.replaceAll("-", "")}T${String(hour).padStart(2, "0")}${time[2]}00`,
+        "America/Chicago",
+      );
+    }
+    const boundary = at || Date.parse(day + "T00:00:00Z");
+    if (boundary < now - 86400000 || boundary > now + 120 * 86400000) continue;
+    events.push({
+      id: `fred-${releaseId}-${day}`,
+      title: expected,
+      date: day,
+      at,
+      timePrecision: at ? "minute" : "day",
+      priority: "major",
+      source: "Federal Reserve Bank of St. Louis · FRED",
+      url: sourceURL,
+    });
+  }
+  if (!events.length) throw Error("No upcoming FRED release dates verified");
   return events;
 }

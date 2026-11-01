@@ -8,6 +8,7 @@ import {
   parseNews,
   parseBLS,
   parseFOMC,
+  parseFRED,
 } from "../shared/research.js";
 const dir = path.resolve(process.argv[2] || "/tmp/atlas-market-data"),
   file = path.join(dir, "research.json"),
@@ -44,6 +45,10 @@ const results = await Promise.all(
       const r = await fetch(s.url, {
         dispatcher,
         signal: AbortSignal.timeout(20000),
+        headers: {
+          "User-Agent":
+            "SHARPNEX/1.0 (+https://github.com/miku0027-ops/stock-screener)",
+        },
       });
       if (!r.ok) throw Error(`HTTP ${r.status}`);
       const text = await r.text();
@@ -62,6 +67,47 @@ const results = await Promise.all(
         items,
       };
     } catch (e) {
+      if (s.id === "bls-calendar") {
+        try {
+          const from = new Date(now - 86400000).toISOString().slice(0, 10),
+            to = new Date(now + 90 * 86400000).toISOString().slice(0, 10);
+          const items = (
+            await Promise.all(
+              [10, 50].map(async (id) => {
+                const url = `https://fred.stlouisfed.org/releases/calendar?rid=${id}&vs=${from}&ve=${to}`;
+                const response = await fetch(url, {
+                  dispatcher,
+                  signal: AbortSignal.timeout(20000),
+                  headers: {
+                    "User-Agent":
+                      "SHARPNEX/1.0 (+https://github.com/miku0027-ops/stock-screener)",
+                  },
+                });
+                if (!response.ok) throw Error(`FRED HTTP ${response.status}`);
+                return parseFRED(await response.text(), id, url, now);
+              }),
+            )
+          ).flat();
+          return {
+            source: {
+              id: s.id,
+              name: "FRED · CPI and employment calendar",
+              url: "https://fred.stlouisfed.org/releases/calendar",
+              kind: "calendar",
+              checkedAt: now,
+              status: "ok",
+              count: items.length,
+              fallback: true,
+              primaryError: e.message,
+              coverage:
+                "CPI and Employment Situation only; other BLS releases unavailable",
+            },
+            items,
+          };
+        } catch (fallbackError) {
+          e = new Error(`${e.message}; ${fallbackError.message}`);
+        }
+      }
       const old = previous.sources?.find((v) => v.id === s.id);
       return {
         source: {

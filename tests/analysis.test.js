@@ -16,6 +16,7 @@ import {
   easternToUTC,
   parseBLS,
   parseFOMC,
+  parseFRED,
 } from "../shared/research.js";
 const now = Date.parse("2026-11-01T12:00:00Z");
 const calendar = {
@@ -296,4 +297,34 @@ test("An already touched profile target cannot become a new eligible entry", () 
     assessSetup(data, "patient", "spot", calendar, now).eligible,
     true,
   );
+});
+
+test("FRED fallback preserves official attribution and converts explicitly labeled Central time", () => {
+  const html =
+    '<table><tr><td><span>Tuesday November 10, 2026</span></td></tr><tr><td>7:30 am</td><td><a href="/release?rid=10">Consumer Price Index</a></td></tr></table>All times are US Central Time';
+  const [event] = parseFRED(
+    html,
+    10,
+    "https://fred.stlouisfed.org/releases/calendar?rid=10",
+    now,
+  );
+  assert.equal(event.at, Date.parse("2026-11-10T13:30:00Z"));
+  assert.match(event.source, /FRED/);
+  assert.equal(event.timePrecision, "minute");
+  assert.throws(() =>
+    parseFRED(
+      html.replace("US Central", "unknown"),
+      10,
+      "https://fred.stlouisfed.org",
+      now,
+    ),
+  );
+  const [dateOnly] = parseFRED(
+    html.replace("7:30 am", "N/A"),
+    10,
+    "https://fred.stlouisfed.org",
+    now,
+  );
+  assert.equal(dateOnly.at, null);
+  assert.equal(dateOnly.timePrecision, "day");
 });

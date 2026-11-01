@@ -163,6 +163,7 @@ export default function ResearchBoard({ research, quotes }) {
                   : "Unavailable / stale"}
               </span>
               <small>{s.checkedAt ? date(s.checkedAt) : "Not checked"}</small>
+              {s.fallback && <small>Official fallback · {s.coverage}</small>}
             </div>
           ))}
           {!research && <p>Source status unavailable.</p>}
