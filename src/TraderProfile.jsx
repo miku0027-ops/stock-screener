@@ -50,15 +50,8 @@ export default function TraderProfile({ value, onSave, onClose }) {
             <X size={20} />
           </button>
         )}
-        <div className="eyebrow">
-          <ShieldCheck size={14} /> YOUR RESEARCH, YOUR PREFERENCES
-        </div>
-        <h2 id="profile-title">What kind of trader are you?</h2>
-        <p>
-          Choose your risk tolerance and return goal. We’ll adjust setup filters
-          and illustrative risk limits. These labels express preferences, not
-          achievable or guaranteed returns.
-        </p>
+        <h2 id="profile-title">Your trading style</h2>
+        <p>Choose a risk preference. Return goals are not guarantees.</p>
         <div
           className="profile-options"
           role="radiogroup"
@@ -78,30 +71,20 @@ export default function TraderProfile({ value, onSave, onClose }) {
               />
               <span>
                 <b>{item.label}</b>
-                <small>{item.note}</small>
+                <small>
+                  {item.risk}% risk budget · {item.targetR}R target goal
+                </small>
               </span>
               {selected === item.id && <Check size={17} />}
             </label>
           ))}
         </div>
-        <div className="profile-example">
-          <span>
-            Illustrative risk budget<strong>{p.risk}% per idea</strong>
-          </span>
-          <span>
-            Research target<strong>{p.targetR}R</strong>
-          </span>
-          <span>
-            Trading access<strong>None · analysis only</strong>
-          </span>
-        </div>
         <p className="profile-footnote">
-          A stop is not a guaranteed loss limit. Gaps, leverage, fees and
-          slippage can increase losses. Preferences stay in this browser and can
-          be changed anytime.
+          Stored on this device. Stops and risk budgets do not guarantee loss
+          limits.
         </p>
         <button className="primary-button" onClick={() => onSave(selected)}>
-          Open my research workspace <ArrowRight size={16} />
+          Start hunting <ArrowRight size={16} />
         </button>
       </section>
     </div>

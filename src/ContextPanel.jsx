@@ -41,23 +41,10 @@ export default function ContextPanel() {
     <section className="context-panel">
       <div className="desk-heading">
         <div>
-          <div className="eyebrow">PUBLISHED DATES. TRACEABLE SOURCES.</div>
-          <h2>Supply unlocks & market context</h2>
-          <p>
-            Only tokens with a date-specific, issuer-published schedule appear
-            here.
-          </p>
+          <h2>Declared unlocks</h2>
+          <p>Issuer-published dates only.</p>
         </div>
         <Clock3 size={25} />
-      </div>
-      <div className="unlock-notice">
-        <Info size={17} />
-        <p>
-          Coverage is deliberately limited to verified announcements. Estimated
-          or undated schedules are omitted. An unlock permits tokens to become
-          transferable; it does not prove that holders will sell. Schedules can
-          change. Exact unlock times are not inferred.
-        </p>
       </div>
       <div className="unlock-toolbar">
         <h3>
@@ -91,13 +78,16 @@ export default function ContextPanel() {
                 <b>
                   {e.symbol} <span>{e.name}</span>
                 </b>
-                <p>{e.note}</p>
+                <details>
+                  <summary>Schedule details</summary>
+                  <p>{e.note}</p>
+                </details>
               </div>
               <div className="unlock-amount">
                 <strong>
                   Up to {(e.amount / 1e6).toLocaleString()}M {e.symbol}
                 </strong>
-                <small>Published maximum, not an exact release amount</small>
+                <small>Published maximum</small>
               </div>
               <a href={e.source} target="_blank" rel="noreferrer">
                 Issuer source <ExternalLink size={12} />
@@ -106,10 +96,7 @@ export default function ContextPanel() {
           ))}
         </div>
       ) : (
-        <div className="context-empty">
-          No verified, declared upcoming dates match this view. Tokens with
-          unknown dates are not listed.
-        </div>
+        <div className="context-empty">No verified upcoming dates match.</div>
       )}
       <p className="source-footnote">
         Source checked{" "}
@@ -138,30 +125,7 @@ export default function ContextPanel() {
           >
             Source: Alternative.me <ExternalLink size={12} />
           </a>
-          <small>
-            A daily composite index, not a two-second or five-minute entry
-            signal.
-          </small>
-        </article>
-        <article>
-          <span className="eyebrow">LIQUIDITY & POSITIONING</span>
-          <h3>Read alongside the 5m desk</h3>
-          <p>
-            ATR measures recent volatility. Relative volume compares the latest
-            closed bar with the prior 20 bars. Spread and top-20 order-book
-            imbalance show spot liquidity at the last check; resting orders can
-            disappear or be spoofed.
-          </p>
-          <p>
-            The market map also tracks DXY, Treasury yields, VIX, gold and
-            equity indices. Their feeds are delayed and their relationship with
-            crypto changes over time.
-          </p>
-          <small>
-            The signal desk separates Binance spot from Hyperliquid perpetual
-            analysis. Perpetual funding and open interest come from that venue
-            only.
-          </small>
+          <small>Daily index · not an entry signal.</small>
         </article>
       </div>
     </section>

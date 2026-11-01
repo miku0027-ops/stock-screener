@@ -5,11 +5,7 @@ export default function Brand({ compact = false }) {
       <span className="sharpnex-mark">
         <img src={`${import.meta.env.BASE_URL}sharpnex-mark.png`} alt="" />
       </span>
-      {!compact && (
-        <span className="sharpnex-wordmark">
-          SHARPNEX<small>DIVERGENCE RESEARCH</small>
-        </span>
-      )}
+      {!compact && <span className="sharpnex-wordmark">SHARPNEX</span>}
     </span>
   );
 }

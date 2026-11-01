@@ -58,14 +58,7 @@ export default function ResearchBoard({ research, quotes }) {
     <section className="research-board">
       <div className="desk-heading">
         <div>
-          <div className="eyebrow">
-            <Newspaper size={13} /> THE WORLD AROUND THE TRADE
-          </div>
           <h2>World monitor</h2>
-          <p>
-            Publisher headlines, published calendars and observed markets. No
-            generated news or inferred price targets.
-          </p>
         </div>
         <span className={`research-status ${fresh ? "positive" : "negative"}`}>
           {fresh ? "SOURCES CHECKED" : "STALE / UNAVAILABLE"}
@@ -110,11 +103,6 @@ export default function ResearchBoard({ research, quotes }) {
               </button>
             ))}
           </div>
-          <p className="news-disclosure">
-            Headlines are publisher-reported, not independently fact-checked by
-            SHARPNEX. Topic tags use literal keywords and do not imply market
-            impact. Coverage is limited to the listed sources.
-          </p>
           <div className="headline-list">
             {articles.slice(0, 70).map((a) => (
               <article key={a.id}>
@@ -127,12 +115,6 @@ export default function ResearchBoard({ research, quotes }) {
                   {a.title}
                   <ExternalLink size={13} />
                 </a>
-                <p>
-                  {a.topic}
-                  {a.tags?.length
-                    ? ` · keyword tags: ${a.tags.join(", ")}`
-                    : ""}
-                </p>
               </article>
             ))}
             {!articles.length && (
@@ -142,10 +124,9 @@ export default function ResearchBoard({ research, quotes }) {
             )}
           </div>
         </div>
-        <aside className="source-monitor">
-          <h3>
-            <Radio size={15} /> Source health
-          </h3>
+        <details className="source-monitor">
+          <summary>Sources & coverage</summary>
+
           {(research?.sources || []).map((s) => (
             <div key={s.id}>
               <a href={s.url} target="_blank" rel="noreferrer">
@@ -173,7 +154,11 @@ export default function ResearchBoard({ research, quotes }) {
             GitHub scheduling and source outages may delay publication. An empty
             feed does not mean there is no market-moving news.
           </p>
-        </aside>
+          <p>
+            Publisher-reported headlines. Topic labels do not predict price
+            impact.
+          </p>
+        </details>
       </div>
     </section>
   );

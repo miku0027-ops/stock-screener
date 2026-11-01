@@ -5,13 +5,14 @@ async function feeds(page) {
   const now = Date.now(),
     end = Math.floor(now / 300000) * 300000,
     requests = [];
-  const bars = (base = 100) =>
+  const bars = (base = 100, interval = "1m") =>
     Array.from({ length: 500 }, (_, i) => {
-      const t = end - (499 - i) * 300000,
+      const step = interval === "1m" ? 60000 : 300000,
+        t = Math.floor(now / step) * step - (499 - i) * step,
         p = base + Math.sin(i * 0.3) * 2 + i * 0.01;
       return {
         t,
-        T: t + 299999,
+        T: t + (interval === "1m" ? 59999 : 299999),
         o: String(p),
         h: String(p + 2),
         l: String(p - 2),
@@ -42,13 +43,23 @@ async function feeds(page) {
       });
     if (u.pathname.endsWith("/time"))
       return route.fulfill({ json: { serverTime: now } });
+    if (u.pathname.endsWith("/ticker/bookTicker"))
+      return route.fulfill({ json: { bidPrice: "100", askPrice: "100.01" } });
     if (u.pathname.endsWith("/depth"))
       return route.fulfill({
         json: { bids: [["100", "5"]], asks: [["100.01", "5"]] },
       });
     if (u.pathname.endsWith("/klines"))
       return route.fulfill({
-        json: bars().map((c) => [c.t, c.o, c.h, c.l, c.c, c.v, c.T]),
+        json: bars(100, u.searchParams.get("interval")).map((c) => [
+          c.t,
+          c.o,
+          c.h,
+          c.l,
+          c.c,
+          c.v,
+          c.T,
+        ]),
       });
     return route.fulfill({
       json: (u.searchParams.get("type") === "MINI"
@@ -89,7 +100,7 @@ async function feeds(page) {
         },
       });
     if (body.type === "candleSnapshot")
-      return route.fulfill({ json: bars(1000) });
+      return route.fulfill({ json: bars(1000, body.req.interval) });
     return route.fulfill({ status: 400 });
   });
   await page.route("https://raw.githubusercontent.com/**", (route) => {
@@ -150,10 +161,8 @@ async function feeds(page) {
 async function open(page) {
   await feeds(page);
   await page.goto("/");
-  await page
-    .getByRole("button", { name: "Open my research workspace" })
-    .click();
-  await expect(page.locator(".signal-decision h3")).toContainText("WAIT");
+  await page.getByRole("button", { name: "Start hunting" }).click();
+  await expect(page.locator(".hunt-opportunity")).toContainText("Waiting");
 }
 test("SHARPNEX profile choices and theme persist, and price charts have only candle styles", async ({
   page,
@@ -164,16 +173,14 @@ test("SHARPNEX profile choices and theme persist, and price charts have only can
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page.getByRole("radio")).toHaveCount(5);
   await page.getByRole("radio", { name: /Low risk · high return/ }).check();
-  await page
-    .getByRole("button", { name: "Open my research workspace" })
-    .click();
+  await page.getByRole("button", { name: "Start hunting" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByLabel("Switch to light theme").click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect(page.locator(".five-minute-chart canvas").first()).toBeVisible();
   await page.getByRole("button", { name: "Heikin-Ashi", exact: true }).click();
-  await expect(page.locator(".signal-chart-foot")).toContainText(
-    "synthetic display only",
+  await expect(page.locator(".hunt-chart-bottom")).toContainText(
+    "HA synthetic display",
   );
   await expect(page.getByRole("button", { name: /line chart/i })).toHaveCount(
     0,
@@ -202,8 +209,8 @@ test("Searchable coin rail supports non-curated markets, mobile scrolling and no
   await page.getByLabel("Search all coins").fill("PEPE");
   await expect(page.locator(".coin-row")).toHaveCount(1);
   await page.getByLabel("Analyze PEPEUSDT", { exact: true }).click();
-  await expect(page.locator(".signal-chart-heading")).toContainText("PEPEUSDT");
-  await expect(page.locator(".signal-decision h3")).toContainText("WAIT");
+  await expect(page.locator(".hunt-chart-heading")).toContainText("PEPEUSDT");
+  await expect(page.locator(".hunt-opportunity")).toContainText("Waiting");
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
     390,
   );
@@ -213,14 +220,18 @@ test("Perpetual analysis uses independent venue candles and read-only requests, 
 }) => {
   const requests = await feeds(page);
   await page.goto("/");
-  await page
-    .getByRole("button", { name: "Open my research workspace" })
-    .click();
-  await expect(page.locator(".signal-decision h3")).toContainText("WAIT");
+  await page.getByRole("button", { name: "Start hunting" }).click();
+  await expect(page.locator(".hunt-opportunity")).toContainText("Waiting");
   await page.getByRole("button", { name: "Perpetual", exact: true }).click();
-  await expect(page.locator(".signal-chart-heading")).toContainText("BTC-PERP");
-  await expect(page.locator(".perp-context")).toContainText("0.00125%");
-  await expect(page.locator(".signal-metrics")).toContainText("1,00");
+  await expect(page.locator(".hunt-chart-heading")).toContainText("BTC-PERP");
+  await expect(page.locator(".hunt-price")).toContainText("1,000");
+  await expect(
+    page.getByRole("button", { name: "Inspect setup" }),
+  ).toBeEnabled();
+  await page.getByRole("button", { name: "Inspect setup" }).click();
+  await page.getByRole("tab", { name: "Sources", exact: true }).click();
+  await expect(page.locator(".hunt-modal-body")).toContainText("0.00125%");
+  await page.keyboard.press("Escape");
   expect(requests).toContain("candleSnapshot");
   expect(
     requests.every((v) =>
@@ -229,10 +240,12 @@ test("Perpetual analysis uses independent venue candles and read-only requests, 
   ).toBe(true);
   await page.getByLabel("Search all coins").fill("PEPE");
   await page.getByLabel("Analyze PEPEUSDT", { exact: true }).click();
-  await expect(page.locator(".signal-decision h3")).toContainText(
+  await expect(page.locator(".hunt-chart-overlay")).toContainText(
     "No supported perpetual",
   );
-  await expect(page.locator(".perp-context")).toContainText("Unavailable");
+  await expect(
+    page.getByRole("button", { name: "Inspect setup" }),
+  ).toBeDisabled();
 });
 test("World monitor retains attribution and calendar links rather than invented news interpretation", async ({
   page,
@@ -250,8 +263,9 @@ test("World monitor retains attribution and calendar links rather than invented 
   await expect(page.locator(".event-ribbon")).toContainText(
     "Consumer Price Index",
   );
-  await expect(page.locator(".news-disclosure")).toContainText(
-    "not independently fact-checked",
+  await page.getByText("Sources & coverage", { exact: true }).click();
+  await expect(page.locator(".source-monitor")).toContainText(
+    "Publisher-reported headlines",
   );
   await page.getByRole("button", { name: "Crypto", exact: true }).click();
   await expect(page.locator(".headline-list")).toContainText(

@@ -39,7 +39,7 @@ Vite runs on port **5173** and proxies `/api` to Express on **3001**. For a prod
 | Yahoo Finance chart endpoint (`query1.finance.yahoo.com`) | Indices, equities, futures, currencies and macro indicators | Unofficial public interface; 60-second cache. Quotes may be delayed, rate-limited, unavailable or from a closed session.                                                                        |
 | TradingView Lightweight Charts                            | Interactive chart rendering                                 | Open-source chart library; attribution is retained. It supplies no market data.                                                                                                                 |
 
-**Free feeds cannot guarantee exchange-grade real-time coverage of every market.** Provider timestamps are shown in UTC. SGX / STI is the Straits Times equity index, not an SGX futures feed. Commodities are front-month futures, not spot prices. Exchange index currencies are denomination context; index values are index points. Treasury yield is in percent. FX quote direction is shown in the symbol.
+**Free feeds cannot guarantee exchange-grade real-time coverage of every market.** The market map labels UTC; hunt modals use the browser locale with an explicit timezone. SGX / STI is the Straits Times equity index, not an SGX futures feed. Commodities are front-month futures, not spot prices. Exchange index currencies are denomination context; index values are index points. Treasury yield is in percent. FX quote direction is shown in the symbol.
 
 1D changes are rolling 24-hour changes for Binance and previous-session-close changes for Yahoo. Longer periods compare the most recent price with the first available candle's open in the requested window. Weekends, holidays and time zones can make those windows differ by market. These are unadjusted price comparisons, not total returns. Futures rolls can produce discontinuities.
 
@@ -53,6 +53,7 @@ Allow HTTPS access to:
 
 - `data-api.binance.vision`
 - `query1.finance.yahoo.com`
+- `api.hyperliquid.xyz`, `data.binance.vision`, `raw.githubusercontent.com`
 
 The backend honors `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY` and the environment's configured CA trust through Undici's `EnvHttpProxyAgent`. TLS verification remains enabled. Source calls have timeouts and bounded concurrency; responses are cached and concurrent identical requests are coalesced. User-controlled symbols and timeframes are restricted to the catalog; this server is not an arbitrary URL proxy.
 
@@ -108,24 +109,29 @@ The static app fetches the `market-data` branch through `raw.githubusercontent.c
 
 Run `npm run test:firebase` to verify the built static app, snapshot freshness labels, direct crypto requests and chart loading without a Node API. These browser tests use intercepted responses; real provider/export checks are separate.
 
-## Two-second crypto analysis and five-minute RSI signals
+## Trade hunt: one-minute discovery
+
+The default view is a compact watch queue and candle chart. Click a pair or **Inspect setup** to open Plan / Evidence / Sources in a modal. Entry reference, fixed stop/target, cost-adjusted reward/risk, expiry, live bid/ask, profile checks and optional position sizing stay out of the main workspace. Candlestick and Heikin-Ashi are the only price-chart styles; raw OHLC drives the calculations. The RSI indicator is a separate line pane.
+
+Eight liquid pairs plus the selected coin are scanned at a 15-second target cadence after completion; selected bid/ask quotes target 2 seconds. The searchable coin rail is a separate 30-second catalog, not a claim to scan every listed asset. Binance spot and Hyperliquid perpetuals use independent candles, clocks and contract metadata. Five-minute analysis is also available but has no matched multi-year study. Background tabs stop requests; rate limits back off; expired or stale inputs block recommendations. No trading credentials, wallet or order submission exists.
+
+Profiles store risk and reward goals locally, alongside theme preferences. They cannot make low-risk/high-return trades exist. Profile targets act as minimum gross-R filters; they never extend a detected target to improve its displayed R:R. Sizing includes estimated transaction costs but excludes exchange limits, leverage and liquidation. Calendar sources must be fresh and covered high-impact events must be outside their blocking windows.
+
+### Measured research, not invented accuracy
+
+The shared engine was evaluated on **7,885,280 real one-minute candles**, 180 checksum-verified monthly Binance archives, BTC/ETH spot and USD-M perpetuals, January 2023–September 2026. Twenty-four fixed candidates use 2023–24 training and 2025 validation; January–September 2026 is held out of selection. Fees, slippage, spread, funding assumptions, next-bar entries, stop-first ambiguity and adverse gaps are included.
+
+**None of the tested models demonstrated a profitable edge after costs.** Held-out win frequencies are 10.0% / 33.3% for BTC/ETH spot (10 / 15 trades) and 14.8% / 26.7% for Binance perpetuals (27 / 60 trades). These small samples do not establish predictive accuracy. Negative net expectancy and uncertainty intervals remain visible in the modal. All current candidates are conditional research watches, not qualified entry recommendations. Binance perpetual evidence does not validate Hyperliquid, and live profile/calendar filters were not historically backtested.
+
+See [the complete reproducible protocol](scripts/hunt/README.md) and [measured report](public/research/hunt-validation.json). The **Reproduce multi-year hunt research** workflow uses free GitHub runners and public archives, then publishes the report with GitHub's ephemeral token. No Google authentication is needed. Subsequent rule changes require a new untouched evaluation range; the system does not retune on the inspected holdout until it looks profitable.
+
+Implementation: `shared/hunt/engine.js`, `shared/hunt/assessment.js`, `src/hunt-data.js`, `src/HuntDesk.jsx`, `src/HuntChart.jsx`, and `scripts/hunt/`. The former verbose five-minute desk and seven-day baseline are superseded.
+
+## Two-second heatmap
 
 The default live heatmap uses **2s crypto change**, calculated as `(currentPrice / previousPrice - 1) × 100` between consecutive Binance snapshot timestamps. A return is shown only when those snapshots are 1.5–3.5 seconds apart. Initial samples, repeated timestamps, missed intervals, paused feeds and stale results are neutral. Numbers use six decimal places in this mode; flashes require an actual price change. Global markets are neutral in 2s mode because their free feeds cannot provide equivalent timing. Switch to 1D/1W/1M for global performance colors.
 
 Requests target one batch every two seconds without overlapping requests. Network latency, browser background-tab throttling and exchange limits can prevent exact timing. Hidden tabs stop polling. HTTP 429 responses back off for 60 seconds. Slow global snapshot requests are independent of crypto refreshes. No paid feed, synthetic price tick or guaranteed timing is implied. CSV exports include sample interval in milliseconds; tile tooltips show the observed interval.
-
-**5m RSI signal desk** is available from the navigation and dashboard shortcut. It opens with BTCUSDT and ETHUSDT and supports active Binance USDT pairs selected in the coin rail. Perpetual mode uses separate Hyperliquid candles and venue data. It does not place trades. Demo mode never produces signals. The desk synchronizes against Binance server time, fetches 500 bars initially, then requests three recent bars per two-second check and retains up to 1,000. Open/settling candles are excluded. Missing bars, invalid OHLC, overdue candles, feed errors, responses taking over five seconds, or checks older than eight seconds suppress actionable signals.
-
-### Rules, not an accuracy claim
-
-- RSI(14) uses Wilder smoothing and a simple-average gain/loss seed. At least 100 consecutive closed five-minute candles are required.
-- A pivot needs **3 bars on each side**. Divergence confirmation is consequently **15 minutes after the price pivot**, not at the pivot in hindsight. Chart arrows appear on the confirmation bar.
-- Adjacent same-type pivots must be 5–60 bars apart. Bullish regular divergence requires a price low at least 0.05% lower and RSI at least 3 points higher, with one pivot RSI ≤40. Bearish is mirrored with one pivot RSI ≥60.
-- A divergence is a **watch condition** until a subsequent five-minute candle closes beyond the confirmation bar’s high (bull) or low (bear). The observed breakout close is recorded as a signal reference, not an executable fill.
-- Invalidation uses the pivot extreme plus a 0.25× ATR(14) buffer. Untriggered setups expire after 6 bars; triggered setups expire after another 6 bars. The illustrative target is 2× the entry-to-invalidation distance. If a candle could hit both target and invalidation, the calculation assumes invalidation first.
-- Only the latest qualifying setup is considered active. Historical outcomes refer to candle levels, not executed trades. Fees, slippage, spread and funding are not included. **The profile-filtered strategy has no validated predictive accuracy. A separate fixed-rule spot baseline is evaluated chronologically in the evidence panel; it does not validate the complete platform. No profitable prediction is guaranteed.**
-
-The desk also shows ATR, EMA20/50, UTC-session approximate VWAP, relative volume against the prior 20 bars, best bid/ask spread and top-20 spot order-book imbalance. Book snapshots refresh at most every ten seconds. Orders may be spoofed or removed; these measures do not prove future price direction. The context page attributes the daily Fear & Greed index to [Alternative.me](https://alternative.me/crypto/fear-and-greed-index/). Existing DXY, yields, VIX, gold and equity snapshots provide wider context. Perpetual funding (hourly percentage), mark/oracle basis and open interest are now fetched from Hyperliquid. They describe that venue only.
 
 ## Declared supply unlocks
 
@@ -137,50 +143,11 @@ Sui's official schedule explicitly calls its timing an estimate, so it was exclu
 
 Signal logic and freshness tests are in `tests/signals.test.js`; browser coverage is in `tests/firebase/signals.spec.js`. `ATLAS_TEST_PORT=4180 npm run test:firebase` can use a different preview port if another preview is running. No generated news, fabricated backtest results or model-generated trade calls are substituted for source data and deterministic rules.
 
-## SHARPNEX research terminal
-
-The app starts in the signal desk. The first visit asks for one of five research profiles; this choice and the light/dark theme persist in browser storage. Risk/return labels express user preferences, not a promise that low-risk/high-return trades exist. The original `atlas-mode` and watchlist storage keys are retained to preserve existing preferences.
-
-The scrollable, searchable rail loads Binance exchange metadata and includes active, spot-enabled USDT pairs. It refreshes its universe quotes on a 30-second target cadence, separately from the 2-second map and selected analysis checks. It is not a claim to cover every coin worldwide. Delisted and unsupported contracts are excluded; failed feeds show limited/stale coverage. Selecting a coin opens its five-minute analysis. Perpetual mode checks Hyperliquid's actual contract universe and never relabels a spot signal as a futures signal. All Hyperliquid requests are read-only `info` requests. No wallet, execution, orders or trading credentials are implemented.
-
-Price charts offer candlesticks and Heikin-Ashi only. Heikin-Ashi is computed recursively for display; all RSI, divergence, stops and references use original exchange OHLC. The lower indicator pane is RSI, not a line-price chart. Theme colors also update chart canvases. The original logo mark is in `public/sharpnex-mark.png`.
-
-### Developing versus eligible setups
-
-- Early watch uses one closed right-hand bar (five minutes after the swing), keeping the same three left-hand bars and divergence thresholds. It may invalidate. It never produces an entry by itself.
-- Confirmation still requires three right-hand bars (15 minutes). The subsequent closed breakout is recorded as an observed reference, not an execution price.
-- Eligibility checks freshness, confirmation, breakout, current-bar invalidation, proximity within 0.5 ATR of the breakout reference, an unreached profile target, market direction, 5m EMA20/50 and complete-hour EMA20 alignment where required, relative volume, spread and covered scheduled events. Spot entries are long only. Bearish spot divergence means avoid/reassess, not a short order.
-- Hourly bars are formed only from twelve consecutive complete five-minute bars. At least twenty complete hours are required for the hourly trend filter. No partial-hour or Heikin-Ashi price enters the calculation.
-- Every profile requires fresh US-release and FOMC calendar fetches (no more than 30 minutes old). Covered CPI/employment releases block eligibility within ±30 minutes; published FOMC meeting days use the New York calendar date because no exact time is inferred. Missing coverage fails closed. This is not a complete global event calendar.
-- Perpetual eligibility additionally requires fresh Hyperliquid mark, oracle, open-interest and funding fields. The platform recommends no leverage or liquidation level.
-
-| Profile                  | Illustrative risk budget | Target | Minimum relative volume | Trend required | Maximum spread |
-| ------------------------ | ------------------------ | ------ | ----------------------- | -------------- | -------------- |
-| Low risk / low return    | 0.25%                    | 1.5R   | 1.2×                    | Yes            | 3 bps          |
-| Low risk / mild return   | 0.5%                     | 2R     | 1.1×                    | Yes            | 4 bps          |
-| Low risk / high return   | 0.5%                     | 3R     | 1.2×                    | Yes            | 3 bps          |
-| Mild risk / high return  | 1%                       | 3R     | 1×                      | Yes            | 6 bps          |
-| High risk / high returns | 2%                       | 3R     | 0.8×                    | No             | 10 bps         |
-
-These are product filtering assumptions, not optimized parameters or financial recommendations. The optional sizing reference is `equity × risk fraction / stop distance`. It excludes fees/funding and warns when notional exceeds equity; gaps and slippage can exceed the nominal budget. A passed-check count is never called a confidence score.
-
 ### News, events and provenance
 
 `scripts/export-research.mjs` runs in the existing five-minute scheduled workflow. It parses actual RSS titles from the Federal Reserve, SEC, EIA, CoinDesk, Cointelegraph and BBC World. It publishes only titles, timestamps, publisher attribution and allowlisted source links, with no generated article summaries. Literal keyword tags label possible topics such as scams, conflict, sanctions and energy; they do not prove an allegation or infer a price effect. Publisher reports are not independently fact-checked by SHARPNEX.
 
 The BLS iCalendar supplies explicit release times converted with New York daylight-saving rules. FOMC dates are extracted from the official meeting calendar and remain date-only. No implied decision time, consensus forecast or actual release figure is invented. Failed calendar sources publish no events from that source and fail the eligibility gate. Source health and stale publication status are visible. The app polls the published JSON every minute; GitHub schedules and CDN propagation can lag. News coverage is intentionally limited and cannot capture all crypto, political, war or policy developments.
-
-### Measured baseline and correlations
-
-`scripts/export-validation.mjs` runs at most daily. It loads fourteen days of real BTCUSDT/ETHUSDT five-minute spot candles, validates continuity, and evaluates the latest seven days after indicator warmup. Fixed, untuned rules use regular bullish divergence, a closed breakout and the following bar's open; one hypothetical position at a time; six-bar time exit; 2R target; pivot/ATR stop. Costs assume 10 bps fee plus 5 bps slippage **per side**. Adverse gaps fill at the opening price; stops win ambiguous bars. Open trades at the end are not reported as completed. The panel shows sample count, wins, expectancy in R and peak-to-trough loss in R. Fewer than thirty trades is explicitly an insufficient accuracy sample.
-
-This is a retrospective baseline, not live paper trading or a validation of profile/news/macro filters. It excludes perpetuals and funding. It cannot reproduce live fills and is not a forecast of the next trade. Negative results remain visible. Raw trade references and assumptions are published in `market-data/validation.json`; stale (>48h) or unavailable results are not presented as current evidence.
-
-Descriptive Pearson correlations compare Bitcoin log returns with S&P 500, dollar index, gold futures, WTI and VIX on up to sixty common UTC calendar-date intervals. Returns span the same common dates across weekends. Different session close times and delayed daily feeds limit comparability; correlation does not imply causality. At least twenty matched intervals and recently fetched global history are required. The sample end date is displayed.
-
-Additional public destinations: `api.hyperliquid.xyz`, `www.federalreserve.gov`, `www.bls.gov`, `www.sec.gov`, `www.eia.gov`, `www.coindesk.com`, `cointelegraph.com`, `feeds.bbci.co.uk`, `fred.stlouisfed.org`, `nfs.faireconomy.media`, `api.alternative.me`, and `raw.githubusercontent.com`. Server-side RSS/calendar collection avoids relying on third-party CORS proxies. All market/news APIs and chart libraries remain free; provider terms and availability apply.
-
-Tests cover Heikin-Ashi recursion, raw-price isolation, source parsing/link safety, DST conversion, date-only FOMC handling, profile/event/stale-data gates, next-bar historical entry and adverse gaps, theme/profile persistence, the full coin rail, separate perpetual data, read-only requests and mobile layout. Browser mocks test behavior; native provider checks and deployed-site verification separately establish connectivity at test time.
 
 When BLS blocks access from the hosted runner, its calendar adapter falls back to the Federal Reserve Bank of St. Louis's public FRED release calendars for **CPI and Employment Situation only**. FRED's explicitly published US Central times are converted using `America/Chicago` DST rules; unspecified times remain date-only. Source health names FRED and shows the narrower coverage. Both fallback release calendars must validate or the source remains unavailable and entry eligibility stays blocked. This fallback does not invent the missing JOLTS/PPI/import-export events.
 

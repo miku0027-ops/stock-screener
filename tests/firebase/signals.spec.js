@@ -29,7 +29,7 @@ async function feeds(page, { failCandles = false } = {}) {
   await page.route("https://data-api.binance.vision/**", (route) => {
     const url = new URL(route.request().url());
     if (url.pathname.endsWith("/time"))
-      return route.fulfill({ json: { serverTime: now } });
+      return route.fulfill({ json: { serverTime: Date.now() } });
     if (url.pathname.endsWith("/depth"))
       return route.fulfill({
         json: { bids: [["99", "2"]], asks: [["100", "2"]] },
@@ -130,43 +130,48 @@ test("two-second heatmap samples real changes, leaves global markets neutral and
     page.getByRole("button", { name: /Bitcoin,.*View chart/ }),
   ).toContainText("—");
 });
-test("five-minute desk validates closed candles, uses incremental history and survives symbol changes", async ({
+test("one-minute hunt and optional five-minute analysis use candles, incremental history and modal details", async ({
   page,
 }) => {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   const mock = await feeds(page);
   await page.goto("/");
-  await page.getByLabel("5m RSI signal desk", { exact: true }).click();
-  await expect(page.locator(".signal-decision h3")).toContainText("WAIT");
-  await expect(page.locator(".five-minute-chart canvas").first()).toBeVisible();
-  await expect(page.locator(".signal-timing")).toContainText("2s");
-  await expect.poll(() => mock.limits.includes("3")).toBe(true);
-  await page
-    .locator(".signal-market-tabs")
-    .getByRole("button", { name: /ETHUSDT/ })
-    .click();
-  await expect(page.locator(".signal-chart-heading")).toContainText("ETHUSDT");
-  await page.getByText("Calculation rules & limitations").click();
+  await page.getByLabel("Trade hunt", { exact: true }).click();
   await expect(
-    page.getByText(/Profile-filtered signals are not backtested/),
-  ).toBeVisible();
+    page.getByRole("button", { name: "1m", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "5m", exact: true }).click();
+  await expect(page.locator(".five-minute-chart canvas").first()).toBeVisible();
+  await expect(page.locator(".hunt-queue-foot")).toContainText("Quotes 2s");
+  await expect
+    .poll(() => mock.limits.includes("3"), { timeout: 25000 })
+    .toBe(true);
+  await page.getByLabel("Hunt ETHUSDT", { exact: true }).click();
+  await expect(page.locator(".hunt-chart-heading")).toContainText("ETHUSDT");
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("tab", { name: "Evidence", exact: true }).click();
+  await expect(page.locator(".hunt-modal-body")).toContainText(
+    "No matched backtest",
+  );
+  await page.keyboard.press("Escape");
   expect(errors).toEqual([]);
 });
-test("unavailable candles cannot produce a bull or bear signal", async ({
+test("unavailable candles suppress discovery and inspection", async ({
   page,
 }) => {
   await feeds(page, { failCandles: true });
   await page.goto("/");
-  await page.getByLabel("5m RSI signal desk", { exact: true }).click();
-  await expect(page.locator(".signal-decision h3")).toContainText(
-    "Signals suspended",
+  await page.getByLabel("Trade hunt", { exact: true }).click();
+  await page.getByRole("button", { name: "5m", exact: true }).click();
+  await expect(page.locator(".hunt-chart-overlay")).toContainText(
+    "Source unavailable",
   );
-  await expect(page.locator(".signal-decision")).not.toContainText(
-    "BULL SIGNAL",
-  );
-  await expect(page.locator(".signal-decision")).not.toContainText(
-    "BEAR SIGNAL",
+  await expect(
+    page.getByRole("button", { name: "Inspect setup" }),
+  ).toBeDisabled();
+  await expect(page.locator(".hunt-opportunity")).toContainText(
+    "No entry call",
   );
 });
 test("only source-verified declared unlock dates appear and unknown coins stay absent", async ({
@@ -192,11 +197,9 @@ test("only source-verified declared unlock dates appear and unknown coins stay a
 test("demo mode never generates an actionable RSI signal", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("atlas-mode", '"demo"'));
   await page.goto("/");
-  await page.getByLabel("5m RSI signal desk", { exact: true }).click();
-  await expect(page.locator(".signal-decision h3")).toHaveText(
-    "LIVE DATA REQUIRED",
-  );
-  await expect(page.locator(".signal-decision")).not.toContainText(
-    "BULL SIGNAL",
+  await page.getByLabel("Trade hunt", { exact: true }).click();
+  await expect(page.locator(".hunt-note")).toContainText("Live data required");
+  await expect(page.locator(".hunt-opportunity")).toContainText(
+    "No entry call",
   );
 });

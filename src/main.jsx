@@ -48,7 +48,7 @@ import TraderProfile from "./TraderProfile.jsx";
 import ResearchBoard from "./ResearchBoard.jsx";
 import { useResearch } from "./market-intelligence.js";
 import { heikinAshi, PROFILES } from "../shared/analysis.js";
-import SignalDesk from "./SignalDesk.jsx";
+import HuntDesk from "./HuntDesk.jsx";
 import ContextPanel from "./ContextPanel.jsx";
 import { sampleChange } from "../shared/signals.js";
 import { loadHistory, loadMarkets, staticHosting } from "./data-client.js";
@@ -621,91 +621,57 @@ function App() {
     URL.revokeObjectURL(url);
   };
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <a
-          className="brand-mark"
-          href="#"
-          aria-label="SHARPNEX home"
-          onClick={(e) => {
-            e.preventDefault();
-            setView("heatmap");
-            setCategory("All markets");
-            setSearch("");
-          }}
-        >
-          <Brand compact />
-        </a>
-        <div className="side-divider" />
-        <nav>
-          {[
-            [Grid2X2, "heatmap", "Market heatmap"],
-            [Star, "watchlist", "My watchlist"],
-            [ChartNoAxesCombined, "movers", "Market movers"],
-            [Activity, "signals", "5m RSI signal desk"],
-            [Clock3, "context", "Unlocks and market context"],
-            [Newspaper, "news", "World monitor"],
-          ].map(([Icon, id, label]) => (
-            <button
-              key={id}
-              className={`nav-icon ${view === id ? "active" : ""}`}
-              aria-label={label}
-              title={label}
-              onClick={() => setView(id)}
-            >
-              <Icon size={20} />
-              {id === "watchlist" && (
-                <i className="nav-count">{watchlist.length}</i>
-              )}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-bottom">
-          <button
-            className="nav-icon"
-            title="Data sources"
-            aria-label="Data sources"
-            onClick={() => setModal("feeds")}
-          >
-            <Radio size={20} />
-          </button>
-          <button
-            className="nav-icon"
-            title="About SHARPNEX"
-            aria-label="About SHARPNEX"
-            onClick={() => setModal("about")}
-          >
-            <CircleHelp size={20} />
-          </button>
-          <div className="avatar" title="Local workspace">
-            SN
-          </div>
-        </div>
-      </aside>
+    <div className={`app-shell view-${view}`}>
       <div className="workspace">
         <header className="topbar">
           <Brand />
           <div className="top-nav">
             <button
+              aria-label="Trade hunt"
               className={view === "signals" ? "current" : ""}
               onClick={() => setView("signals")}
             >
-              Research desk
+              Hunt
             </button>
             <button
+              aria-label="Market heatmap"
               className={view === "heatmap" ? "current" : ""}
               onClick={() => setView("heatmap")}
             >
-              Market map
+              Map
             </button>
             <button
+              aria-label="World monitor"
               className={view === "news" ? "current" : ""}
               onClick={() => setView("news")}
             >
-              World monitor
+              News
+            </button>
+            <button
+              aria-label="Unlocks and market context"
+              className={view === "context" ? "current" : ""}
+              onClick={() => setView("context")}
+            >
+              Unlocks
             </button>
           </div>
           <div className="top-right">
+            <button
+              className="icon-button"
+              aria-label="My watchlist"
+              title="My watchlist"
+              onClick={() => setView("watchlist")}
+            >
+              <Star size={16} />
+            </button>
+            <button
+              className="icon-button"
+              aria-label="Market movers"
+              title="Market movers"
+              onClick={() => setView("movers")}
+            >
+              <TrendingUp size={16} />
+            </button>
             <button
               className="icon-button"
               aria-label={
@@ -738,14 +704,10 @@ function App() {
                       ? "PARTIAL / ERROR"
                       : "FREE FEEDS"}
             </div>
-            <span className="top-clock">
-              {clock.toLocaleTimeString("en-GB", { timeZone: "UTC" })}
-              <small>UTC</small>
-            </span>
             <button
               className="icon-button"
-              title="Feed settings"
-              aria-label="Feed settings"
+              title="Data sources"
+              aria-label="Data sources"
               onClick={() => setModal("feeds")}
             >
               <Settings2 size={18} />
@@ -764,73 +726,6 @@ function App() {
             }}
           />
           <main>
-            <section className="page-heading">
-              <div>
-                <div className="eyebrow">
-                  <span /> INDEPENDENT MARKET RESEARCH
-                </div>
-                <h1>
-                  A sharper view. <span>A clearer decision.</span>
-                </h1>
-                <p>
-                  Source-backed context. Transparent divergence rules. No trade
-                  execution.
-                </p>
-              </div>
-              <button
-                className="outline-button feeds-button"
-                onClick={() => setModal("feeds")}
-              >
-                <Radio size={14} /> Data sources <ChevronRight size={14} />
-              </button>
-            </section>
-            <section
-              className={`summary-strip ${["signals", "news", "context"].includes(view) ? "compact-summary" : ""}`}
-            >
-              {summaries.map((a, i) => (
-                <button
-                  key={a.id}
-                  className="summary-card"
-                  onClick={() => selectAsset(a.id)}
-                >
-                  <div className="summary-top">
-                    <span className={`summary-icon summary-icon-${i}`}>
-                      {i === 0 ? (
-                        "₿"
-                      ) : i === 1 ? (
-                        <TrendingUp size={14} />
-                      ) : i === 2 ? (
-                        "Au"
-                      ) : i === 3 ? (
-                        "$"
-                      ) : (
-                        <Activity size={15} />
-                      )}
-                    </span>
-                    <span>{a.name}</span>
-                    <ArrowUpRight className="summary-arrow" size={14} />
-                  </div>
-                  <div className="summary-bottom">
-                    <div>
-                      <strong>
-                        {i === 0 || i === 2 ? "$" : ""}
-                        {formatPrice(a.price, a.currency)}
-                      </strong>
-                      <span className={a.change >= 0 ? "positive" : "negative"}>
-                        {a.change >= 0 ? (
-                          <ArrowUpRight size={12} />
-                        ) : (
-                          <ArrowDownRight size={12} />
-                        )}{" "}
-                        {pct(a.change)}
-                        <small>{period}</small>
-                      </span>
-                    </div>
-                    <Spark values={a.spark} positive={a.change >= 0} />
-                  </div>
-                </button>
-              ))}
-            </section>
             {(mode === "demo" || error) && (
               <div className={`notice ${mode === "demo" ? "" : "warning"}`}>
                 <Info size={14} />
@@ -847,23 +742,8 @@ function App() {
                 </button>
               </div>
             )}
-            <div className="analysis-shortcuts">
-              <button onClick={() => setView("heatmap")}>Market map</button>
-              <button
-                className={view === "signals" ? "active" : ""}
-                onClick={() => setView("signals")}
-              >
-                <Activity size={14} /> 5m RSI signal desk
-              </button>
-              <button
-                className={view === "context" ? "active" : ""}
-                onClick={() => setView("context")}
-              >
-                <Clock3 size={14} /> Declared unlocks
-              </button>
-            </div>
             {view === "signals" ? (
-              <SignalDesk
+              <HuntDesk
                 mode={mode}
                 paused={paused}
                 onConnect={() => changeMode("live")}
@@ -1353,24 +1233,26 @@ function App() {
                 </section>
               </>
             )}
-            <footer>
-              <span>
-                <i className={mode === "demo" ? "demo-dot" : "positive-dot"} />
-                {mode === "demo"
-                  ? "Illustrative demo data"
-                  : `Last fetched ${fetchedAt ? new Date(fetchedAt).toLocaleTimeString("en-GB", { timeZone: "UTC" }) + " UTC" : "—"}`}
-                <span className="footer-divider">/</span>Free sources. A wider
-                perspective.
-              </span>
-              <div>
-                <button onClick={exportCsv}>
-                  Export CSV <ArrowUpRight size={11} />
-                </button>
-                <button onClick={() => setModal("about")}>
-                  About the data <ExternalLink size={11} />
-                </button>
-              </div>
-            </footer>
+            {view !== "signals" && (
+              <footer>
+                <span>
+                  <i
+                    className={mode === "demo" ? "demo-dot" : "positive-dot"}
+                  />
+                  {mode === "demo"
+                    ? "Illustrative demo data"
+                    : `Last fetched ${fetchedAt ? new Date(fetchedAt).toLocaleTimeString("en-GB", { timeZone: "UTC" }) + " UTC" : "—"}`}
+                </span>
+                <div>
+                  <button onClick={exportCsv}>
+                    Export CSV <ArrowUpRight size={11} />
+                  </button>
+                  <button onClick={() => setModal("about")}>
+                    About the data <ExternalLink size={11} />
+                  </button>
+                </div>
+              </footer>
+            )}
           </main>
         </div>
       </div>

@@ -1,0 +1,61 @@
+name: Reproduce multi-year hunt research
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: python -m pip install numpy==2.3.5
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/sharpnex-history
+          key: sharpnex-archives-2023-01-2026-09-v1
+      - name: Download and verify official SHA-256 checksums
+        run: node scripts/hunt/download.mjs /tmp/sharpnex-history
+      - name: Normalize and audit candles
+        run: python scripts/hunt/convert.py /tmp/sharpnex-history
+      - name: Run causal engine tests
+        run: npm test
+      - name: Train, validate and evaluate frozen holdout
+        run: node scripts/hunt/research.mjs /tmp/sharpnex-history /tmp/hunt-report/hunt-validation.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hunt-validation
+          path: /tmp/hunt-report/hunt-validation.json
+  publish:
+    needs: research
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    # Only publishing holds this lock, so the long study cannot block news refreshes.
+    concurrency:
+      group: market-data-refresh
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: market-data
+      - uses: actions/download-artifact@v4
+        with:
+          name: hunt-validation
+          path: /tmp/hunt-report
+      - name: Publish report without replacing other market data
+        run: |
+          cp /tmp/hunt-report/hunt-validation.json hunt-validation.json
+          git add hunt-validation.json
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Publish reproducible one-minute hunt study'
+          git push origin HEAD:market-data

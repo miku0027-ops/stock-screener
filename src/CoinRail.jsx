@@ -77,7 +77,7 @@ export default function CoinRail({ quotes, mode, paused, selected, onSelect }) {
             {mode === "demo" ? "DEMO" : stale ? "LIMITED / STALE" : "30s FEED"}
           </span>
         </div>
-        <p className="rail-subtitle">Binance · active USDT spot pairs</p>
+        <p className="rail-subtitle">Binance spot · USDT</p>
         <label className="rail-search">
           <Search size={13} />
           <input
@@ -131,9 +131,8 @@ export default function CoinRail({ quotes, mode, paused, selected, onSelect }) {
           {mode === "demo"
             ? "Illustrative catalog"
             : stale
-              ? "Universe feed unavailable / stale. Last known or tracked pairs shown."
-              : "Ranked by 24h quote volume. Venue coverage, not every coin worldwide."}
-          <span>Research only · no orders or wallets</span>
+              ? "Last known prices · stale"
+              : "Sorted by 24h volume"}
         </div>
       </div>
     </aside>
