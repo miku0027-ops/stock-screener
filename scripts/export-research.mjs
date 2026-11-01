@@ -69,7 +69,7 @@ const results = await Promise.all(
     } catch (e) {
       if (s.id === "bls-calendar") {
         try {
-          const from = new Date(now - 86400000).toISOString().slice(0, 10),
+          const from = new Date(now).toISOString().slice(0, 10),
             to = new Date(now + 90 * 86400000).toISOString().slice(0, 10);
           const items = (
             await Promise.all(
