@@ -5,13 +5,37 @@ const dataBase =
   "https://raw.githubusercontent.com/miku0027-ops/stock-screener/market-data";
 const cryptoBase = "https://data-api.binance.vision/api/v3";
 export { staticHosting };
+const cache = new Map();
+const pending = new Map();
+const snapshots = new Map();
+const snapshotRetry = new Map();
+const snapshotRequests = new Map();
+async function cachedJSON(url, ttl, signal) {
+  const saved = cache.get(url);
+  if (saved && Date.now() - saved.time < ttl) return saved.value;
+  if (pending.has(url)) return pending.get(url);
+  const p = json(url, signal)
+    .then((value) => {
+      if (cache.size > 64) cache.delete(cache.keys().next().value);
+      cache.set(url, { time: Date.now(), value });
+      return value;
+    })
+    .finally(() => pending.delete(url));
+  pending.set(url, p);
+  return p;
+}
 async function json(url, signal) {
   const response = await fetch(url, {
+    cache: "no-store",
     signal: signal
       ? AbortSignal.any([signal, AbortSignal.timeout(15000)])
       : AbortSignal.timeout(15000),
   });
-  if (!response.ok) throw new Error(`Data source returned ${response.status}`);
+  if (!response.ok) {
+    const e = new Error(`Data source returned ${response.status}`);
+    e.status = response.status;
+    throw e;
+  }
   return response.json();
 }
 function emptyQuote(m) {
@@ -32,13 +56,15 @@ export async function loadHistory(asset, period, signal) {
       signal,
     );
   if (asset.provider !== "Binance")
-    return json(
+    return cachedJSON(
       `${dataBase}/${historyFile(asset.id, period)}?v=${Math.floor(Date.now() / 300000)}`,
+      60000,
       signal,
     );
   const p = periodConfig[period];
-  const rows = await json(
+  const rows = await cachedJSON(
     `${cryptoBase}/klines?symbol=${encodeURIComponent(asset.id)}&interval=${p.binance}&limit=${p.limit}`,
+    30000,
     signal,
   );
   if (!Array.isArray(rows)) throw new Error("No crypto history");
@@ -59,13 +85,13 @@ export async function loadHistory(asset, period, signal) {
 }
 async function cryptoQuotes(period, signal) {
   const assets = markets.filter((m) => m.provider === "Binance");
-  if (period === "1D") {
+  {
     const data = await json(
       `${cryptoBase}/ticker/24hr?symbols=${encodeURIComponent(JSON.stringify(assets.map((m) => m.id)))}`,
       signal,
     );
     if (!Array.isArray(data)) throw new Error("Invalid crypto quotes");
-    return assets.map((m) => {
+    const quotes = assets.map((m) => {
       const q = data.find((q) => q.symbol === m.id);
       if (
         !q ||
@@ -89,42 +115,48 @@ async function cryptoQuotes(period, signal) {
         status: "live",
       };
     });
+    if (period === "1D") return quotes;
+    return Promise.all(
+      quotes.map(async (q) => {
+        if (q.price == null) return q;
+        try {
+          const h = await loadHistory(q, period, signal),
+            base = h.candles[0].open;
+          return {
+            ...q,
+            change: base ? (q.price / base - 1) * 100 : null,
+            spark: h.candles.filter((_, i) => i % 8 === 0).map((c) => c.close),
+          };
+        } catch {
+          return { ...q, change: null };
+        }
+      }),
+    );
   }
-  return Promise.all(
-    assets.map(async (m) => {
-      try {
-        const { candles, asOf } = await loadHistory(m, period, signal);
-        const price = candles.at(-1).close,
-          base = candles[0].open;
-        return {
-          ...emptyQuote(m),
-          price,
-          change: base ? (price / base - 1) * 100 : null,
-          high: Math.max(...candles.map((c) => c.high)),
-          low: Math.min(...candles.map((c) => c.low)),
-          volume: null,
-          asOf,
-          status: "live",
-          spark: candles.filter((_, i) => i % 8 === 0).map((c) => c.close),
-        };
-      } catch {
-        return emptyQuote(m);
-      }
-    }),
-  );
 }
 export async function loadMarkets(period, signal) {
   if (!staticHosting) return json(`/api/markets?period=${period}`, signal);
-  const [crypto, stored] = await Promise.allSettled([
-    cryptoQuotes(period, signal),
-    json(
+  // Global feeds must never hold up a two-second crypto sample.
+  if (Date.now() >= (snapshotRetry.get(period) || 0)) {
+    snapshotRetry.set(period, Date.now() + 300000);
+    const job = cachedJSON(
       `${dataBase}/${snapshotFile(period)}?v=${Math.floor(Date.now() / 300000)}`,
+      300000,
       signal,
-    ),
-  ]);
+    )
+      .then((value) => snapshots.set(period, value))
+      .catch(() => snapshotRetry.set(period, Date.now() + 30000))
+      .finally(() => snapshotRequests.delete(period));
+    snapshotRequests.set(period, job);
+  }
+  const [crypto] = await Promise.allSettled([cryptoQuotes(period, signal)]);
+  if (crypto.status === "rejected" && !snapshots.has(period))
+    await snapshotRequests.get(period);
   if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+  const retryAfterMs =
+    crypto.status === "rejected" && crypto.reason?.status === 429 ? 60000 : 0;
   const cryptos = crypto.status === "fulfilled" ? crypto.value : [];
-  const snapshot = stored.status === "fulfilled" ? stored.value : null;
+  const snapshot = snapshots.get(period) || null;
   const quotes = markets.map((m) => {
     if (m.provider === "Binance")
       return cryptos.find((q) => q.id === m.id) || emptyQuote(m);
@@ -133,7 +165,9 @@ export async function loadMarkets(period, signal) {
     return {
       ...q,
       status:
-        q.status === "stale" || Date.now() - snapshot.fetchedAt > 20 * 60 * 1000
+        q.status === "stale" ||
+        Date.now() - snapshot.fetchedAt >
+          (period === "1D" ? 20 : 120) * 60 * 1000
           ? "stale"
           : "snapshot",
     };
@@ -143,5 +177,6 @@ export async function loadMarkets(period, signal) {
     available: quotes.filter((q) => Number.isFinite(q.price)).length,
     total: quotes.length,
     fetchedAt: Date.now(),
+    retryAfterMs,
   };
 }

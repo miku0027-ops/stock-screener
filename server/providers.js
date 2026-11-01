@@ -120,7 +120,7 @@ export async function mapLimit(items, limit, fn) {
   return results;
 }
 export async function snapshot(period = "1D") {
-  return cached(`snapshot:${period}`, 20000, async () => {
+  return cached(`snapshot:${period}`, 1800, async () => {
     let tickers = {};
     let cryptoError;
     if (period === "1D") {

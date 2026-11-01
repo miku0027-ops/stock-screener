@@ -28,11 +28,13 @@ jobs:
           git archive origin/market-data | tar -x -C /tmp/atlas-market-data
       - name: Fetch public market data
         run: node scripts/export-market-data.mjs /tmp/atlas-market-data
+      - name: Recheck declared unlock schedule
+        run: node scripts/export-announced-unlocks.mjs /tmp/atlas-market-data
       - name: Publish data branch
         run: |
           git switch --force-create market-data origin/market-data
           cp -R /tmp/atlas-market-data/. .
-          git add snapshots history status.json
+          git add snapshots history status.json announced-unlocks.json
           if git diff --cached --quiet; then exit 0; fi
           git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Refresh public market snapshots'
           git push origin HEAD:market-data

@@ -122,13 +122,14 @@ test("live price changes flash and pausing stops scheduled requests", async ({
 }) => {
   await page.clock.install();
   let requests = 0;
+  const sampleBase = Date.now();
   await page.route("**/api/markets?*", (route) => {
     requests++;
     const quotes = demoSnapshot().map((q) => ({
       ...q,
       price: q.price + requests,
       status: "live",
-      asOf: Date.now(),
+      asOf: sampleBase + requests * 2000,
     }));
     return route.fulfill({
       json: { quotes, available: 49, total: 49, fetchedAt: Date.now() },
@@ -141,8 +142,8 @@ test("live price changes flash and pausing stops scheduled requests", async ({
   await page.getByRole("button", { name: "Connect live" }).click();
   await expect(page.locator(".detail-status")).toHaveText("LIVE");
   expect(requests).toBe(1);
-  await page.clock.fastForward(31000);
-  await expect(page.locator(".heat-tile.flash-up")).toHaveCount(49);
+  await page.clock.fastForward(2100);
+  await expect(page.locator(".heat-tile.flash-up")).toHaveCount(10);
   await page.getByLabel("Pause auto refresh", { exact: true }).click();
   const pausedRequests = requests;
   await page.clock.fastForward(90000);

@@ -33,11 +33,11 @@ Vite runs on port **5173** and proxies `/api` to Express on **3001**. For a prod
 
 ## Data sources and limitations
 
-| Source                                                    | Coverage                                                    | Behavior                                                                                                                                                                |
-| --------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Binance public market data (`data-api.binance.vision`)    | Crypto pairs denominated in USDT                            | Quotes requested every 30 seconds; 20-second server cache; exchange availability and geographic restrictions apply. This is polling, not a tick-by-tick WebSocket feed. |
-| Yahoo Finance chart endpoint (`query1.finance.yahoo.com`) | Indices, equities, futures, currencies and macro indicators | Unofficial public interface; 60-second cache. Quotes may be delayed, rate-limited, unavailable or from a closed session.                                                |
-| TradingView Lightweight Charts                            | Interactive chart rendering                                 | Open-source chart library; attribution is retained. It supplies no market data.                                                                                         |
+| Source                                                    | Coverage                                                    | Behavior                                                                                                                                                                                        |
+| --------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Binance public market data (`data-api.binance.vision`)    | Crypto pairs denominated in USDT                            | Crypto quotes sampled on a 2-second target cadence; 1.8-second local server cache; exchange availability and geographic restrictions apply. This is polling, not a tick-by-tick WebSocket feed. |
+| Yahoo Finance chart endpoint (`query1.finance.yahoo.com`) | Indices, equities, futures, currencies and macro indicators | Unofficial public interface; 60-second cache. Quotes may be delayed, rate-limited, unavailable or from a closed session.                                                                        |
+| TradingView Lightweight Charts                            | Interactive chart rendering                                 | Open-source chart library; attribution is retained. It supplies no market data.                                                                                                                 |
 
 **Free feeds cannot guarantee exchange-grade real-time coverage of every market.** Provider timestamps are shown in UTC. SGX / STI is the Straits Times equity index, not an SGX futures feed. Commodities are front-month futures, not spot prices. Exchange index currencies are denomination context; index values are index points. Treasury yield is in percent. FX quote direction is shown in the symbol.
 
@@ -82,7 +82,7 @@ Each cloud task already has an isolated checkout. Work in `/workspace/stock-scre
 
 The Firebase build does **not** require Cloud Functions, Cloud Run, Blaze billing, a database, or a separately hosted Node server. It uses:
 
-- Binance's public CORS-enabled market endpoints directly in the browser, polled every 30 seconds.
+- Binance's public CORS-enabled market endpoints directly in the browser, sampled on a 2-second target cadence.
 - Real Yahoo quotes and chart history published to the dedicated `market-data` branch of this public GitHub repository. The GitHub Actions workflow requests intraday updates every five minutes; longer histories refresh hourly. GitHub schedules can be delayed or disabled after inactivity. Hosted global quotes are labeled **SNAPSHOT**, and failed or overdue updates are labeled **STALE**. Market closures also affect provider timestamps. This is not exchange-grade streaming.
 - Firebase Hosting's free-tier static service, subject to its storage and transfer quotas. Scheduled standard GitHub-hosted runners are free for this public repository. No paid plan is enabled by these instructions.
 
@@ -107,3 +107,32 @@ In this managed environment, connect a Google identity with Firebase Hosting per
 The static app fetches the `market-data` branch through `raw.githubusercontent.com`, with normal CDN caching; updates are not guaranteed to be instantaneous. Keep the repository public for this method. Never embed a GitHub token in the frontend. The workflow can also be run manually from GitHub Actions.
 
 Run `npm run test:firebase` to verify the built static app, snapshot freshness labels, direct crypto requests and chart loading without a Node API. These browser tests use intercepted responses; real provider/export checks are separate.
+
+## Two-second crypto analysis and five-minute RSI signals
+
+The default live heatmap uses **2s crypto change**, calculated as `(currentPrice / previousPrice - 1) × 100` between consecutive Binance snapshot timestamps. A return is shown only when those snapshots are 1.5–3.5 seconds apart. Initial samples, repeated timestamps, missed intervals, paused feeds and stale results are neutral. Numbers use six decimal places in this mode; flashes require an actual price change. Global markets are neutral in 2s mode because their free feeds cannot provide equivalent timing. Switch to 1D/1W/1M for global performance colors.
+
+Requests target one batch every two seconds without overlapping requests. Network latency, browser background-tab throttling and exchange limits can prevent exact timing. Hidden tabs stop polling. HTTP 429 responses back off for 60 seconds. Slow global snapshot requests are independent of crypto refreshes. No paid feed, synthetic price tick or guaranteed timing is implied. CSV exports include sample interval in milliseconds; tile tooltips show the observed interval.
+
+**5m RSI signal desk** is available from the navigation and dashboard shortcut. It only evaluates BTCUSDT and ETHUSDT Binance **spot** candles. It does not place trades. Demo mode never produces signals. The desk synchronizes against Binance server time, fetches 500 bars initially, then requests three recent bars per two-second check and retains up to 1,000. Open/settling candles are excluded. Missing bars, invalid OHLC, overdue candles, feed errors, responses taking over five seconds, or checks older than eight seconds suppress actionable signals.
+
+### Rules, not an accuracy claim
+
+- RSI(14) uses Wilder smoothing and a simple-average gain/loss seed. At least 100 consecutive closed five-minute candles are required.
+- A pivot needs **3 bars on each side**. Divergence confirmation is consequently **15 minutes after the price pivot**, not at the pivot in hindsight. Chart arrows appear on the confirmation bar.
+- Adjacent same-type pivots must be 5–60 bars apart. Bullish regular divergence requires a price low at least 0.05% lower and RSI at least 3 points higher, with one pivot RSI ≤40. Bearish is mirrored with one pivot RSI ≥60.
+- A divergence is a **watch condition** until a subsequent five-minute candle closes beyond the confirmation bar’s high (bull) or low (bear). The observed breakout close is recorded as a signal reference, not an executable fill.
+- Invalidation uses the pivot extreme plus a 0.25× ATR(14) buffer. Untriggered setups expire after 6 bars; triggered setups expire after another 6 bars. The illustrative target is 2× the entry-to-invalidation distance. If a candle could hit both target and invalidation, the calculation assumes invalidation first.
+- Only the latest qualifying setup is considered active. Historical outcomes refer to candle levels, not executed trades. Fees, slippage, spread and funding are not included. **The strategy is not backtested, has no measured win rate, and cannot guarantee accurate or profitable predictions.**
+
+The desk also shows ATR, EMA20/50, UTC-session approximate VWAP, relative volume against the prior 20 bars, best bid/ask spread and top-20 spot order-book imbalance. Book snapshots refresh at most every ten seconds. Orders may be spoofed or removed; these measures do not prove future price direction. The context page attributes the daily Fear & Greed index to [Alternative.me](https://alternative.me/crypto/fear-and-greed-index/). Existing DXY, yields, VIX, gold and equity snapshots provide wider context. Funding and open interest are not included because the evaluated free derivatives endpoints were unavailable from this environment.
+
+## Declared supply unlocks
+
+Only date-specific, issuer-published schedules with source links are admitted. Unknown dates and estimates are not displayed. The initial verified catalog covers **STRK**, based on [Starknet's official STRK documentation](https://docs.starknet.io/learn/protocol/strk): **up to 127 million tokens on the 15th of each month from April 2025 through March 2027**. The remaining upcoming dates are listed; no exact hour or guaranteed release amount is invented. This is a published recurring schedule, not a newly issued announcement for each date and not proof of future selling.
+
+Sui's official schedule explicitly calls its timing an estimate, so it was excluded. Aptos's reviewed community schedule is described as anticipated monthly distribution without an explicit day, so no future dates were invented. The reviewed generic unlock API required payment and is not used. Coverage is intentionally limited rather than presented as comprehensive.
+
+`data/announced-unlocks.json` contains the reviewed records. `scripts/export-announced-unlocks.mjs` rechecks the exact official schedule wording daily from the scheduled data workflow. If the wording no longer matches, it publishes no records until reviewed. If the source is temporarily unavailable, the last verification is retained; records older than 35 days are hidden. Past dates disappear automatically. Add more tokens only after verifying an explicit dated issuer schedule and updating the allowlist in `shared/unlocks.js`.
+
+Signal logic and freshness tests are in `tests/signals.test.js`; browser coverage is in `tests/firebase/signals.spec.js`. `ATLAS_TEST_PORT=4180 npm run test:firebase` can use a different preview port if another preview is running. No backtest results or model-generated trade calls are substituted for the deterministic rules.

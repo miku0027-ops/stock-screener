@@ -43,6 +43,9 @@ import {
 import { markets, groups, marketContext } from "../shared/markets";
 import { demoSnapshot, demoHistory } from "../shared/demo";
 import "./styles.css";
+import SignalDesk from "./SignalDesk.jsx";
+import ContextPanel from "./ContextPanel.jsx";
+import { sampleChange } from "../shared/signals.js";
 import { loadHistory, loadMarkets, staticHosting } from "./data-client.js";
 
 const readStore = (key, fallback) => {
@@ -62,9 +65,10 @@ const formatPrice = (n, currency = "USD") =>
     ? "—"
     : new Intl.NumberFormat("en-US", {
         minimumFractionDigits: n < 1 ? 4 : 2,
-        maximumFractionDigits: n < 1 ? 4 : 2,
+        maximumFractionDigits: n < 1 ? 8 : 2,
       }).format(n) + (currency === "%" ? "%" : "");
-const pct = (n) => (n == null ? "—" : `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`);
+const pct = (n, digits = 2) =>
+  n == null ? "—" : `${n >= 0 ? "+" : ""}${n.toFixed(digits)}%`;
 const compact = (n) =>
   n == null
     ? "—"
@@ -79,6 +83,8 @@ const timeLabel = (n) =>
         month: "short",
         hour: "2-digit",
         minute: "2-digit",
+        second: "2-digit",
+        fractionalSecondDigits: 3,
         timeZone: "UTC",
       }) + " UTC"
     : "Illustrative snapshot";
@@ -92,8 +98,9 @@ const tones = [
   "#268364",
   "#2b9c73",
 ];
-function tileColor(n) {
-  if (n == null) return "#242931";
+function tileColor(n, fast = false) {
+  if (n == null || n === 0) return "#242931";
+  if (fast) n *= 60;
   if (n < 0) return tones[Math.min(3, Math.floor(Math.abs(n) / 1.2))];
   return tones[4 + Math.min(3, Math.floor(n / 0.9))];
 }
@@ -144,7 +151,9 @@ function MarketChart({ asset, period, mode, kind }) {
     [status, setStatus] = useState("loading");
   useEffect(() => {
     let dead = false,
-      chart;
+      chart,
+      series,
+      timer;
     const abort = new AbortController();
     setStatus("loading");
     async function draw() {
@@ -160,79 +169,85 @@ function MarketChart({ asset, period, mode, kind }) {
         }
         if (dead) return;
         if (!candles?.length) throw new Error();
-        chart = createChart(host.current, {
-          autoSize: true,
-          layout: {
-            background: { type: ColorType.Solid, color: "#12161b" },
-            textColor: "#737d89",
-            fontSize: 10,
-            attributionLogo: true,
-          },
-          grid: {
-            vertLines: { visible: false },
-            horzLines: { color: "#222830" },
-          },
-          rightPriceScale: { borderVisible: false },
-          timeScale: {
-            borderVisible: false,
-            timeVisible: period === "1D",
-            secondsVisible: false,
-          },
-          crosshair: {
-            vertLine: { color: "#7b848e", labelBackgroundColor: "#30383d" },
-            horzLine: { color: "#7b848e", labelBackgroundColor: "#30383d" },
-          },
-        });
-        const series = chart.addSeries(
-          kind === "candles" ? CandlestickSeries : AreaSeries,
-          kind === "candles"
-            ? {
-                upColor: "#79cfa8",
-                downColor: "#d7737e",
-                borderVisible: false,
-                wickUpColor: "#79cfa8",
-                wickDownColor: "#d7737e",
-              }
-            : {
-                lineColor: "#c7ed93",
-                topColor: "#c7ed9324",
-                bottomColor: "#c7ed9300",
-                lineWidth: 2,
-              },
-        );
-        series.applyOptions({
-          priceFormat: {
-            type: "price",
-            precision:
-              (asset.price ??
-                markets.find((m) => m.id === asset.id).samplePrice) < 1
-                ? 4
-                : 2,
-            minMove:
-              (asset.price ??
-                markets.find((m) => m.id === asset.id).samplePrice) < 1
-                ? 0.0001
-                : 0.01,
-          },
-        });
+        const first = !chart;
+        if (first) {
+          chart = createChart(host.current, {
+            autoSize: true,
+            layout: {
+              background: { type: ColorType.Solid, color: "#12161b" },
+              textColor: "#737d89",
+              fontSize: 10,
+              attributionLogo: true,
+            },
+            grid: {
+              vertLines: { visible: false },
+              horzLines: { color: "#222830" },
+            },
+            rightPriceScale: { borderVisible: false },
+            timeScale: {
+              borderVisible: false,
+              timeVisible: period === "1D",
+              secondsVisible: false,
+            },
+            crosshair: {
+              vertLine: { color: "#7b848e", labelBackgroundColor: "#30383d" },
+              horzLine: { color: "#7b848e", labelBackgroundColor: "#30383d" },
+            },
+          });
+          series = chart.addSeries(
+            kind === "candles" ? CandlestickSeries : AreaSeries,
+            kind === "candles"
+              ? {
+                  upColor: "#79cfa8",
+                  downColor: "#d7737e",
+                  borderVisible: false,
+                  wickUpColor: "#79cfa8",
+                  wickDownColor: "#d7737e",
+                }
+              : {
+                  lineColor: "#c7ed93",
+                  topColor: "#c7ed9324",
+                  bottomColor: "#c7ed9300",
+                  lineWidth: 2,
+                },
+          );
+          series.applyOptions({
+            priceFormat: {
+              type: "price",
+              precision:
+                (asset.price ??
+                  markets.find((m) => m.id === asset.id).samplePrice) < 1
+                  ? 4
+                  : 2,
+              minMove:
+                (asset.price ??
+                  markets.find((m) => m.id === asset.id).samplePrice) < 1
+                  ? 0.0001
+                  : 0.01,
+            },
+          });
+        }
         series.setData(
           kind === "candles"
             ? candles
             : candles.map((c) => ({ time: c.time, value: c.close })),
         );
-        chart.timeScale().fitContent();
+        if (first) chart.timeScale().fitContent();
         setStatus("ready");
       } catch (e) {
         if (!dead && e.name !== "AbortError") setStatus("error");
+      } finally {
+        if (!dead && mode === "live") timer = setTimeout(draw, 30000);
       }
     }
     draw();
     return () => {
       dead = true;
       abort.abort();
+      clearTimeout(timer);
       chart?.remove();
     };
-  }, [asset.id, period, mode, kind, asset.asOf]);
+  }, [asset.id, period, mode, kind]);
   return (
     <div className="chart-wrap">
       <div className="chart-host" ref={host} />
@@ -251,7 +266,7 @@ function MarketChart({ asset, period, mode, kind }) {
     </div>
   );
 }
-function HeatGroup({ name, items, selected, onSelect, sizeBy, flashes }) {
+function HeatGroup({ name, items, selected, onSelect, sizeBy, flashes, fast }) {
   const ref = useRef(null),
     [bounds, setBounds] = useState({ width: 300, height: 230 });
   useEffect(() => {
@@ -309,14 +324,20 @@ function HeatGroup({ name, items, selected, onSelect, sizeBy, flashes }) {
                 top: n.y0,
                 width: w,
                 height: h,
-                backgroundColor: tileColor(a.change),
+                backgroundColor: tileColor(a.change, fast),
               }}
-              aria-label={`${a.name}, ${pct(a.change)}. View chart`}
-              title={`${a.name} · ${a.price == null ? "Unavailable" : formatPrice(a.price, a.currency) + " " + a.currency} · ${pct(a.change)}`}
+              aria-label={`${a.name}, ${pct(a.change, fast ? 6 : 2)}. View chart`}
+              title={`${a.name} · ${a.price == null ? "Unavailable" : formatPrice(a.price, a.currency) + " " + a.currency} · ${pct(a.change, fast ? 6 : 2)}${fast && a.sampleInterval ? ` · ${(a.sampleInterval / 1000).toFixed(3)}s between provider snapshots` : ""}`}
             >
               <div className="tile-main">
                 <b>{a.symbol}</b>
-                {h > 38 && <span>{pct(a.change)}</span>}
+                {h > 38 && (
+                  <span>
+                    {fast && a.provider !== "Binance"
+                      ? "Delayed"
+                      : pct(a.change, fast ? 6 : 2)}
+                  </span>
+                )}
                 {large && <small>{a.name}</small>}
               </div>
               {large && a.spark?.length > 1 && (
@@ -351,6 +372,9 @@ function App() {
           status: "loading",
           spark: [],
         })),
+  );
+  const [colorWindow, setColorWindow] = useState(
+    mode === "demo" ? "period" : "2s",
   );
   const [period, setPeriod] = useState("1D"),
     [chartPeriod, setChartPeriod] = useState("1D"),
@@ -444,7 +468,14 @@ function App() {
         spark: [],
       })),
     );
+    previous.current = {};
     async function refresh() {
+      const started = Date.now();
+      let delay = 2000;
+      if (document.hidden) {
+        timer = setTimeout(refresh, 2000);
+        return;
+      }
       setLoading(true);
       try {
         const data = await loadMarkets(period, controller.signal);
@@ -457,15 +488,29 @@ function App() {
           );
           return;
         }
+        delay = data.retryAfterMs || 2000;
         const changes = {};
-        data.quotes.forEach((q) => {
+        data.quotes = data.quotes.map((q) => {
+          const old = previous.current[q.id];
+          const sampled =
+            q.provider === "Binance"
+              ? sampleChange(old, q)
+              : { change: null, interval: null };
           if (
-            previous.current[q.id] != null &&
+            old &&
             q.price != null &&
-            q.price !== previous.current[q.id]
+            q.price !== old.price &&
+            sampled.change !== null
           )
-            changes[q.id] = q.price > previous.current[q.id] ? "up" : "down";
-          if (q.price != null) previous.current[q.id] = q.price;
+            changes[q.id] = q.price > old.price ? "up" : "down";
+          if (q.price != null && q.provider === "Binance")
+            previous.current[q.id] = { price: q.price, asOf: q.asOf };
+          else delete previous.current[q.id];
+          return {
+            ...q,
+            twoSecondChange: sampled.change,
+            sampleInterval: sampled.interval,
+          };
         });
         setFlashes(changes);
         flashTimer = setTimeout(() => setFlashes({}), 1100);
@@ -478,6 +523,14 @@ function App() {
         );
       } catch (e) {
         if (!stopped && e.name !== "AbortError") {
+          delay = e.status === 429 ? 60000 : 5000;
+          setQuotes((prev) =>
+            prev.map((q) => ({
+              ...q,
+              twoSecondChange: null,
+              status: q.price != null ? "stale" : q.status,
+            })),
+          );
           setError(
             "Could not reach the market server. Check the connection and retry.",
           );
@@ -485,7 +538,11 @@ function App() {
       } finally {
         if (!stopped) {
           setLoading(false);
-          if (!paused) timer = setTimeout(refresh, 30000);
+          if (!paused)
+            timer = setTimeout(
+              refresh,
+              Math.max(0, delay - (Date.now() - started)),
+            );
         }
       }
     }
@@ -515,7 +572,16 @@ function App() {
     });
   }
   const asset = quotes.find((q) => q.id === selected) || quotes[0];
-  const filtered = quotes.filter(
+  const displayedQuotes = quotes.map((q) => ({
+    ...q,
+    change:
+      colorWindow === "2s"
+        ? mode === "live" && !paused && Date.now() - (fetchedAt || 0) < 8000
+          ? (q.twoSecondChange ?? null)
+          : null
+        : q.change,
+  }));
+  const filtered = displayedQuotes.filter(
     (q) =>
       (category === "All markets" ||
         (category === "Indices"
@@ -552,7 +618,8 @@ function App() {
         "Name",
         "Price",
         "Currency",
-        "Change (%)",
+        colorWindow === "2s" ? "Sample change (%)" : "Change (%)",
+        "Sample interval (ms)",
         "Source",
         "Status",
         "Timestamp",
@@ -563,6 +630,7 @@ function App() {
         q.price ?? "",
         q.currency,
         q.change ?? "",
+        colorWindow === "2s" ? (q.sampleInterval ?? "") : "",
         q.provider,
         q.status,
         q.asOf ? new Date(q.asOf).toISOString() : "DEMO",
@@ -602,6 +670,8 @@ function App() {
             [Grid2X2, "heatmap", "Market heatmap"],
             [Star, "watchlist", "My watchlist"],
             [ChartNoAxesCombined, "movers", "Market movers"],
+            [Activity, "signals", "5m RSI signal desk"],
+            [Clock3, "context", "Unlocks and market context"],
           ].map(([Icon, id, label]) => (
             <button
               key={id}
@@ -655,7 +725,7 @@ function App() {
               <i />
               {mode === "demo"
                 ? "DEMO DATA"
-                : loading
+                : loading && !fetchedAt
                   ? "CONNECTING"
                   : paused
                     ? "PAUSED"
@@ -756,421 +826,492 @@ function App() {
               </button>
             </div>
           )}
-          <section className="workspace-heading">
-            <div className="workspace-title">
-              <Globe2 size={19} />
-              <h2>
-                {view === "watchlist"
-                  ? "Your watchlist"
-                  : view === "movers"
-                    ? "Market movers"
-                    : "Global market map"}
-              </h2>
-              <span className="count-badge">{filtered.length} assets</span>
-            </div>
-            <div className="workspace-actions">
-              <button
-                className="icon-button"
-                title={paused ? "Resume auto refresh" : "Pause auto refresh"}
-                aria-label={
-                  paused ? "Resume auto refresh" : "Pause auto refresh"
-                }
-                onClick={() => setPaused((v) => !v)}
-              >
-                {paused ? <Play size={15} /> : <Pause size={15} />}
-              </button>
-              <button
-                className="refresh-button"
-                disabled={loading}
-                onClick={() => setRetry((x) => x + 1)}
-              >
-                <RefreshCw size={13} className={loading ? "spin" : ""} />
-                <span>
-                  {loading
-                    ? "Fetching"
-                    : mode === "demo"
-                      ? "Demo snapshot"
-                      : paused
-                        ? "Paused"
-                        : "Refresh 30s"}
-                </span>
-              </button>
-              <div className="thin-divider" />
-              <button
-                className="icon-button"
-                title={expanded ? "Exit expanded map" : "Expand map"}
-                aria-label={expanded ? "Exit expanded map" : "Expand map"}
-                onClick={() => setExpanded((v) => !v)}
-              >
-                {expanded ? (
-                  <PanelRightClose size={17} />
-                ) : (
-                  <Expand size={17} />
-                )}
-              </button>
-            </div>
-          </section>
-          <div className="filter-bar">
-            <div className="category-tabs">
-              {[
-                "All markets",
-                "Crypto",
-                "Indices",
-                "Stocks",
-                "Commodities",
-                "Currencies",
-              ].map((c) => (
-                <button
-                  key={c}
-                  className={category === c ? "active" : ""}
-                  onClick={() => setCategory(c)}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-            <label className="search-box">
-              <Search size={14} />
-              <input
-                ref={searchRef}
-                aria-label="Search markets"
-                placeholder="Find an asset…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              {search ? (
-                <button onClick={() => setSearch("")} aria-label="Clear search">
-                  <X size={13} />
-                </button>
-              ) : (
-                <kbd>⌘ K</kbd>
-              )}
-            </label>
+          <div className="analysis-shortcuts">
+            <button onClick={() => setView("heatmap")}>Market map</button>
+            <button
+              className={view === "signals" ? "active" : ""}
+              onClick={() => setView("signals")}
+            >
+              <Activity size={14} /> BTC / ETH · 5m RSI desk
+            </button>
+            <button
+              className={view === "context" ? "active" : ""}
+              onClick={() => setView("context")}
+            >
+              <Clock3 size={14} /> Announced unlocks & context
+            </button>
           </div>
-          <div className={`dashboard-grid ${expanded ? "expanded" : ""}`}>
-            <section className="map-panel">
-              <div className="map-toolbar">
-                <div className="period-switch" aria-label="Heatmap timeframe">
-                  {["1D", "1W", "1M"].map((p) => (
+          {view === "signals" ? (
+            <SignalDesk
+              mode={mode}
+              paused={paused}
+              onConnect={() => changeMode("live")}
+              onTogglePause={() => setPaused((v) => !v)}
+            />
+          ) : view === "context" ? (
+            <ContextPanel />
+          ) : (
+            <>
+              <section className="workspace-heading">
+                <div className="workspace-title">
+                  <Globe2 size={19} />
+                  <h2>
+                    {view === "watchlist"
+                      ? "Your watchlist"
+                      : view === "movers"
+                        ? "Market movers"
+                        : "Global market map"}
+                  </h2>
+                  <span className="count-badge">{filtered.length} assets</span>
+                </div>
+                <div className="workspace-actions">
+                  <button
+                    className="icon-button"
+                    title={
+                      paused ? "Resume auto refresh" : "Pause auto refresh"
+                    }
+                    aria-label={
+                      paused ? "Resume auto refresh" : "Pause auto refresh"
+                    }
+                    onClick={() => setPaused((v) => !v)}
+                  >
+                    {paused ? <Play size={15} /> : <Pause size={15} />}
+                  </button>
+                  <button
+                    className="refresh-button"
+                    disabled={loading}
+                    onClick={() => setRetry((x) => x + 1)}
+                  >
+                    <RefreshCw size={13} className={loading ? "spin" : ""} />
+                    <span>
+                      {loading
+                        ? "Fetching"
+                        : mode === "demo"
+                          ? "Demo snapshot"
+                          : paused
+                            ? "Paused"
+                            : "Crypto · 2s"}
+                    </span>
+                  </button>
+                  <div className="thin-divider" />
+                  <button
+                    className="icon-button"
+                    title={expanded ? "Exit expanded map" : "Expand map"}
+                    aria-label={expanded ? "Exit expanded map" : "Expand map"}
+                    onClick={() => setExpanded((v) => !v)}
+                  >
+                    {expanded ? (
+                      <PanelRightClose size={17} />
+                    ) : (
+                      <Expand size={17} />
+                    )}
+                  </button>
+                </div>
+              </section>
+              <div className="filter-bar">
+                <div className="category-tabs">
+                  {[
+                    "All markets",
+                    "Crypto",
+                    "Indices",
+                    "Stocks",
+                    "Commodities",
+                    "Currencies",
+                  ].map((c) => (
                     <button
-                      key={p}
-                      className={period === p ? "active" : ""}
-                      onClick={() => setPeriod(p)}
+                      key={c}
+                      className={category === c ? "active" : ""}
+                      onClick={() => setCategory(c)}
                     >
-                      {p}
+                      {c}
                     </button>
                   ))}
                 </div>
-                <span className="toolbar-note">
-                  {period === "1D" ? "Session change" : "Period change"}{" "}
-                  <button
-                    className="inline-icon"
-                    title="How changes are calculated"
-                    aria-label="How changes are calculated"
-                    onClick={() => setModal("about")}
-                  >
-                    <Info size={12} />
-                  </button>
-                </span>
-                <label className="size-select">
-                  <Layers size={13} />
-                  <span>Size by</span>
-                  <select
-                    aria-label="Tile size"
-                    value={sizeBy}
-                    onChange={(e) => setSizeBy(e.target.value)}
-                  >
-                    <option value="importance">Importance</option>
-                    <option value="movement">Price movement</option>
-                    <option value="equal">Equal weight</option>
-                  </select>
-                  <ChevronDown size={12} />
+                <label className="search-box">
+                  <Search size={14} />
+                  <input
+                    ref={searchRef}
+                    aria-label="Search markets"
+                    placeholder="Find an asset…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                  {search ? (
+                    <button
+                      onClick={() => setSearch("")}
+                      aria-label="Clear search"
+                    >
+                      <X size={13} />
+                    </button>
+                  ) : (
+                    <kbd>⌘ K</kbd>
+                  )}
                 </label>
               </div>
-              {filtered.length === 0 ? (
-                <div className="empty-state">
-                  <Search size={29} />
-                  <h3>No assets here yet</h3>
-                  <p>
-                    {view === "watchlist"
-                      ? "Star assets in the detail panel to build your watchlist."
-                      : "Try a different symbol or market category."}
-                  </p>
-                  <button
-                    className="outline-button"
-                    onClick={() => {
-                      setSearch("");
-                      setCategory("All markets");
-                      setView("heatmap");
-                    }}
-                  >
-                    View all markets
-                  </button>
-                </div>
-              ) : view === "movers" ? (
-                <div className="movers-table">
-                  <div className="table-header">
-                    <span>ASSET</span>
-                    <span>PRICE</span>
-                    <span>CHANGE</span>
-                    <span>MARKET</span>
-                  </div>
-                  {[...filtered]
-                    .sort(
-                      (a, b) =>
-                        Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0),
-                    )
-                    .map((a) => (
+              <div className={`dashboard-grid ${expanded ? "expanded" : ""}`}>
+                <section className="map-panel">
+                  <div className="map-toolbar">
+                    <div
+                      className="period-switch"
+                      aria-label="Heatmap timeframe"
+                    >
                       <button
-                        key={a.id}
-                        className="table-row"
-                        onClick={() => selectAsset(a.id)}
+                        className={colorWindow === "2s" ? "active" : ""}
+                        onClick={() => {
+                          setColorWindow("2s");
+                          setPeriod("1D");
+                        }}
                       >
+                        2s
+                      </button>
+                      {["1D", "1W", "1M"].map((p) => (
+                        <button
+                          key={p}
+                          className={
+                            colorWindow === "period" && period === p
+                              ? "active"
+                              : ""
+                          }
+                          onClick={() => {
+                            setColorWindow("period");
+                            setPeriod(p);
+                          }}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                    <span className="toolbar-note">
+                      {colorWindow === "2s"
+                        ? "2s crypto samples · global feeds neutral"
+                        : period === "1D"
+                          ? "Session change"
+                          : "Period change"}{" "}
+                      <button
+                        className="inline-icon"
+                        title="How changes are calculated"
+                        aria-label="How changes are calculated"
+                        onClick={() => setModal("about")}
+                      >
+                        <Info size={12} />
+                      </button>
+                    </span>
+                    <label className="size-select">
+                      <Layers size={13} />
+                      <span>Size by</span>
+                      <select
+                        aria-label="Tile size"
+                        value={sizeBy}
+                        onChange={(e) => setSizeBy(e.target.value)}
+                      >
+                        <option value="importance">Importance</option>
+                        <option value="movement">Price movement</option>
+                        <option value="equal">Equal weight</option>
+                      </select>
+                      <ChevronDown size={12} />
+                    </label>
+                  </div>
+                  {filtered.length === 0 ? (
+                    <div className="empty-state">
+                      <Search size={29} />
+                      <h3>No assets here yet</h3>
+                      <p>
+                        {view === "watchlist"
+                          ? "Star assets in the detail panel to build your watchlist."
+                          : "Try a different symbol or market category."}
+                      </p>
+                      <button
+                        className="outline-button"
+                        onClick={() => {
+                          setSearch("");
+                          setCategory("All markets");
+                          setView("heatmap");
+                        }}
+                      >
+                        View all markets
+                      </button>
+                    </div>
+                  ) : view === "movers" ? (
+                    <div className="movers-table">
+                      <div className="table-header">
+                        <span>ASSET</span>
+                        <span>PRICE</span>
+                        <span>CHANGE</span>
+                        <span>MARKET</span>
+                      </div>
+                      {[...filtered]
+                        .sort(
+                          (a, b) =>
+                            Math.abs(b.change ?? 0) - Math.abs(a.change ?? 0),
+                        )
+                        .map((a) => (
+                          <button
+                            key={a.id}
+                            className="table-row"
+                            onClick={() => selectAsset(a.id)}
+                          >
+                            <span>
+                              <b>{a.symbol}</b>
+                              <small>{a.name}</small>
+                            </span>
+                            <span>{formatPrice(a.price, a.currency)}</span>
+                            <span
+                              className={
+                                a.change >= 0 ? "positive" : "negative"
+                              }
+                            >
+                              {pct(a.change)}
+                            </span>
+                            <span>{a.group}</span>
+                          </button>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className={`heatmap groups-${shownGroups.length}`}>
+                      {shownGroups.map((g) => (
+                        <HeatGroup
+                          key={g}
+                          name={g}
+                          items={filtered.filter((q) => q.group === g)}
+                          selected={selected}
+                          onSelect={selectAsset}
+                          sizeBy={sizeBy}
+                          flashes={flashes}
+                          fast={colorWindow === "2s"}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <div className="map-bottom">
+                    <span>
+                      <span className="mouse-icon">↖</span> Select any asset to
+                      explore
+                    </span>
+                    <div className="heat-legend">
+                      <span>{colorWindow === "2s" ? "−0.05%" : "−3%"}</span>
+                      <i style={{ background: "#b45057" }} />
+                      <i style={{ background: "#813a40" }} />
+                      <i style={{ background: "#493139" }} />
+                      <i style={{ background: "#283330" }} />
+                      <i style={{ background: "#246952" }} />
+                      <i style={{ background: "#268364" }} />
+                      <i style={{ background: "#2b9c73" }} />
+                      <span>{colorWindow === "2s" ? "+0.05%" : "+3%"}</span>
+                    </div>
+                  </div>
+                </section>
+                {!expanded && (
+                  <aside className="detail-panel">
+                    <div className="detail-heading">
+                      <div
+                        className={`asset-avatar ${asset.group === "Crypto" ? "crypto" : ""}`}
+                      >
+                        {asset.icon || asset.symbol.slice(0, 2)}
+                      </div>
+                      <div>
+                        <h2>{asset.name}</h2>
                         <span>
-                          <b>{a.symbol}</b>
-                          <small>{a.name}</small>
+                          {asset.symbol} <i>·</i> {asset.group}
                         </span>
-                        <span>{formatPrice(a.price, a.currency)}</span>
-                        <span
+                      </div>
+                      <button
+                        className={`icon-button star-button ${watchlist.includes(asset.id) ? "saved" : ""}`}
+                        title={
+                          watchlist.includes(asset.id)
+                            ? "Remove from watchlist"
+                            : "Add to watchlist"
+                        }
+                        aria-label={
+                          watchlist.includes(asset.id)
+                            ? "Remove from watchlist"
+                            : "Add to watchlist"
+                        }
+                        onClick={() => toggleWatch(asset.id)}
+                      >
+                        <Star
+                          size={18}
+                          fill={
+                            watchlist.includes(asset.id)
+                              ? "currentColor"
+                              : "none"
+                          }
+                        />
+                      </button>
+                    </div>
+                    <div className="asset-price">
+                      <span>
+                        {asset.currency === "USD" || asset.currency === "USDT"
+                          ? "$"
+                          : ""}
+                        {formatPrice(asset.price, asset.currency)}
+                      </span>
+                      <small>{asset.currency}</small>
+                    </div>
+                    <div className="asset-change">
+                      <span
+                        className={asset.change >= 0 ? "positive" : "negative"}
+                      >
+                        {asset.change >= 0 ? (
+                          <ArrowUpRight size={14} />
+                        ) : (
+                          <ArrowDownRight size={14} />
+                        )}{" "}
+                        {pct(asset.change)}
+                      </span>
+                      <span>
+                        {period === "1D"
+                          ? "today"
+                          : `past ${period === "1W" ? "week" : "month"}`}
+                      </span>
+                      <span className="detail-status">
+                        {mode === "demo"
+                          ? "DEMO"
+                          : asset.status === "snapshot"
+                            ? "SNAPSHOT"
+                            : asset.status === "stale"
+                              ? "STALE"
+                              : asset.status === "delayed"
+                                ? "DELAYED"
+                                : asset.status === "live"
+                                  ? "LIVE"
+                                  : asset.status === "loading"
+                                    ? "LOADING"
+                                    : "UNAVAILABLE"}
+                      </span>
+                    </div>
+                    <MarketChart
+                      asset={asset}
+                      period={chartPeriod}
+                      mode={mode}
+                      kind={kind}
+                    />
+                    <div className="chart-controls">
+                      <div className="chart-periods">
+                        {["1D", "1W", "1M", "3M", "1Y"].map((p) => (
+                          <button
+                            className={chartPeriod === p ? "active" : ""}
+                            key={p}
+                            onClick={() => setChartPeriod(p)}
+                          >
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        className="icon-button chart-kind"
+                        title={
+                          kind === "area"
+                            ? "Show candlesticks"
+                            : "Show line chart"
+                        }
+                        aria-label={
+                          kind === "area"
+                            ? "Show candlesticks"
+                            : "Show line chart"
+                        }
+                        onClick={() =>
+                          setKind((k) => (k === "area" ? "candles" : "area"))
+                        }
+                      >
+                        <ChartNoAxesCombined size={15} />
+                      </button>
+                    </div>
+                    <div className="stat-grid">
+                      <div>
+                        <span>{period === "1D" ? "Day" : "Period"} high</span>
+                        <b>{formatPrice(asset.high, asset.currency)}</b>
+                      </div>
+                      <div>
+                        <span>{period === "1D" ? "Day" : "Period"} low</span>
+                        <b>{formatPrice(asset.low, asset.currency)}</b>
+                      </div>
+                      <div>
+                        <span>
+                          {asset.group === "Crypto"
+                            ? "24h quote volume"
+                            : "Session volume"}
+                        </span>
+                        <b>{compact(asset.volume)}</b>
+                      </div>
+                      <div>
+                        <span>Data provider</span>
+                        <b>
+                          {mode === "demo" ? "Illustrative" : asset.provider}
+                        </b>
+                      </div>
+                    </div>
+                    <div className="context-box">
+                      <div>
+                        <Zap size={13} />
+                        <span>THE BIGGER PICTURE</span>
+                      </div>
+                      <p>{marketContext[asset.group]}</p>
+                    </div>
+                    <div className="detail-timestamp">
+                      <Clock3 size={11} />
+                      {timeLabel(asset.asOf)}
+                    </div>
+                  </aside>
+                )}
+              </div>
+              <section className="bottom-grid">
+                <div className="breadth-card">
+                  <div className="section-label">
+                    <Activity size={14} />
+                    Market breadth<span>{period}</span>
+                  </div>
+                  <div className="breadth-counts">
+                    <span>
+                      <i className="positive-dot" />
+                      <b>{gainers}</b> advancing
+                    </span>
+                    <span>
+                      <i className="negative-dot" />
+                      <b>{losers}</b> declining
+                    </span>
+                  </div>
+                  <div className="breadth-bar">
+                    <i style={{ flex: gainers || 0.01 }} />
+                    <i style={{ flex: unchanged || 0.01 }} />
+                    <i style={{ flex: losers || 0.01 }} />
+                  </div>
+                  <small>
+                    Across {filtered.filter((q) => q.change !== null).length}{" "}
+                    available assets in this view
+                  </small>
+                </div>
+                <div className="movers-card">
+                  <div className="section-label">
+                    <Zap size={14} />
+                    Biggest moves<span>BY ABSOLUTE CHANGE</span>
+                    <button onClick={() => setView("movers")}>
+                      View all
+                      <ArrowUpRight size={13} />
+                    </button>
+                  </div>
+                  <div className="mover-items">
+                    {movers.map((a) => (
+                      <button key={a.id} onClick={() => selectAsset(a.id)}>
+                        <span>
+                          {a.symbol}
+                          <ArrowUpRight size={12} />
+                        </span>
+                        <strong
                           className={a.change >= 0 ? "positive" : "negative"}
                         >
                           {pct(a.change)}
-                        </span>
-                        <span>{a.group}</span>
+                        </strong>
+                        <small>{a.name}</small>
                       </button>
                     ))}
-                </div>
-              ) : (
-                <div className={`heatmap groups-${shownGroups.length}`}>
-                  {shownGroups.map((g) => (
-                    <HeatGroup
-                      key={g}
-                      name={g}
-                      items={filtered.filter((q) => q.group === g)}
-                      selected={selected}
-                      onSelect={selectAsset}
-                      sizeBy={sizeBy}
-                      flashes={flashes}
-                    />
-                  ))}
-                </div>
-              )}
-              <div className="map-bottom">
-                <span>
-                  <span className="mouse-icon">↖</span> Select any asset to
-                  explore
-                </span>
-                <div className="heat-legend">
-                  <span>−3%</span>
-                  <i style={{ background: "#b45057" }} />
-                  <i style={{ background: "#813a40" }} />
-                  <i style={{ background: "#493139" }} />
-                  <i style={{ background: "#283330" }} />
-                  <i style={{ background: "#246952" }} />
-                  <i style={{ background: "#268364" }} />
-                  <i style={{ background: "#2b9c73" }} />
-                  <span>+3%</span>
-                </div>
-              </div>
-            </section>
-            {!expanded && (
-              <aside className="detail-panel">
-                <div className="detail-heading">
-                  <div
-                    className={`asset-avatar ${asset.group === "Crypto" ? "crypto" : ""}`}
-                  >
-                    {asset.icon || asset.symbol.slice(0, 2)}
-                  </div>
-                  <div>
-                    <h2>{asset.name}</h2>
-                    <span>
-                      {asset.symbol} <i>·</i> {asset.group}
-                    </span>
-                  </div>
-                  <button
-                    className={`icon-button star-button ${watchlist.includes(asset.id) ? "saved" : ""}`}
-                    title={
-                      watchlist.includes(asset.id)
-                        ? "Remove from watchlist"
-                        : "Add to watchlist"
-                    }
-                    aria-label={
-                      watchlist.includes(asset.id)
-                        ? "Remove from watchlist"
-                        : "Add to watchlist"
-                    }
-                    onClick={() => toggleWatch(asset.id)}
-                  >
-                    <Star
-                      size={18}
-                      fill={
-                        watchlist.includes(asset.id) ? "currentColor" : "none"
-                      }
-                    />
-                  </button>
-                </div>
-                <div className="asset-price">
-                  <span>
-                    {asset.currency === "USD" || asset.currency === "USDT"
-                      ? "$"
-                      : ""}
-                    {formatPrice(asset.price, asset.currency)}
-                  </span>
-                  <small>{asset.currency}</small>
-                </div>
-                <div className="asset-change">
-                  <span className={asset.change >= 0 ? "positive" : "negative"}>
-                    {asset.change >= 0 ? (
-                      <ArrowUpRight size={14} />
-                    ) : (
-                      <ArrowDownRight size={14} />
-                    )}{" "}
-                    {pct(asset.change)}
-                  </span>
-                  <span>
-                    {period === "1D"
-                      ? "today"
-                      : `past ${period === "1W" ? "week" : "month"}`}
-                  </span>
-                  <span className="detail-status">
-                    {mode === "demo"
-                      ? "DEMO"
-                      : asset.status === "snapshot"
-                        ? "SNAPSHOT"
-                        : asset.status === "stale"
-                          ? "STALE"
-                          : asset.status === "delayed"
-                            ? "DELAYED"
-                            : asset.status === "live"
-                              ? "LIVE"
-                              : asset.status === "loading"
-                                ? "LOADING"
-                                : "UNAVAILABLE"}
-                  </span>
-                </div>
-                <MarketChart
-                  asset={asset}
-                  period={chartPeriod}
-                  mode={mode}
-                  kind={kind}
-                />
-                <div className="chart-controls">
-                  <div className="chart-periods">
-                    {["1D", "1W", "1M", "3M", "1Y"].map((p) => (
-                      <button
-                        className={chartPeriod === p ? "active" : ""}
-                        key={p}
-                        onClick={() => setChartPeriod(p)}
-                      >
-                        {p}
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    className="icon-button chart-kind"
-                    title={
-                      kind === "area" ? "Show candlesticks" : "Show line chart"
-                    }
-                    aria-label={
-                      kind === "area" ? "Show candlesticks" : "Show line chart"
-                    }
-                    onClick={() =>
-                      setKind((k) => (k === "area" ? "candles" : "area"))
-                    }
-                  >
-                    <ChartNoAxesCombined size={15} />
-                  </button>
-                </div>
-                <div className="stat-grid">
-                  <div>
-                    <span>{period === "1D" ? "Day" : "Period"} high</span>
-                    <b>{formatPrice(asset.high, asset.currency)}</b>
-                  </div>
-                  <div>
-                    <span>{period === "1D" ? "Day" : "Period"} low</span>
-                    <b>{formatPrice(asset.low, asset.currency)}</b>
-                  </div>
-                  <div>
-                    <span>
-                      {asset.group === "Crypto"
-                        ? "24h quote volume"
-                        : "Session volume"}
-                    </span>
-                    <b>{compact(asset.volume)}</b>
-                  </div>
-                  <div>
-                    <span>Data provider</span>
-                    <b>{mode === "demo" ? "Illustrative" : asset.provider}</b>
+                    {!movers.length && (
+                      <p className="muted">Waiting for market data</p>
+                    )}
                   </div>
                 </div>
-                <div className="context-box">
-                  <div>
-                    <Zap size={13} />
-                    <span>THE BIGGER PICTURE</span>
-                  </div>
-                  <p>{marketContext[asset.group]}</p>
-                </div>
-                <div className="detail-timestamp">
-                  <Clock3 size={11} />
-                  {timeLabel(asset.asOf)}
-                </div>
-              </aside>
-            )}
-          </div>
-          <section className="bottom-grid">
-            <div className="breadth-card">
-              <div className="section-label">
-                <Activity size={14} />
-                Market breadth<span>{period}</span>
-              </div>
-              <div className="breadth-counts">
-                <span>
-                  <i className="positive-dot" />
-                  <b>{gainers}</b> advancing
-                </span>
-                <span>
-                  <i className="negative-dot" />
-                  <b>{losers}</b> declining
-                </span>
-              </div>
-              <div className="breadth-bar">
-                <i style={{ flex: gainers || 0.01 }} />
-                <i style={{ flex: unchanged || 0.01 }} />
-                <i style={{ flex: losers || 0.01 }} />
-              </div>
-              <small>
-                Across {filtered.filter((q) => q.change !== null).length}{" "}
-                available assets in this view
-              </small>
-            </div>
-            <div className="movers-card">
-              <div className="section-label">
-                <Zap size={14} />
-                Biggest moves<span>BY ABSOLUTE CHANGE</span>
-                <button onClick={() => setView("movers")}>
-                  View all
-                  <ArrowUpRight size={13} />
-                </button>
-              </div>
-              <div className="mover-items">
-                {movers.map((a) => (
-                  <button key={a.id} onClick={() => selectAsset(a.id)}>
-                    <span>
-                      {a.symbol}
-                      <ArrowUpRight size={12} />
-                    </span>
-                    <strong className={a.change >= 0 ? "positive" : "negative"}>
-                      {pct(a.change)}
-                    </strong>
-                    <small>{a.name}</small>
-                  </button>
-                ))}
-                {!movers.length && (
-                  <p className="muted">Waiting for market data</p>
-                )}
-              </div>
-            </div>
-          </section>
+              </section>
+            </>
+          )}
           <footer>
             <span>
               <i className={mode === "demo" ? "demo-dot" : "positive-dot"} />
@@ -1251,7 +1392,7 @@ function App() {
                 <div className="provider-row">
                   <div>
                     <b>Binance public market data</b>
-                    <span>10 crypto pairs · USDT · Refreshes every 30s</span>
+                    <span>10 crypto pairs · USDT · Samples every 2s</span>
                   </div>
                   <span className="free-badge">FREE</span>
                 </div>
@@ -1290,6 +1431,17 @@ function App() {
                     editorial importance for this dashboard, not market cap or a
                     measured relationship to Bitcoin. Use the size menu to
                     switch to equal weight or absolute price movement.
+                  </p>
+                  <b>Two-second mode</b>
+                  <p>
+                    Crypto prices are requested on a two-second target cadence
+                    while this tab is visible. Returns compare consecutive
+                    exchange snapshots only when their timestamps are 1.5–3.5
+                    seconds apart. Network delays, exchange limits and browser
+                    throttling can prevent this cadence. Invalid intervals and
+                    delayed global markets remain neutral in 2s mode. Flashes
+                    require an actual changed quote. No sample means no inferred
+                    price movement.
                   </p>
                   <b>Timeframes & coverage</b>
                   <p>
